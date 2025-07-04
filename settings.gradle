@@ -1,0 +1,7 @@
+rootProject.name = "CureBridge"
+include("Gateway")
+include("Chat")
+include("MemberService")
+include("ContentService")
+include("CommonModule")
+include("AppService")
