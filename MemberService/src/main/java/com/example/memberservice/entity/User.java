@@ -2,7 +2,6 @@ package com.example.memberservice.entity;
 
 import java.util.Date;
 
-import com.example.commonmodule.base_entity.BaseEntityCreatedAt;
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 
 import jakarta.persistence.Column;
@@ -18,7 +17,7 @@ import lombok.Getter;
 @Getter
 @Entity
 @Table(name = "`member`")
-public class Member extends BaseEntityDeletedAt {
+public class User extends BaseEntityDeletedAt {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

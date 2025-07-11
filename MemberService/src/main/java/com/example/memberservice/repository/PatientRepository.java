@@ -1,11 +1,8 @@
 package com.example.memberservice.repository;
 
-/**
- * <ul>
- * <li>packageName    : com.example.memberservice.repository
- * <li>fileName       : PatientRepository
- * <li>date           : 25. 7. 11.
- * <li>description    :
- * </ul>
- */public interface PatientRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.example.memberservice.entity.Patient;
+
+public interface PatientRepository extends JpaRepository<Patient, Long> {
 }

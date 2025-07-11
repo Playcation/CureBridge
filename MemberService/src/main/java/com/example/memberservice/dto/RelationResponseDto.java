@@ -1,11 +1,11 @@
 package com.example.memberservice.dto;
 
-/**
- * <ul>
- * <li>packageName    : com.example.memberservice.dto
- * <li>fileName       : RelationResponseDto
- * <li>date           : 25. 7. 12.
- * <li>description    :
- * </ul>
- */public class RelationResponseDto {
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
+public class RelationResponseDto {
+	// TODO: 환자 목록
+	// TODO: 보호자 목록
 }

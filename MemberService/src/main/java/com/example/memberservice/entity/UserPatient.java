@@ -10,14 +10,18 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "`member_patient`")
-public class MemberPatient {
+@Table(name = "`user_patient`")
+public class UserPatient {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id")
+	private User user;
+
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "patient_id")
-	private Member patient;
+	private User patient;
 }

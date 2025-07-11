@@ -1,11 +1,9 @@
 package com.example.memberservice.controller;
 
-/**
- * <ul>
- * <li>packageName    : com.example.memberservice.controller
- * <li>fileName       : PatientController
- * <li>date           : 25. 7. 11.
- * <li>description    :
- * </ul>
- */public class PatientController {
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController("/patient")
+public class PatientController {
+
+	// TODO: 질병 정보 등록?
 }

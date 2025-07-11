@@ -1,11 +1,15 @@
 package com.example.memberservice.dto;
 
-/**
- * <ul>
- * <li>packageName    : com.example.memberservice.dto
- * <li>fileName       : SignUpRequestDto
- * <li>date           : 25. 7. 12.
- * <li>description    :
- * </ul>
- */public class SignUpRequestDto {
+import java.util.Date;
+
+import lombok.Getter;
+
+@Getter
+public class SignUpRequestDto {
+
+	private String name;
+	private String email;
+	private String password;
+	private String phoneNumber;
+	private Date birthDate;
 }
