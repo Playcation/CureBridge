@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      # spring example
+      routes:
+        - id: after_route
+          uri: https://example.org
+          predicates:
+            - Cookie=mycookie,mycookievalue
