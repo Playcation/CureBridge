@@ -21,7 +21,7 @@ public abstract class BaseEntity {
 	private LocalDateTime createdAt;
 
 	@LastModifiedDate
-	private LocalDateTime updatedAt;
+	protected LocalDateTime updatedAt;
 
 	private LocalDateTime deletedAt; // soft delete용 (실제 삭제 대신 타임스탬프 기록)
 }

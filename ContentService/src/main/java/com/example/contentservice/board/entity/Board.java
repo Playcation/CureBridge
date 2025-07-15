@@ -1,5 +1,7 @@
 package com.example.contentservice.board.entity;
 
+import java.time.LocalDateTime;
+
 import com.example.commonmodule.base_entity.BaseEntity;
 
 import jakarta.persistence.Entity;
@@ -28,4 +30,10 @@ public class Board extends BaseEntity {
 	private Long userId;
 	private BoardType boardType;
 
+	public void update(String title, String content, BoardType boardType) {
+		this.title = title == null ? this.title : title;
+		this.content = content == null ? this.content : content;
+		this.boardType = boardType == null ? this.boardType : boardType;
+		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
+	}
 }

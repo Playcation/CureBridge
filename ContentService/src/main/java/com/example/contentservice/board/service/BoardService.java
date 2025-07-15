@@ -7,7 +7,7 @@ import com.example.contentservice.board.dto.BoardResponseDto;
 import com.example.contentservice.board.entity.BoardType;
 
 public interface BoardService {
-	BoardResponseDto createBoard(BoardRequestDto dto);
+	BoardResponseDto createBoard(BoardRequestDto dto, Long userId);
 
 	BoardResponseDto getBoard(Long boardId);
 
