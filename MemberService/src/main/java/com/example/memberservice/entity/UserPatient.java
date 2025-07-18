@@ -1,5 +1,6 @@
 package com.example.memberservice.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -18,8 +19,10 @@ public class UserPatient {
 	private Long id;
 
 	// User 연결 (User)
-	private Long user_id;
+	@Column(name = "user_id")
+	private Long userId;
 
 	// Patient 연걸 (User)
-	private Long patient_id;
+	@Column(name = "patient_id")
+	private Long patientId;
 }
