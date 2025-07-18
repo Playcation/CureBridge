@@ -17,11 +17,9 @@ public class UserPatient {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "user_id")
-	private User user;
+	// User 연결 (User)
+	private Long user_id;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "patient_id")
-	private User patient;
+	// Patient 연걸 (User)
+	private Long patient_id;
 }
