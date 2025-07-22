@@ -13,24 +13,30 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController("/api/ocr")
+@RestController
+@RequestMapping("/api/ocr")
 @AllArgsConstructor
 public class OcrController {
 
   private final OcrService ocrService;
 
+  /**
+   * OCR 파일 업로드후 분석
+   *
+   * @param file
+   * @return
+   */
   @PostMapping("/upload")
   private ResponseEntity<String> UploadOcrFile(
-      @RequestPart("json") UploadRequestDto uploadRequestDto,
       @RequestPart MultipartFile file
   ){
-    // ToDo : 단일 증명서 파일 업로드.
-    return null;
+    return ResponseEntity.ok().body(ocrService.analyzeImageWithClovaOcr(file));
   }
 
   @GetMapping("/user")

@@ -15,6 +15,8 @@ public class OcrResponseDto {
 
   private String reportTitle;
 
+  private String reportContent;
+
   private String reportDate;
 
   private LocalDateTime createdAt;
@@ -23,6 +25,7 @@ public class OcrResponseDto {
     return OcrResponseDto.builder()
         .reportId(ocrEntity.getOcrId())
         .reportTitle(ocrEntity.getReportTitle())
+        .reportContent(ocrEntity.getParsedText())
         .reportDate(ocrEntity.getReportDate())
         .createdAt(ocrEntity.getCreatedAt())
         .build();
