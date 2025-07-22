@@ -29,11 +29,16 @@ public class Board extends BaseEntity {
 
 	private Long userId;
 	private BoardType boardType;
+	private boolean isPrivate;
 
-	public void update(String title, String content, BoardType boardType) {
+	public void update(String title, String content) {
 		this.title = title == null ? this.title : title;
 		this.content = content == null ? this.content : content;
-		this.boardType = boardType == null ? this.boardType : boardType;
 		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
+		this.isPrivate = false;
+	}
+
+	public void delete() {
+		this.deletedAt = LocalDateTime.now();
 	}
 }

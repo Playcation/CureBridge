@@ -1,5 +1,5 @@
 package com.example.contentservice.board.entity;
 
 public enum BoardType {
-	NOTICE, NEWS, QNA
+	NOTICE, NEWS, SUPPORT
 }
