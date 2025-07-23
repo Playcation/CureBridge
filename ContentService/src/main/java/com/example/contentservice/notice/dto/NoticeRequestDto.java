@@ -1,15 +1,15 @@
-package com.example.contentservice.board.dto;
+package com.example.contentservice.notice.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class BoardRequestDto {
+public class NoticeRequestDto {
 	private String title;
 	private String content;
 
-	public BoardRequestDto(String title, String content) {
+	public NoticeRequestDto(String title, String content) {
 		this.title = title;
 		this.content = content;
 	}

@@ -1,4 +1,4 @@
-package com.example.contentservice.board.controller;
+package com.example.contentservice.news.controller;
 
 import java.io.BufferedReader;
 import java.io.IOException;

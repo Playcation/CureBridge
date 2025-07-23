@@ -1,15 +1,18 @@
-package com.example.contentservice.board.dto;
+package com.example.contentservice.support.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SupportRequestDto extends BoardRequestDto {
+public class SupportRequestDto {
+	private String title;
+	private String content;
 	private boolean isPrivate;
 
 	public SupportRequestDto(String title, String content, boolean isPrivate) {
-		super(title, content);
+		this.title = title;
+		this.content = content;
 		this.isPrivate = isPrivate;
 	}
 }

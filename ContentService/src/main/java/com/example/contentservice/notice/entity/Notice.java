@@ -1,4 +1,4 @@
-package com.example.contentservice.board.entity;
+package com.example.contentservice.notice.entity;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "`board`")
 @Builder
-public class Board extends BaseEntity {
+public class Notice extends BaseEntity {
 	@GeneratedValue
 	@Id
 	private Long id;
@@ -28,14 +28,11 @@ public class Board extends BaseEntity {
 	private String content;
 
 	private Long userId;
-	private BoardType boardType;
-	private boolean isPrivate;
 
 	public void update(String title, String content) {
 		this.title = title == null ? this.title : title;
 		this.content = content == null ? this.content : content;
 		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
-		this.isPrivate = false;
 	}
 
 	public void delete() {
