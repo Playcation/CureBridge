@@ -49,7 +49,7 @@ public class NoticeController {
 	@GetMapping
 	public ResponseEntity<PagingDto<NoticeResponseDto>> getNoticesAndPaging(
 		@RequestParam(defaultValue = "0") int page) {
-		PagingDto<NoticeResponseDto> notices = noticeService.getBoardsAndPaging(page);
+		PagingDto<NoticeResponseDto> notices = noticeService.getNoticesAndPaging(page);
 		return new ResponseEntity<>(notices, HttpStatus.OK);
 	}
 

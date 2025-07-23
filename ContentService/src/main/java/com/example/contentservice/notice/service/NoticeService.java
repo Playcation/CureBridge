@@ -9,7 +9,7 @@ public interface NoticeService {
 
 	NoticeResponseDto getNotice(Long noticeId);
 
-	PagingDto<NoticeResponseDto> getBoardsAndPaging(int page);
+	PagingDto<NoticeResponseDto> getNoticesAndPaging(int page);
 
 	NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto dto);
 

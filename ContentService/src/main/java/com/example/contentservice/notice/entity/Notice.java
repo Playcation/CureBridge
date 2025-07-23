@@ -33,9 +33,7 @@ public class Notice extends BaseEntity {
 		this.title = title == null ? this.title : title;
 		this.content = content == null ? this.content : content;
 		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
+
 	}
 
-	public void delete() {
-		this.deletedAt = LocalDateTime.now();
-	}
 }
