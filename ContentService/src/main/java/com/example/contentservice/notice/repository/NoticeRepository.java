@@ -15,9 +15,7 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
 	default Notice findByIdOrElseThrow(Long id) {
 		Notice notice = findById(id).orElseThrow(() -> new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD));
-		if (notice.getDeletedAt() != null) {
-			throw new NotFoundException(BoardErrorCode.DELETED_BOARD);
-		}
+
 		return notice;
 	}
 }

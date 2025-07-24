@@ -74,7 +74,7 @@ public class NoticeServiceImpl implements NoticeService {
 
 	@Transactional
 	public void deleteNotice(Long noticeId) {
-		Notice notice = noticeRepository.findByIdOrElseThrow(noticeId);
+		noticeRepository.findByIdOrElseThrow(noticeId);
 		noticeRepository.deleteById(noticeId);
 
 		noticeSearchRepository.deleteById(String.valueOf(noticeId));
