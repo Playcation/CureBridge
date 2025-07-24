@@ -1,10 +1,12 @@
 package com.example.contentservice.ocr.entity;
 
 import com.example.commonmodule.base_entity.BaseEntityUpdatedAt;
+import com.example.contentservice.ocr.dto.UpdateRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +29,15 @@ public class OcrEntity extends BaseEntityUpdatedAt {
 
   private String reportDate;
 
+  @Lob
   private String parsedText;
 
+  @Lob
+  private String updatedText;
+
+  public void updateOcr(UpdateRequestDto updateRequestDto){
+    this.reportTitle = updateRequestDto.getReportTitle();
+    this.reportDate = updateRequestDto.getReportDate();
+    this.updatedText = updateRequestDto.getUpdatedText();
+  }
 }

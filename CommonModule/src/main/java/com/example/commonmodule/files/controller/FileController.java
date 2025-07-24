@@ -1,7 +1,10 @@
 package com.example.commonmodule.files.controller;
 
 import com.example.commonmodule.files.dto.FileResponseDto;
+import com.example.commonmodule.files.entity.FileDetail;
 import com.example.commonmodule.files.service.FileService;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,32 +25,30 @@ public class FileController {
   public ResponseEntity<FileResponseDto> uploadSingleFile(
       @RequestPart MultipartFile file
   ){
-    // TODO : 단일 파일 업로드
-    return null;
+    FileResponseDto fileDetail = fileService.uploadFile(file);
+    return ResponseEntity.ok().body(fileDetail);
   }
 
   @PostMapping("/multi-upload")
-  public ResponseEntity<FileResponseDto> uploadMultiFile(
-      @RequestPart MultipartFile[] files
+  public ResponseEntity<List<FileResponseDto>> uploadMultiFile(
+      @RequestPart List<MultipartFile> files
   ){
-    // TODO : 다중 파일 업로드
-    return null;
+    CompletableFuture<List<FileResponseDto>> urls = fileService.uploadFiles(files);
+    return ResponseEntity.ok().body(urls.join());
   }
 
   @GetMapping("/{fileId}")
   public ResponseEntity<FileResponseDto> getSingleFile(
       @PathVariable String fileId
   ){
-    // TODO : 단일 파일 조회
-    return null;
+    return ResponseEntity.ok().body(fileService.getSingleFile(fileId));
   }
 
   @DeleteMapping("/{fileId}")
   public ResponseEntity<String> deleteSingleFile(
       @PathVariable String fileId
   ){
-    // TODO : 단일 파일 삭제
-    return null;
+    return ResponseEntity.ok().body(fileService.deleteFile(fileId));
   }
 
 }

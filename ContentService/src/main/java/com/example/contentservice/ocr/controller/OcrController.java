@@ -1,6 +1,7 @@
 package com.example.contentservice.ocr.controller;
 
 import com.example.contentservice.ocr.dto.DeleteRequestDto;
+import com.example.contentservice.ocr.dto.OcrMultiResponseDto;
 import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.UpdateRequestDto;
 import com.example.contentservice.ocr.dto.UploadRequestDto;
@@ -13,11 +14,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/ocr")
@@ -32,34 +35,35 @@ public class OcrController {
    * @param file
    * @return
    */
-  @PostMapping("/upload")
-  private ResponseEntity<String> UploadOcrFile(
-      @RequestPart MultipartFile file
-  ){
-    return ResponseEntity.ok().body(ocrService.analyzeImageWithClovaOcr(file));
+  @PostMapping("/upload/user/{userId}")
+  private ResponseEntity<OcrResponseDto> uploadOcrFile(
+      @PathVariable Long userId,
+      @RequestPart("file") MultipartFile file
+  ) {
+    return ResponseEntity.ok().body(ocrService.analyzeImageWithClovaOcr(userId, file));
   }
 
-  @GetMapping("/user")
-  private ResponseEntity<OcrResponseDto[]> getOcrResult() {
-    // ToDo: 개인 레포트 조회
-    return null;
+  @GetMapping("/user/{userId}")
+  private ResponseEntity<List<OcrMultiResponseDto>> getOcrResult(
+//      @RequestHeader("Authorization") String authorizationHeader
+      @PathVariable Long userId
+  ) {
+    return ResponseEntity.ok().body(ocrService.getOcrResult(userId));
   }
 
   @GetMapping("/{id}")
   private ResponseEntity<OcrResponseDto> getOcrDetailResult(
       @PathVariable("id") Long id
   ){
-    // TODO : 단일 OCR 결과 조회
-    return null;
+    return ResponseEntity.ok().body(ocrService.getOcrDetalResult(id));
   }
 
   @PutMapping("/{id}")
-  private ResponseEntity<String> updateOcrResult(
+  private ResponseEntity<OcrResponseDto> updateOcrResult(
       @PathVariable("id") Long id,
       @RequestBody UpdateRequestDto updateRequestDto
   ){
-    // TODO : 결과 수정
-    return null;
+    return ResponseEntity.ok().body(ocrService.updateOcrResult(id, updateRequestDto));
   }
 
   @DeleteMapping("/{id}")
@@ -68,7 +72,7 @@ public class OcrController {
       @RequestBody DeleteRequestDto deleteRequestDto
   ){
     // TODO : 결과 삭제
-    return null;
+    return ResponseEntity.ok().body(ocrService.deleteOcrResult(id, deleteRequestDto));
   }
 
 }
