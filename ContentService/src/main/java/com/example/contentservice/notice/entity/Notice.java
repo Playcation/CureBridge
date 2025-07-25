@@ -29,6 +29,9 @@ public class Notice extends BaseEntity {
 
 	private Long userId;
 
+	/* (추가) 첨부 파일, 글 중간 사진 컬럼 추가 */
+
+	// 게시물 수정 시 업데이트
 	public void update(String title, String content) {
 		this.title = title == null ? this.title : title;
 		this.content = content == null ? this.content : content;

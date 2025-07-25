@@ -27,6 +27,7 @@ public class NewsService {
 
 	private final NewsRepository newsRepository;
 
+	// 최근 24시간 이내 게시물 가져와서 저장
 	public void saveRecentNews(List<NewsRequestDto> dtos) {
 		DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
 		LocalDateTime now = LocalDateTime.now();
@@ -48,6 +49,8 @@ public class NewsService {
 		newsRepository.saveAll(posts);
 	}
 
+	/* (추가) 페이징 처리 아직 미완 상태. 개선 필요 */
+	// 게시물 다건 조회
 	public PagingDto<NewsResponseDto> getNewsAndPaging(int page) {
 		Pageable pageable = PageRequest.of(page, 10, Sort.by(Direction.DESC, "id"));
 		Page<News> newsPage = newsRepository.findAll(pageable);
@@ -59,6 +62,7 @@ public class NewsService {
 		return new PagingDto<>(newsDtoList, newsPage.getTotalElements());
 	}
 
+	// 게시물 삭제
 	public void deleteNews(Long newsId) {
 		newsRepository.findByIdOrElseThrow(newsId);
 

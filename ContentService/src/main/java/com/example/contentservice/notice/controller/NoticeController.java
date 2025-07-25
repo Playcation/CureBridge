@@ -33,7 +33,7 @@ public class NoticeController {
 	// 게시물 등록
 	@PostMapping
 	public ResponseEntity<NoticeResponseDto> createNotice(@RequestBody NoticeRequestDto requestDto,
-		@RequestParam Long userId) {    /* (추후) 토큰으로 관리자 인증 */
+		@RequestParam Long userId) {    /* (추가) 토큰으로 관리자 인증 */
 		NoticeResponseDto responseDto = noticeService.createNotice(requestDto, userId);
 		return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
 	}
@@ -56,17 +56,19 @@ public class NoticeController {
 	// 게시물 수정
 	@PatchMapping("/{noticeId}")
 	public ResponseEntity<NoticeResponseDto> updateNotice(@PathVariable Long noticeId,
-		@RequestBody NoticeRequestDto requestDto) {    /* (추후) 토큰으로 관리자 인증 */
+		@RequestBody NoticeRequestDto requestDto) {    /* (추가) 토큰으로 관리자 인증 */
 		NoticeResponseDto responseDto = noticeService.updateNotice(noticeId, requestDto);
 		return new ResponseEntity<>(responseDto, HttpStatus.OK);
 	}
 
+	// 게시물 삭제
 	@DeleteMapping("/{noticeId}")
-	public ResponseEntity<String> deleteNotice(@PathVariable Long noticeId) {    /* (추후) 토큰으로 관리자 인증 */
+	public ResponseEntity<String> deleteNotice(@PathVariable Long noticeId) {    /* (추가) 토큰으로 관리자 인증 */
 		noticeService.deleteNotice(noticeId);
 		return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
 	}
 
+	// 제목 으로 검색
 	@GetMapping("/search-title")
 	public ResponseEntity<List<NoticeSearchResponseDto>> searchByTitle(
 		@RequestParam("keyword") String keyword) {
@@ -75,6 +77,7 @@ public class NoticeController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
+	// 제목+내용 으로 검색
 	@GetMapping("/search-all")
 	public ResponseEntity<List<NoticeSearchResponseDto>> searchByAll(
 		@RequestParam("keyword") String keyword) {

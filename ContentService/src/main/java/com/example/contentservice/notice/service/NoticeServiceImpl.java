@@ -50,6 +50,7 @@ public class NoticeServiceImpl implements NoticeService {
 		return NoticeResponseDto.toDto(notice);
 	}
 
+	/* (추가) 페이징 미완성 상태. 개선 필요 */
 	public PagingDto<NoticeResponseDto> getNoticesAndPaging(int page) {
 		Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "id"));
 		Page<Notice> noticePage = noticeRepository.findAll(pageable);

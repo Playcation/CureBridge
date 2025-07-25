@@ -8,11 +8,11 @@ import lombok.NoArgsConstructor;
 public class SupportRequestDto {
 	private String title;
 	private String content;
-	private boolean isPrivate;
+	private boolean isReplied;
 
-	public SupportRequestDto(String title, String content, boolean isPrivate) {
+	public SupportRequestDto(String title, String content, boolean isReplied) {
 		this.title = title;
 		this.content = content;
-		this.isPrivate = isPrivate;
+		this.isReplied = isReplied;
 	}
 }

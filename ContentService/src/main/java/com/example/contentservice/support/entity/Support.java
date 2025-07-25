@@ -26,18 +26,13 @@ public class Support extends BaseEntity {
 
 	private String title;
 	private String content;
-
 	private Long userId;
-	private boolean isPrivate;
 
-	public void update(String title, String content) {
-		this.title = title == null ? this.title : title;
-		this.content = content == null ? this.content : content;
-		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
-		this.isPrivate = false;
-	}
+	/* (추가) 비공개/공개 여부 고민해보기 */
+	/* (추가) 첨부 파일, 글 중간 사진 컬럼 추가 */
 
-	public void delete() {
-		this.deletedAt = LocalDateTime.now();
-	}
+	private boolean isReplied;
+	private String replyContent;
+	private LocalDateTime repliedAt;
+
 }

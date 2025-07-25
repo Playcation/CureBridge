@@ -9,9 +9,7 @@ public interface SupportService {
 
 	SupportResponseDto getSupport(Long supportId);
 
-	PagingDto<SupportResponseDto> getBoardsAndPaging(int page);
-
-	SupportResponseDto updateSupport(Long supportId, SupportRequestDto dto);
+	PagingDto<SupportResponseDto> getSupportsAndPaging(int page);
 
 	void deleteSupport(Long supportId);
 }

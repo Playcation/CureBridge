@@ -18,8 +18,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class NoticeSearchService {
 
+	/* (추가) 검색 페이징 처리 */
+	/* (추가) 단어 인식 현재는 '병원'은 인식하고 '병원의'의 병원은 인식 못하는 상태. 개선 필요 */
+
 	private final ElasticsearchClient elasticsearchClient;
 
+	// 제목 으로 검색하는 쿼리를 포함한 메서드
 	public List<NoticeSearchResponseDto> searchByTitle(String keyword) {
 		try {
 			SearchResponse<NoticeDocument> response = elasticsearchClient.search(s -> s
@@ -48,6 +52,7 @@ public class NoticeSearchService {
 		}
 	}
 
+	// 제목+내용 으로 검색하는 쿼리를 포함한 메서드
 	public List<NoticeSearchResponseDto> searchByAll(String keyword) {
 		try {
 			SearchResponse<NoticeDocument> response = elasticsearchClient.search(s -> s

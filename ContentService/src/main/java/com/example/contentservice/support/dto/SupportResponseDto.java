@@ -14,6 +14,7 @@ public class SupportResponseDto {
 	private Long userId;
 	private String title;
 	private String content;
+	private boolean isRelied;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 
@@ -23,6 +24,7 @@ public class SupportResponseDto {
 			.userId(support.getUserId())
 			.title(support.getTitle())
 			.content(support.getContent())
+			.isRelied(support.isReplied())
 			.createdAt(support.getCreatedAt())
 			.updatedAt(support.getUpdatedAt())
 			.build();

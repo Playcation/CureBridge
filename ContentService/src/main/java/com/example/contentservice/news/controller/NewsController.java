@@ -1,16 +1,12 @@
 package com.example.contentservice.news.controller;
 
 import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +31,17 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/news")
 public class NewsController {
 
+	/* (추가) URL에서 도메인 추출해서 언론사 긁어오기 (도전해보기) */
+	/* (추가) 제목 검색 기능 및 키워드 집계 시각화 기능 구현 */
+
 	private final NewsService newsService;
 	private final ObjectMapper objectMapper;
 
 	private static final String CLIENT_ID = "hwIz5ZPnJ1CnkuCntetz";
 	private static final String CLIENT_SECRET = "Y3wPA82pKT";
 
+	/* (추가) 자정에 전날 뉴스 기사 자동 업로드되도록 변경 */
+	// 뉴스 24시간 이내 게시물 가져와서 저장 (테스트용)
 	@GetMapping("/crawl")
 	public ResponseEntity<String> newsapi() {
 		for (int start = 1; start <= 1000; start += 100) {
@@ -86,55 +87,6 @@ public class NewsController {
 		return ResponseEntity.ok("24시간 이내 뉴스 저장 완료");
 	}
 
-	private static String get(String apiUrl, Map<String, String> requestHeaders) {
-		HttpURLConnection con = connect(apiUrl);
-		try {
-			con.setRequestMethod("GET");
-			for (Map.Entry<String, String> header : requestHeaders.entrySet()) {
-				con.setRequestProperty(header.getKey(), header.getValue());
-			}
-
-			int responseCode = con.getResponseCode();
-			if (responseCode == HttpURLConnection.HTTP_OK) { // 정상 호출
-				return readBody(con.getInputStream());
-			} else { // 오류 발생
-				return readBody(con.getErrorStream());
-			}
-		} catch (IOException e) {
-			throw new RuntimeException("API 요청과 응답 실패", e);
-		} finally {
-			con.disconnect();
-		}
-	}
-
-	private static HttpURLConnection connect(String apiUrl) {
-		try {
-			URL url = new URL(apiUrl);
-			return (HttpURLConnection)url.openConnection();
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("API URL이 잘못되었습니다. : " + apiUrl, e);
-		} catch (IOException e) {
-			throw new RuntimeException("연결이 실패했습니다. : " + apiUrl, e);
-		}
-	}
-
-	private static String readBody(InputStream body) {
-		InputStreamReader streamReader = new InputStreamReader(body);
-
-		try (BufferedReader lineReader = new BufferedReader(streamReader)) {
-			StringBuilder responseBody = new StringBuilder();
-
-			String line;
-			while ((line = lineReader.readLine()) != null) {
-				responseBody.append(line);
-			}
-
-			return responseBody.toString();
-		} catch (IOException e) {
-			throw new RuntimeException("API 응답을 읽는 데 실패했습니다.", e);
-		}
-	}
-
 	// 게시물 다건 조회
 	@GetMapping
 	public ResponseEntity<PagingDto<NewsResponseDto>> getNewsAndPaging(
@@ -143,8 +95,9 @@ public class NewsController {
 		return new ResponseEntity<>(newsList, HttpStatus.OK);
 	}
 
+	// 게시물 삭제
 	@DeleteMapping("/{newsId}")
-	public ResponseEntity<String> deleteById(@PathVariable Long newsId) {
+	public ResponseEntity<String> deleteById(@PathVariable Long newsId) {     /* (추가) 토큰으로 관리자 인증 */
 		newsService.deleteNews(newsId);
 		return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
 	}
