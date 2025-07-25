@@ -1,4 +1,4 @@
-package com.example.commonmodule.config;
+package com.example.chat.redise.config;
 
 import com.example.chat.redise.sub.RedisSubscriber;
 import lombok.RequiredArgsConstructor;
