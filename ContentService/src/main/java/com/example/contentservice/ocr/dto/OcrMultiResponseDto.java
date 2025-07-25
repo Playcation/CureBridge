@@ -1,33 +1,28 @@
 package com.example.contentservice.ocr.dto;
 
 import com.example.contentservice.ocr.entity.OcrEntity;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
 @AllArgsConstructor
-public class OcrResponseDto {
+@NoArgsConstructor
+public class OcrMultiResponseDto {
 
-  private Long reportId;
+  private Long ocrId;
 
   private String reportTitle;
 
-  private String reportContent;
-
   private String reportDate;
 
-  private LocalDateTime createdAt;
-
-  public static OcrResponseDto toDto(OcrEntity ocrEntity) {
-    return OcrResponseDto.builder()
-        .reportId(ocrEntity.getOcrId())
+  public static OcrMultiResponseDto toDto(OcrEntity ocrEntity) {
+    return OcrMultiResponseDto.builder()
+        .ocrId(ocrEntity.getOcrId())
         .reportTitle(ocrEntity.getReportTitle())
-        .reportContent(ocrEntity.getUpdatedText())
         .reportDate(ocrEntity.getReportDate())
-        .createdAt(ocrEntity.getCreatedAt())
         .build();
   }
 

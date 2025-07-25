@@ -1,4 +1,4 @@
-package com.example.contentservice.config;
+package com.example.commonmodule.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
