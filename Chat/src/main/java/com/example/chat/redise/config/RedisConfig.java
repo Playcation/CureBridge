@@ -1,7 +1,6 @@
 package com.example.chat.redise.config;
 
 import com.example.chat.redise.sub.RedisSubscriber;
-import com.example.chat.topic.TopicManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +15,6 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
   private final RedisSubscriber redisSubscriber;
-  private final TopicManager topicManager;
 
   @Bean
   public RedisMessageListenerContainer redisMessageListener(RedisConnectionFactory connectionFactory) {

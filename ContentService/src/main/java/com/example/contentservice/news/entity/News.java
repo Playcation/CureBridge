@@ -1,9 +1,10 @@
-package com.example.contentservice.board.entity;
+package com.example.contentservice.news.entity;
 
-import com.example.commonmodule.base_entity.BaseEntity;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -15,17 +16,15 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "`board`")
+@Table(name = "`news`")
 @Builder
-public class Board extends BaseEntity {
-	@GeneratedValue
+public class News {
 	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String title;
-	private String content;
+	private String link;
 
-	private Long userId;
-	private BoardType boardType;
-
+	private LocalDateTime publishedAt;
 }
