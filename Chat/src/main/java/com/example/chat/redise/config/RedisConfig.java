@@ -26,14 +26,4 @@ public class RedisConfig {
 
     return container;
   }
-
-  @Bean
-  public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory cf) {
-    RedisTemplate<String, Object> template = new RedisTemplate<>();
-    template.setConnectionFactory(cf);
-    template.setKeySerializer(new StringRedisSerializer());
-    template.setValueSerializer(new StringRedisSerializer()); // ObjectMapper 기반 변경도 가능
-    return template;
-  }
 }
-
