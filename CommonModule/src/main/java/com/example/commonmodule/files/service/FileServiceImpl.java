@@ -8,7 +8,6 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
-import com.amazonaws.util.IOUtils;
 import com.example.commonmodule.exceptions.FileErrorCode;
 import com.example.commonmodule.exceptions.InternalServerException;
 import com.example.commonmodule.files.dto.FileResponseDto;
@@ -33,11 +32,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 public class FileServiceImpl implements FileService {
 
-  @Value("${cloud.aws.s3.bucket}")
-  private String imageBucket;
-
-  @Value("${cloud.aws.s3.bucket.game}")
-  private String gameBucket;
+  @Value("${cloud.aws.s3.bucket.ocr}")
+  private String ocrBucket;
 
   private final FileRepository fileRepository;
   private final AmazonS3 s3;
@@ -124,11 +120,11 @@ public class FileServiceImpl implements FileService {
   }
 
   /**
-   * 파일의 버킷 결정 (이미지 vs 게임 파일)
+   * 파일의 버킷 결정
    */
   private String determineBucket(MultipartFile file) {
     String fileType = getFileExtension(file.getOriginalFilename());
-    return ".zip".equals(fileType) ? gameBucket : imageBucket;
+    return ".zip".equals(fileType) ? ocrBucket : "";
   }
 
   /**
