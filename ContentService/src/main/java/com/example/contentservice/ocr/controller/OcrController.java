@@ -53,14 +53,14 @@ public class OcrController {
 
   @GetMapping("/{id}")
   private ResponseEntity<OcrResponseDto> getOcrDetailResult(
-      @PathVariable("id") Long id
+      @PathVariable("id") String id
   ){
     return ResponseEntity.ok().body(ocrService.getOcrDetalResult(id));
   }
 
   @PutMapping("/{id}")
   private ResponseEntity<OcrResponseDto> updateOcrResult(
-      @PathVariable("id") Long id,
+      @PathVariable("id") String id,
       @RequestBody UpdateRequestDto updateRequestDto
   ){
     return ResponseEntity.ok().body(ocrService.updateOcrResult(id, updateRequestDto));
@@ -68,7 +68,7 @@ public class OcrController {
 
   @DeleteMapping("/{id}")
   private ResponseEntity<String> deleteOcrResult(
-      @PathVariable("id") Long id,
+      @PathVariable("id") String id,
       @RequestBody DeleteRequestDto deleteRequestDto
   ){
     // TODO : 결과 삭제

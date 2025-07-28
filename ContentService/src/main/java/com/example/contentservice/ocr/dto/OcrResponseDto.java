@@ -11,11 +11,15 @@ import lombok.Getter;
 @AllArgsConstructor
 public class OcrResponseDto {
 
-  private Long reportId;
+  private String reportId;
 
   private String reportTitle;
 
-  private String reportContent;
+//  private String reportContent;
+
+  private String patientName;
+
+  private String diagnosis;
 
   private String reportDate;
 
@@ -25,7 +29,9 @@ public class OcrResponseDto {
     return OcrResponseDto.builder()
         .reportId(ocrEntity.getOcrId())
         .reportTitle(ocrEntity.getReportTitle())
-        .reportContent(ocrEntity.getUpdatedText())
+//        .reportContent(ocrEntity.getUpdatedText())
+        .patientName(ocrEntity.getPatientName())
+        .diagnosis(ocrEntity.getDiagnosis())
         .reportDate(ocrEntity.getReportDate())
         .createdAt(ocrEntity.getCreatedAt())
         .build();

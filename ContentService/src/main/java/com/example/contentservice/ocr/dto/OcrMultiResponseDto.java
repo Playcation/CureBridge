@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class OcrMultiResponseDto {
 
-  private Long ocrId;
+  private String ocrId;
 
   private String reportTitle;
 

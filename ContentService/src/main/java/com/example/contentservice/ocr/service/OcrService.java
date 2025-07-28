@@ -12,11 +12,11 @@ public interface OcrService {
 
   OcrResponseDto analyzeImageWithClovaOcr(Long userId, MultipartFile file);
 
-  OcrResponseDto updateOcrResult(Long id, UpdateRequestDto updateRequestDto);
+  OcrResponseDto updateOcrResult(String id, UpdateRequestDto updateRequestDto);
 
   List<OcrMultiResponseDto> getOcrResult(Long userId);
 
-  OcrResponseDto getOcrDetalResult(Long id);
+  OcrResponseDto getOcrDetalResult(String id);
 
-  String deleteOcrResult(Long id, DeleteRequestDto deleteRequestDto);
+  String deleteOcrResult(String id, DeleteRequestDto deleteRequestDto);
 }
