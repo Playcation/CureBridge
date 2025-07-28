@@ -36,13 +36,13 @@ public class User extends BaseEntityDeletedAt {
 	private String name;
 
 	@Enumerated(value = EnumType.STRING)
-	private String role;
+	private Role role;
 
 	private String phoneNumber;
 
 	private Date birth;
 
-	public User(String email, String password, String name, String role, String phoneNumber, Date birth) {
+	public User(String email, String password, String name, Role role, String phoneNumber, Date birth) {
 		this.email = email;
 		this.password = password;
 		this.name = name;

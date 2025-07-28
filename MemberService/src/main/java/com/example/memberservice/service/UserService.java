@@ -9,6 +9,7 @@ import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.memberservice.dto.UpdateUserRequestDto;
 import com.example.memberservice.dto.UserResponseDto;
 import com.example.memberservice.entity.Patient;
+import com.example.memberservice.entity.Role;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.repository.PatientRepository;
 import com.example.memberservice.repository.UserRepository;
@@ -33,7 +34,7 @@ public class UserService {
 		// 비밀번호 암호화
 		String pw = bCryptPasswordEncoder.encode(dto.getPassword());
 
-		User user = new User(dto.getEmail(), pw, dto.getName(), "USER", dto.getPhoneNumber(), dto.getBirthDate());
+		User user = new User(dto.getEmail(), pw, dto.getName(), Role.USER, dto.getPhoneNumber(), dto.getBirthDate());
 		User savedUser = userRepository.save(user);
 		return new MessageResponseDto("회원가입 성공");
 	}

@@ -33,18 +33,12 @@ public class UserController {
 
 	// TODO: 회원가입
 	// 	사진 올리는 경우 RequestPart로 수정 예정
-	@PostMapping("/signup")
+	@PostMapping("/auth/signup")
 	public ResponseEntity<MessageResponseDto> signUp(
 		 @Valid @RequestBody SignUpRequestDto dto
 	) {
 		MessageResponseDto messageResponseDto = userService.signUp(dto);
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.CREATED);
-	}
-
-	// TODO: 일반 로그인
-	@GetMapping("/login")
-	public ResponseEntity<?> login() {
-		return null;
 	}
 
 	// 비밀번호 확인
