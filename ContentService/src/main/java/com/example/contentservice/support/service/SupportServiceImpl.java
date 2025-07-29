@@ -1,58 +1,59 @@
 package com.example.contentservice.support.service;
 
+import com.example.commonmodule.common.PagingDto;
+import com.example.contentservice.support.dto.SupportDetailResponseDto;
+import com.example.contentservice.support.dto.SupportRequestDto;
+import com.example.contentservice.support.dto.SupportResponseDto;
+import com.example.contentservice.support.entity.Support;
+import com.example.contentservice.support.repository.SupportRepository;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-
-import com.example.commonmodule.common.PagingDto;
-import com.example.contentservice.support.dto.SupportRequestDto;
-import com.example.contentservice.support.dto.SupportResponseDto;
-import com.example.contentservice.support.entity.Support;
-import com.example.contentservice.support.repository.SupportRepository;
-
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class SupportServiceImpl implements SupportService {
-	private final SupportRepository supportRepository;
 
-	@Transactional
-	public SupportResponseDto createSupport(SupportRequestDto requestDto, Long userId) {
+  private final SupportRepository supportRepository;
 
-		Support support = Support.builder()
-			.title(requestDto.getTitle())
-			.content(requestDto.getContent())
-			.userId(userId)
-			.build();
-		Support savedSupport = supportRepository.save(support);
-		return SupportResponseDto.toDto(savedSupport);
-	}
+  @Transactional
+  public SupportResponseDto createSupport(SupportRequestDto requestDto, Long userId) {
 
-	public SupportResponseDto getSupport(Long supportId) {
-		Support support = supportRepository.findByIdOrElseThrow(supportId);
-		return SupportResponseDto.toDto(support);
-	}
+    Support support = Support.builder()
+        .title(requestDto.getTitle())
+        .content(requestDto.getContent())
+        .userId(userId)
+        .build();
+    Support savedSupport = supportRepository.save(support);
+    return SupportResponseDto.toDto(savedSupport);
+  }
 
-	public PagingDto<SupportResponseDto> getSupportsAndPaging(int page) {
-		Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "id"));
-		Page<Support> supportPage = supportRepository.findAll(pageable);
+  @Transactional(readOnly = true)
+  public SupportDetailResponseDto getSupport(Long supportId) {
+    Support support = supportRepository.findByIdOrElseThrow(supportId);
 
-		List<SupportResponseDto> supportDtoList = supportPage.getContent().stream()
-			.map(SupportResponseDto::toDto)
-			.toList();
+    return SupportDetailResponseDto.toDto(support);
+  }
 
-		return new PagingDto<>(supportDtoList, supportPage.getTotalElements());
-	}
+  public PagingDto<SupportResponseDto> getSupportsAndPaging(int page) {
+    Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "id"));
+    Page<Support> supportPage = supportRepository.findAll(pageable);
 
-	@Transactional
-	public void deleteSupport(Long supportId) {
-		supportRepository.findByIdOrElseThrow(supportId);
-		supportRepository.deleteById(supportId);
-	}
+    List<SupportResponseDto> supportDtoList = supportPage.getContent().stream()
+        .map(SupportResponseDto::toDto)
+        .toList();
+
+    return new PagingDto<>(supportDtoList, supportPage.getTotalElements());
+  }
+
+  @Transactional
+  public void deleteSupport(Long supportId) {
+    supportRepository.findByIdOrElseThrow(supportId);
+    supportRepository.deleteById(supportId);
+  }
 }
