@@ -1,6 +1,6 @@
 package com.example.chat.topic;
 
-import com.example.chat.redise.sub.RedisSubscriber;
+import com.example.chat.redis.sub.RedisSubscriber;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;

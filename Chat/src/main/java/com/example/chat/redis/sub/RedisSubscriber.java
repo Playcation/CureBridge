@@ -1,16 +1,14 @@
-package com.example.chat.redise.sub;
+package com.example.chat.redis.sub;
 
 import com.example.chat.dto.ChatMessageDto;
 import com.example.chat.service.ChatMessageService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.Column;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Slf4j
 @RequiredArgsConstructor

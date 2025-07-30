@@ -2,7 +2,7 @@ package com.example.chat.chatcontroller;
 
 import com.example.chat.dto.ChatMessageDto;
 import com.example.chat.enums.MessageType;
-import com.example.chat.redise.pub.RedisPublisher;
+import com.example.chat.redis.pub.RedisPublisher;
 import com.example.chat.service.ChatMessageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;

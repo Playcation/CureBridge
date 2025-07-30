@@ -1,13 +1,10 @@
 package com.example.chat;
 
-import static org.hamcrest.Matchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import com.example.chat.dto.ChatMessageDto;
-import com.example.chat.entity.Chat;
 import com.example.chat.enums.MessageType;
-import com.example.chat.redise.pub.RedisPublisher;
+import com.example.chat.redis.pub.RedisPublisher;
 import com.example.chat.repository.ChatMessageRepository;
 import com.example.chat.service.ChatMessageService;
 import com.example.chat.topic.TopicManager;

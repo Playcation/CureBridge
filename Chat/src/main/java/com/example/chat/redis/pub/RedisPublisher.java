@@ -1,4 +1,4 @@
-package com.example.chat.redise.pub;
+package com.example.chat.redis.pub;
 
 import com.example.chat.dto.ChatMessageDto;
 import com.example.chat.topic.TopicManager;
