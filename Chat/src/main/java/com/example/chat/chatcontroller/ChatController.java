@@ -31,9 +31,6 @@ public class ChatController {
 
     // ✅ 메시지를 Redis에 발행
     redisPublisher.publish(message);
-
-    // ✅ MongoDB에 저장
-    chatMessageService.saveMessage(message);
   }
 }
 
