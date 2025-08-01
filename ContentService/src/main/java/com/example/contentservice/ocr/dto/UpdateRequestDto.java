@@ -1,5 +1,7 @@
 package com.example.contentservice.ocr.dto;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import java.util.List;
@@ -10,7 +12,7 @@ public class UpdateRequestDto {
 
   private String reportTitle;
 
-  private String reportDate;
+  private LocalDate reportDate;
 
   private String patientName;
 

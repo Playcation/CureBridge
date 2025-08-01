@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import java.time.LocalDate;
 import org.springframework.data.annotation.Id;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,18 +25,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-//@EntityListeners(AuditingEntityListener.class)
 public class OcrEntity {
 
   @Id
-//  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private String ocrId;
 
   private Long userId;
 
   private String reportTitle;
 
-  private String reportDate;
+  private LocalDate reportDate;
 
   private String patientName;
 

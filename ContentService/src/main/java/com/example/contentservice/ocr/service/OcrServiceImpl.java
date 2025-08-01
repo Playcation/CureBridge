@@ -92,12 +92,14 @@ public class OcrServiceImpl implements OcrService {
         System.out.println("줄: " + line);
       }
 
-      Map<String, String> ocrMap = extractReportInfo(lines);
+      Map<String, Object> ocrMap = extractReportInfo(lines);
+      List<String> rawText = removeSensitiveLines(lines);
       OcrEntity ocrEntity = OcrEntity.builder()
-          .reportTitle(ocrMap.getOrDefault("reportTitle", "진단서 기본"))
-          .reportDate(ocrMap.getOrDefault("reportDate", LocalDate.now().toString() + "기본"))
-          .patientName(ocrMap.getOrDefault("patientName", "이름 기본"))
-          .diagnosis(ocrMap.getOrDefault("diagnosis", "병명 기본"))
+          .reportTitle(ocrMap.getOrDefault("reportTitle", "진단서 기본").toString())
+          .reportDate(LocalDate.parse(ocrMap.getOrDefault("reportDate", LocalDate.now()).toString()))
+          .patientName(ocrMap.getOrDefault("patientName", "이름 기본").toString())
+          .diagnosis(ocrMap.getOrDefault("diagnosis", "병명 기본").toString())
+          .rawText(rawText)
           .userId(userId)
           .build();
       OcrEntity savedEntity = ocrRepository.insert(ocrEntity);
@@ -131,6 +133,14 @@ public class OcrServiceImpl implements OcrService {
   public String deleteOcrResult(String id, DeleteRequestDto deleteRequestDto) {
     ocrRepository.deleteById(id);
     return "삭제되었습니다.";
+  }
+
+  @Override
+  public List<OcrEntity> findOcrEntity(Long userId, int year, int month) {
+    LocalDate start = LocalDate.of(year, month, 1);
+    LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+    return ocrRepository.findByUserIdAndReportDateBetween(userId, start, end);
   }
 
   private String sendOcrRequest(File file, String jsonMessage, String boundary) throws IOException {
@@ -197,6 +207,12 @@ public class OcrServiceImpl implements OcrService {
     return SENSITIVE_PATTERNS.stream().anyMatch(pattern -> pattern.matcher(line).find());
   }
 
+  private List<String> removeSensitiveLines(List<String> lines) {
+    return lines.stream()
+        .filter(line -> !containsSensitiveInfo(line))
+        .toList();
+  }
+
   private List<String> extractInferLines(String ocrResultJson) {
     List<String> lines = new ArrayList<>();
     StringBuilder currentLine = new StringBuilder();
@@ -223,17 +239,14 @@ public class OcrServiceImpl implements OcrService {
     }
 
     // 마지막 줄 추가 (lineBreak 없이 끝났을 경우)
-    if (currentLine.length() > 0) {
+    if (!currentLine.isEmpty()) {
       String line = currentLine.toString().trim();
-      if (!containsSensitiveInfo(line)) {
-        lines.add(line);
-      }
     }
 
     return lines;
   }
 
-  private Map<String, String> extractReportInfo(List<String> lines) {
+  private Map<String, Object> extractReportInfo(List<String> lines) {
     String title = null;
     String diagnosisDate = null;
     String patientName = null;
@@ -311,9 +324,9 @@ public class OcrServiceImpl implements OcrService {
       }
     }
 
-    Map<String, String> result = new HashMap<>();
+    Map<String, Object> result = new HashMap<>();
     result.put("reportTitle", title != null ? title : "제목 미확인");
-    result.put("reportDate", diagnosisDate != null ? diagnosisDate : "날짜 미확인");
+    result.put("reportDate", diagnosisDate != null ? diagnosisDate : LocalDate.now());
     result.put("patientName", patientName != null ? patientName : "이름 미확인");
     result.put("diagnosis", diagnoses.isEmpty() ? "병명 미확인" : String.join(", ", diagnoses));
     return result;

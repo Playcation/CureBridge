@@ -9,7 +9,10 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @EnableJpaAuditing
 @EnableMongoAuditing
-@EnableMongoRepositories(basePackages = "com.example.contentservice.ocr.repository")
+@EnableMongoRepositories(basePackages = {
+		"com.example.contentservice.ocr.repository",
+		"com.example.contentservice.report.repository"
+})
 @EnableJpaRepositories(basePackages = {
 		"com.example.contentservice.news.repository",
 		"com.example.contentservice.notice.repository",

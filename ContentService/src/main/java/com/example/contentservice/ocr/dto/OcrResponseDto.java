@@ -1,6 +1,7 @@
 package com.example.contentservice.ocr.dto;
 
 import com.example.contentservice.ocr.entity.OcrEntity;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +22,7 @@ public class OcrResponseDto {
 
   private String diagnosis;
 
-  private String reportDate;
+  private LocalDate reportDate;
 
   private LocalDateTime createdAt;
 

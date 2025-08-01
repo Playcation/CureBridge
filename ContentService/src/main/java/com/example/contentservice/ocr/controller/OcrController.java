@@ -71,7 +71,6 @@ public class OcrController {
       @PathVariable("id") String id,
       @RequestBody DeleteRequestDto deleteRequestDto
   ){
-    // TODO : 결과 삭제
     return ResponseEntity.ok().body(ocrService.deleteOcrResult(id, deleteRequestDto));
   }
 

@@ -1,6 +1,7 @@
 package com.example.contentservice.ocr.dto;
 
 import com.example.contentservice.ocr.entity.OcrEntity;
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class OcrMultiResponseDto {
 
   private String reportTitle;
 
-  private String reportDate;
+  private LocalDate reportDate;
 
   public static OcrMultiResponseDto toDto(OcrEntity ocrEntity) {
     return OcrMultiResponseDto.builder()
