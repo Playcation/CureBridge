@@ -36,7 +36,7 @@ public class SecurityConfig {
 	}
 
 	private String[] WHITE_LIST = new String[] {
-		"/api/user/auth/signup", "/auth/login", "/error"
+		"/api/user/auth/signup", "/api/user/auth/login", "/error"
 	};
 
 	@Bean

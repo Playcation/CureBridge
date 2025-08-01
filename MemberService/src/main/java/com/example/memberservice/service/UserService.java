@@ -1,5 +1,6 @@
 package com.example.memberservice.service;
 
+import org.hibernate.validator.internal.util.logging.Log;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,9 @@ import com.example.memberservice.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -34,8 +37,12 @@ public class UserService {
 		// 비밀번호 암호화
 		String pw = bCryptPasswordEncoder.encode(dto.getPassword());
 
+		// TODO: Role 종류 설정
 		User user = new User(dto.getEmail(), pw, dto.getName(), Role.USER, dto.getPhoneNumber(), dto.getBirthDate());
 		User savedUser = userRepository.save(user);
+
+		log.info("[UserService] savedUser: {}", savedUser.getName());
+
 		return new MessageResponseDto("회원가입 성공");
 	}
 
