@@ -2,7 +2,7 @@ package com.example.contentservice.notice.entity;
 
 import java.time.LocalDateTime;
 
-import com.example.commonmodule.base_entity.BaseEntity;
+import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "`board`")
 @Builder
-public class Notice extends BaseEntity {
+public class Notice extends BaseEntityDeletedAt {
 	@GeneratedValue
 	@Id
 	private Long id;
@@ -36,7 +36,6 @@ public class Notice extends BaseEntity {
 		this.title = title == null ? this.title : title;
 		this.content = content == null ? this.content : content;
 		this.updatedAt = LocalDateTime.now(); // 수정 시간 갱신
-
 	}
 
 }
