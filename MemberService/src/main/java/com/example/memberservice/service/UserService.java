@@ -89,4 +89,9 @@ public class UserService {
 			throw new RuntimeException("기존 비밀번호가 옳지 않습니다.");
 		}
 	}
+
+	// 리프레시 토큰 발급용, id로 유저 정보 반환
+	public User findUserById(Long id) {
+		return userRepository.findByIdOrElseThrow(id);
+	}
 }

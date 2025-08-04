@@ -1,7 +1,10 @@
 package com.example.memberservice.security;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
@@ -73,6 +76,12 @@ public class JWTUtil {
 		return claims.get("userId", String.class);
 	}
 
+	// Bearer 제거한 토큰으로 유저 role(권한) 문자열 추출
+	public String parseRole(String token) {
+		Claims claims = getUserInfoFromToken(token);
+		return claims.get("roles", String.class);
+	}
+
 	// 토근으로 유저 id 검색
 	public Long findUserByToken(String authorizationHeader) {
 		String token = authorizationHeader.replace("Bearer", "").trim();
@@ -93,20 +102,52 @@ public class JWTUtil {
 	public String generateToken(Authentication auth) {
 		UserDetailsImpl principal = (UserDetailsImpl)auth.getPrincipal();
 		User user = principal.getUser();
+		return generateToken(user.getEmail(), user.getId(), auth.getAuthorities());
+	}
+
+	public String generateToken(String email, Long id, Collection<? extends GrantedAuthority> authCollect) {
+
+		List<String> authList = authCollect.stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.toList());
 
 		Date now = new Date();
 		Date expiry = new Date(now.getTime() + TokenSettings.ACCESS_TOKEN_EXPIRATION);
 
 		return Jwts.builder()
 			.issuer(TokenSettings.TOKEN_ISSUER)
-			.subject(user.getEmail())
-			.claim("userId", user.getId())
-			.claim("roles", auth.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority)
-				.collect(Collectors.toList()))
+			.subject(email)
+			.claim("userId", id)
+			.claim("roles", authList)
 			.issuedAt(now)
 			.expiration(expiry)
 			.signWith(secretKey)
 			.compact();
+	}
+
+	// 리프레시 토큰 새로 생성
+	public String generateRefreshToken(String id) {
+		Date now = new Date();
+		Date expiry = new Date(now.getTime() + TokenSettings.REFRESH_TOKEN_EXPIRATION);
+
+		return Jwts.builder()
+			.issuer(TokenSettings.TOKEN_ISSUER)
+			.claim("userId", id)
+			.issuedAt(now)
+			.expiration(expiry)
+			.signWith(secretKey)
+			.compact();
+	}
+
+	// 토큰 만료 검사
+	public void isExpired(String token) {
+		Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+			.getExpiration().before(new Date());
+	}
+
+	// 토큰 종류 반환
+	public String getCategory(String token) {
+		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
+			.get("category", String.class);
 	}
 }
