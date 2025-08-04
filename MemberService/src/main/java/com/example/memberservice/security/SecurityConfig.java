@@ -16,7 +16,10 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
+import com.example.memberservice.filter.CustomLoginFilter;
+import com.example.memberservice.filter.CustomLogoutFilter;
 import com.example.memberservice.filter.JwtAuthFilter;
 
 import lombok.RequiredArgsConstructor;
@@ -55,6 +58,7 @@ public class SecurityConfig {
 		JWTUtil jwtUtil) throws Exception {
 
 		CustomLoginFilter loginFilter = new CustomLoginFilter(authManager, jwtUtil);
+		CustomLogoutFilter logoutFilter = new CustomLogoutFilter(jwtUtil);
 
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -73,6 +77,7 @@ public class SecurityConfig {
 
 		// TODO: 커스텀 필터 적용
 		http.addFilterBefore(new JwtAuthFilter(jwtUtil), CustomLoginFilter.class);
+		http.addFilterBefore(logoutFilter, LogoutFilter.class);
 		http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
 		http.oauth2ResourceServer(oauth2 -> oauth2

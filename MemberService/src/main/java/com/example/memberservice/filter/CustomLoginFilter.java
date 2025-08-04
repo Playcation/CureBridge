@@ -1,4 +1,4 @@
-package com.example.memberservice.security;
+package com.example.memberservice.filter;
 
 import java.io.IOException;
 import java.util.Map;
@@ -12,6 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.memberservice.dto.LoginRequestDto;
+import com.example.memberservice.security.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;

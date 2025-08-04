@@ -1,6 +1,5 @@
 package com.example.memberservice.service;
 
-import org.hibernate.validator.internal.util.logging.Log;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
