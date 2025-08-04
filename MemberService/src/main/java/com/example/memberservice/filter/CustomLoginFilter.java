@@ -13,9 +13,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.memberservice.dto.LoginRequestDto;
 import com.example.memberservice.security.JWTUtil;
+import com.example.memberservice.security.TokenSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -54,10 +56,27 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 		HttpServletResponse response,
 		FilterChain chain,
 		Authentication authResult) throws IOException {
-		String token = jwtUtil.generateToken(authResult);
+		String[] tokens = jwtUtil.generateToken(authResult);
+		String accessToken = tokens[0];
+		String refreshToken = tokens[1];
+
+		// refresh token 저장한 쿠키 생성
+		Cookie cookie = new Cookie(TokenSettings.REFRESH_TOKEN_CATEGORY, refreshToken);
+		cookie.setMaxAge(TokenSettings.COOKIE_EXPIRATION);
+		cookie.setPath("/");
+		cookie.setHttpOnly(true);
+		response.addCookie(cookie);
+
+		// response.setStatus(HttpServletResponse.SC_OK); // 302 Found 설정
+		// response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+		// response.getWriter().write(
+		// 	"{\"token\" : \"" + accessToken + "\"}"
+		// );
+
+		// access token 응답 설정
 		response.setStatus(HttpServletResponse.SC_OK);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		objectMapper.writeValue(response.getWriter(), Map.of("accessToken", token));
+		objectMapper.writeValue(response.getWriter(), Map.of("accessToken", accessToken));
 	}
 
 	// 인증 실패 시 에러 응답
@@ -67,7 +86,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 		AuthenticationException failed) throws IOException {
 		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 		response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-		log.info("[LoginFilter] faild: {}", failed.getMessage());
+		log.info("[LoginFilter] failed: {}", failed.getMessage());
 		objectMapper.writeValue(response.getWriter(), Map.of("error", failed.getMessage()));
 	}
 }

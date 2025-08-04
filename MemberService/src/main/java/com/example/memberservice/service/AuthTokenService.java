@@ -32,7 +32,7 @@ public class AuthTokenService {
 				refreshToken = cookie.getValue();
 			}
 		}
-		if(refreshToken.isEmpty()) {
+		if (refreshToken.isEmpty()) {
 			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
 		}
 
@@ -49,12 +49,13 @@ public class AuthTokenService {
 		// 3. 리프레시 토큰 유효성 검사
 		String userId = jwtUtil.parseUserId(refreshToken);
 		// TODO: userId 사용해서 사용자 검증
-		// if () {
-		// 	throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
-		// }
+		if () {
+			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
+		}
 
 		// 4. 새 토큰 발급
 		User user = userService.findUserById(Long.parseLong(userId));
-		jwtUtil.generateToken(user.getEmail(), user.getId(), user.getRole().toGrantedAuthorities());
+		return jwtUtil.generateToken(user.getEmail(), user.getId(),
+			user.getRole().toGrantedAuthorities());
 	}
 }

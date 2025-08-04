@@ -99,18 +99,26 @@ public class JWTUtil {
 	}
 
 	// 토큰 생성
-	public String generateToken(Authentication auth) {
+	public String[] generateToken(Authentication auth) {
 		UserDetailsImpl principal = (UserDetailsImpl)auth.getPrincipal();
 		User user = principal.getUser();
 		return generateToken(user.getEmail(), user.getId(), auth.getAuthorities());
 	}
 
-	public String generateToken(String email, Long id, Collection<? extends GrantedAuthority> authCollect) {
+	public String[] generateToken(String email, Long id, Collection<? extends GrantedAuthority> authCollect) {
 
 		List<String> authList = authCollect.stream()
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.toList());
 
+		String accessToken = generateAccessToken(email, id, authList);
+		String refreshToken = generateRefreshToken(id);
+
+		return new String[]{accessToken, refreshToken};
+	}
+
+	// Access Token 생성
+	private String generateAccessToken(String email, Long id, List<String> authList) {
 		Date now = new Date();
 		Date expiry = new Date(now.getTime() + TokenSettings.ACCESS_TOKEN_EXPIRATION);
 
@@ -125,8 +133,8 @@ public class JWTUtil {
 			.compact();
 	}
 
-	// 리프레시 토큰 새로 생성
-	public String generateRefreshToken(String id) {
+	// Refresh Token 생성
+	private String generateRefreshToken(Long id) {
 		Date now = new Date();
 		Date expiry = new Date(now.getTime() + TokenSettings.REFRESH_TOKEN_EXPIRATION);
 
