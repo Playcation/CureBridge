@@ -17,6 +17,7 @@ public class ReplyServiceImpl implements ReplyService {
 
   private final SupportRepository supportRepository;
 
+  @Override
   @Transactional
   public ReplyResponseDto createReply(ReplyRequestDto requestDto) {
     Support support = supportRepository.findByIdOrElseThrow(requestDto.getSupportId());
@@ -30,6 +31,7 @@ public class ReplyServiceImpl implements ReplyService {
         .title(support.getTitle())
         .content(support.getContent())
         .userId(support.getUserId())
+        .isPrivate(support.isPrivate())
         .isReplied(true)
         .replyContent(requestDto.getReplyContent())
         .repliedAt(LocalDateTime.now())

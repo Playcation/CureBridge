@@ -3,15 +3,19 @@ package com.example.contentservice.notice.service;
 import com.example.commonmodule.common.PagingDto;
 import com.example.contentservice.notice.dto.NoticeRequestDto;
 import com.example.contentservice.notice.dto.NoticeResponseDto;
+import java.util.List;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface NoticeService {
-	NoticeResponseDto createNotice(NoticeRequestDto dto, Long userId);
 
-	NoticeResponseDto getNotice(Long noticeId);
+  NoticeResponseDto createNotice(Long userId, NoticeRequestDto dto,
+      List<MultipartFile> attachedFiles, List<MultipartFile> contentImages);
 
-	PagingDto<NoticeResponseDto> getNoticesAndPaging(int page);
+  NoticeResponseDto getNotice(Long noticeId);
 
-	NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto dto);
+  PagingDto<NoticeResponseDto> getNoticesAndPaging(int page);
 
-	void deleteNotice(Long noticeId);
+  NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto dto);
+
+  void deleteNotice(Long noticeId);
 }

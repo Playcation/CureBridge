@@ -5,32 +5,40 @@ import com.example.contentservice.support.dto.SupportDetailResponseDto;
 import com.example.contentservice.support.dto.SupportRequestDto;
 import com.example.contentservice.support.dto.SupportResponseDto;
 import com.example.contentservice.support.service.SupportService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/support")
 public class SupportController {
 
-  /* (TODO) 수정 & 삭제 는 isReplied 가 false 일 경우만 가능하도록 구현 */
+  /**
+   * 수정 & 삭제 는 isReplied 가 false 일 경우만 가능하도록 구현
+   */
 
   private final SupportService supportService;
 
   // 게시물 등록
   @PostMapping
-  public ResponseEntity<SupportResponseDto> createSupport(@RequestBody SupportRequestDto requestDto,
-      @RequestParam Long userId) {
-    SupportResponseDto responseDto = supportService.createSupport(requestDto, userId);
+  public ResponseEntity<SupportResponseDto> createSupport(@RequestParam Long userId,
+      @RequestPart(value = "json") SupportRequestDto requestDto,
+      @RequestPart(value = "attachedFile", required = false) List<MultipartFile> attachedFiles) {
+    SupportResponseDto responseDto = supportService.createSupport(requestDto, userId,
+        attachedFiles);
     return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
   }
 
@@ -41,12 +49,20 @@ public class SupportController {
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
-  // 게시물 다건 조회 -> 비공개/공개 적용 안하는 경우 관리자 인증 필요
+  // 게시물 다건 조회
   @GetMapping
   public ResponseEntity<PagingDto<SupportResponseDto>> getSupportsAndPaging(
       @RequestParam(defaultValue = "0") int page) {
     PagingDto<SupportResponseDto> supports = supportService.getSupportsAndPaging(page);
     return new ResponseEntity<>(supports, HttpStatus.OK);
+  }
+
+  // 게시물 수정
+  @PatchMapping("/{supportId}")
+  public ResponseEntity<SupportResponseDto> updateSupport(@PathVariable Long supportId,
+      @RequestBody SupportRequestDto requestDto) {
+    SupportResponseDto responseDto = supportService.updateSupport(supportId, requestDto);
+    return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
   @DeleteMapping("/{supportId}")

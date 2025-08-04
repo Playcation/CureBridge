@@ -27,13 +27,23 @@ public class Support extends BaseEntity {
   private String content;
   private Long userId;
 
-  /* (TODO) 비공개/공개 여부 고민해보기 */
-  /* (TODO) 첨부 파일, 글 중간 사진 컬럼 추가 */
-  /* (TODO) validation 추가 */
+  private boolean isPrivate;
 
+  // 답글 부분 컬럼
   private boolean isReplied;
   private String replyContent;
   private LocalDateTime repliedAt;  // 굳이 수정 시간 필요할까 싶어서 고민 중..
+
+  // 문의 수정 시 업데이트
+  public void update(String title, String content, boolean isPrivate) {
+    if (title != null) {
+      this.title = title;
+    }
+    if (content != null) {
+      this.content = content;
+    }
+    this.isPrivate = isPrivate;
+  }
 
   // 답글 수정 시 업데이트
   public void updateReply(String replyContent) {
