@@ -56,7 +56,7 @@ public class AuthTokenService {
 
 		// 3. 리프레시 토큰 유효성 검사
 		String userId = jwtUtil.parseUserId(refreshToken);
-		if (jwtUtil.checkUserRefreshTokenFromRedis(userId, refreshToken)) {
+		if (!jwtUtil.checkUserRefreshTokenFromRedis(userId, refreshToken)) {
 			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
 		}
 
