@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.memberservice.security.JWTUtil;
+import com.example.memberservice.security.JwtUtil;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-	private final JWTUtil jwtUtil;
+	private final JwtUtil jwtUtil;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -36,7 +36,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		// 토큰이 유효하지 않으면 예외처리
 		if (!jwtUtil.validateToken(token)) {
 			// TODO: 커스텀 예외 발생시키기
-			throw new IllegalArgumentException("Invalid JWT token");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			return;
 		}
 
 		// 유효한 토큰이라면, 토큰으로부터 사용자 정보를 가져온다.

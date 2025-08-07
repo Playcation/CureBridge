@@ -17,7 +17,7 @@ import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.memberservice.dto.UpdateUserRequestDto;
 import com.example.memberservice.dto.UserResponseDto;
-import com.example.memberservice.security.JWTUtil;
+import com.example.memberservice.security.JwtUtil;
 import com.example.memberservice.service.UserService;
 
 import jakarta.validation.Valid;
@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
-	private final JWTUtil jwtUtil;
+	private final JwtUtil jwtUtil;
 
 	// TODO: 회원가입
 	// 	사진 올리는 경우 RequestPart로 수정 예정

@@ -2,6 +2,8 @@ package com.example.memberservice.security;
 
 import static org.springframework.security.config.Customizer.*;
 
+import javax.crypto.SecretKey;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -14,6 +16,9 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
@@ -30,7 +35,8 @@ import lombok.RequiredArgsConstructor;
 @Order(1)
 public class SecurityConfig {
 
-	private final JWTUtil jwtUtil;
+	private final JwtUtil jwtUtil;
+	private final SecretKey jwtSecretKey;
 
 	// 비밀번호 암호화 클래스 빈 등록
 	@Bean
@@ -39,8 +45,17 @@ public class SecurityConfig {
 	}
 
 	private String[] WHITE_LIST = new String[] {
-		"/api/user/auth/signup", "/api/user/auth/login", "/error"
+		"/api/user/auth/signup", "/api/user/auth/login", "/error", "/refresh"
 	};
+
+	@Bean
+	public JwtDecoder jwtDecoder() {
+		// HS256 검증용 NimbusJwtDecoder
+		return NimbusJwtDecoder
+			.withSecretKey(jwtSecretKey)
+			.macAlgorithm(MacAlgorithm.HS384)
+			.build();
+	}
 
 	@Bean
 	public WebSecurityCustomizer webSecurityCustomizer() {
@@ -55,7 +70,7 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager,
-		JWTUtil jwtUtil) throws Exception {
+		JwtUtil jwtUtil) throws Exception {
 
 		CustomLoginFilter loginFilter = new CustomLoginFilter(authManager, jwtUtil);
 		CustomLogoutFilter logoutFilter = new CustomLogoutFilter(jwtUtil);

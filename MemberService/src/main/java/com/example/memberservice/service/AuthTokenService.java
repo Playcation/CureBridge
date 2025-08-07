@@ -1,11 +1,12 @@
 package com.example.memberservice.service;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.exceptions.TokenErrorCode;
 import com.example.memberservice.entity.User;
-import com.example.memberservice.security.JWTUtil;
+import com.example.memberservice.security.JwtUtil;
 import com.example.memberservice.security.TokenSettings;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,20 +20,27 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class AuthTokenService {
 
-	private final JWTUtil jwtUtil;
+	private final JwtUtil jwtUtil;
 	private final UserService userService;
+	private final RedisTemplate<String, String> redisTemplate;
 
 	public String[] createNewToken(HttpServletRequest request) {
 
+		log.info("Start createNewToken");
 		String refreshToken = "";
 
 		// 1. 리프레시 토큰 얻기
 		for (Cookie cookie : request.getCookies()) {
 			if (cookie.getName().equals(TokenSettings.REFRESH_TOKEN_CATEGORY)) {
-				refreshToken = cookie.getValue();
+				String token = cookie.getValue();
+				if (token != null && token.startsWith("refresh=")) {
+					token = token.substring(8);
+				}
+				log.info("token: {}", token);
+				refreshToken = token;
 			}
 		}
-		if (refreshToken.isEmpty()) {
+		if (refreshToken == null || refreshToken.isEmpty()) {
 			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
 		}
 
@@ -42,14 +50,13 @@ public class AuthTokenService {
 		} catch (ExpiredJwtException e) {
 			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
 		}
-		if (!jwtUtil.getCategory(refreshToken).equals(TokenSettings.REFRESH_TOKEN_CATEGORY)) {
+		if (!TokenSettings.REFRESH_TOKEN_CATEGORY.equals(jwtUtil.getCategory(refreshToken))) {
 			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
 		}
 
 		// 3. 리프레시 토큰 유효성 검사
 		String userId = jwtUtil.parseUserId(refreshToken);
-		// TODO: userId 사용해서 사용자 검증
-		if () {
+		if (jwtUtil.checkUserRefreshTokenFromRedis(userId, refreshToken)) {
 			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
 		}
 
@@ -58,4 +65,15 @@ public class AuthTokenService {
 		return jwtUtil.generateToken(user.getEmail(), user.getId(),
 			user.getRole().toGrantedAuthorities());
 	}
+
+	// 리프레시 토큰 담은 쿠키 반환
+	public Cookie getRefreshCookie(String refresh) {
+		return jwtUtil.createCookie(
+			TokenSettings.REFRESH_TOKEN_CATEGORY,
+			refresh,
+			TokenSettings.COOKIE_EXPIRATION
+		);
+	}
 }
+
+

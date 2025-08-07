@@ -12,7 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.memberservice.dto.LoginRequestDto;
-import com.example.memberservice.security.JWTUtil;
+import com.example.memberservice.security.JwtUtil;
 import com.example.memberservice.security.TokenSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,10 +26,10 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
-	private final JWTUtil jwtUtil;
+	private final JwtUtil jwtUtil;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	public CustomLoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+	public CustomLoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
 		this.authenticationManager = authenticationManager;
 		this.jwtUtil = jwtUtil;
 		setFilterProcessesUrl("/api/user/auth/login");
@@ -61,10 +61,10 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 		String refreshToken = tokens[1];
 
 		// refresh token 저장한 쿠키 생성
-		Cookie cookie = new Cookie(TokenSettings.REFRESH_TOKEN_CATEGORY, refreshToken);
-		cookie.setMaxAge(TokenSettings.COOKIE_EXPIRATION);
-		cookie.setPath("/");
-		cookie.setHttpOnly(true);
+		Cookie cookie = jwtUtil.createCookie(
+			TokenSettings.REFRESH_TOKEN_CATEGORY,
+			refreshToken,
+			TokenSettings.COOKIE_EXPIRATION);
 		response.addCookie(cookie);
 
 		// response.setStatus(HttpServletResponse.SC_OK); // 302 Found 설정
