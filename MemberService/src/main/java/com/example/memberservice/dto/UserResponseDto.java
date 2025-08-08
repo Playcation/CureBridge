@@ -16,4 +16,5 @@ public class UserResponseDto {
 	private final String sick;
 	private final LocalDateTime createdAt;
 	private final LocalDateTime updatedAt;
+	private final LocalDateTime deletedAt;
 }

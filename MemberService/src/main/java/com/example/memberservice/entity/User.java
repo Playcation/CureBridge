@@ -59,7 +59,8 @@ public class User extends BaseEntityDeletedAt {
 			this.birth,
 			"없음",
 			this.getCreatedAt(),
-			this.getUpdatedAt()
+			this.getUpdatedAt(),
+			this.getDeletedAt()
 		);
 	}
 

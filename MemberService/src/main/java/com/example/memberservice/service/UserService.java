@@ -3,10 +3,15 @@ package com.example.memberservice.service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.example.commonmodule.exceptions.ExceptionType;
+import com.example.commonmodule.exceptions.InvalidInputException;
+import com.example.commonmodule.exceptions.NoAuthorizedException;
+import com.example.commonmodule.exceptions.UserErrorCode;
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.memberservice.dto.UpdateUserRequestDto;
+import com.example.memberservice.dto.UpdateUserResponseDto;
 import com.example.memberservice.dto.UserResponseDto;
 import com.example.memberservice.entity.Patient;
 import com.example.memberservice.entity.Role;
@@ -28,19 +33,16 @@ public class UserService {
 	private final PasswordEncoder bCryptPasswordEncoder;
 
 	// 회원가입
-	// TODO: Role 부분 enum으로 변경
-	// 	Util에 메시지만 전달하는 ResponseDto 추가?
+	// TODO: Util에 메시지만 전달하는 ResponseDto 추가?
 	@Transactional
 	public MessageResponseDto signUp(SignUpRequestDto dto) {
 
 		// 비밀번호 암호화
 		String pw = bCryptPasswordEncoder.encode(dto.getPassword());
 
-		// TODO: Role 종류 설정
+		// TODO: Role 이 현재는 USER 로만 저장하는 중. Patient 저장도 나눠야 함.
 		User user = new User(dto.getEmail(), pw, dto.getName(), Role.USER, dto.getPhoneNumber(), dto.getBirthDate());
 		User savedUser = userRepository.save(user);
-
-		log.info("[UserService] savedUser: {}", savedUser.getName());
 
 		return new MessageResponseDto("회원가입 성공");
 	}
@@ -67,11 +69,15 @@ public class UserService {
 	}
 
 	// 회원 정보 수정 (Patient의 sick만 수정)
-	public MessageResponseDto updateUser(Long userId, UpdateUserRequestDto dto) {
+	public UpdateUserResponseDto updateUser(Long userId, UpdateUserRequestDto dto) {
+
+		if (dto.getSick().isEmpty()) {
+			throw new InvalidInputException(UserErrorCode.EMPTY_INPUT_FIELDS);
+		}
 		Patient findPatient = patientRepository.findPatientByUserId(userId);
 		findPatient.updatePatient(dto.getSick());
 
-		return new MessageResponseDto("회원 정보 수정이 완료되었습니다.");
+		return new UpdateUserResponseDto("회원 정보 수정이 완료되었습니다.", dto.getSick());
 	}
 
 	// 비밀번호 변경
@@ -80,18 +86,26 @@ public class UserService {
 
 		if (checkPassword(dto.getCurrPassword(), findUser.getPassword())) {
 			if (dto.getCurrPassword().equals(dto.getNewPassword())) {
-				throw new RuntimeException("이전 비밀번호와 동일한 비밀번호로 변경할 수 없습니다.");
+				throw new InvalidInputException(UserErrorCode.INVALID_PASSWORD);
 			}
 			String newPassword = bCryptPasswordEncoder.encode(dto.getNewPassword());
 			findUser.updatePassword(newPassword);
 			return new MessageResponseDto("비밀번호가 변경되었습니다.");
 		} else {
-			throw new RuntimeException("기존 비밀번호가 옳지 않습니다.");
+			throw new NoAuthorizedException(UserErrorCode.NO_AUTHORIZED_PASSWORD);
 		}
 	}
 
 	// 리프레시 토큰 발급용, id로 유저 정보 반환
 	public User findUserById(Long id) {
 		return userRepository.findByIdOrElseThrow(id);
+	}
+
+	// TODO: 유저 삭제 절차 결정, 현재는 deletedAt 만 설정중.
+	public MessageResponseDto deleteUser(Long userId) {
+		User findUser = userRepository.findByIdOrElseThrow(userId);
+		findUser.delete();
+		userRepository.save(findUser);
+		return new MessageResponseDto("유저 삭제 요청이 완료되었습니다. 30일 후 완전히 삭제됩니다.");
 	}
 }
