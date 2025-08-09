@@ -18,11 +18,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "`support`")
 @Builder
-public class Support extends BaseEntity {
-
-  @GeneratedValue
-  @Id
-  private Long id;
+public class Support extends BaseEntityDeletedAt {
+	@GeneratedValue
+	@Id
+	private Long id;
 
   private String title;
   private String content;

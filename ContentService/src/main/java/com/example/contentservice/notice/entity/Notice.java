@@ -20,10 +20,9 @@ import lombok.NoArgsConstructor;
 @Table(name = "`notice`")
 @Builder
 public class Notice extends BaseEntity {
-
-  @GeneratedValue
-  @Id
-  private Long id;
+	@GeneratedValue
+	@Id
+	private Long id;
 
   private String title;
 
