@@ -1,9 +1,8 @@
 package com.example.memberservice.entity;
 
-import java.util.Date;
-
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 import com.example.memberservice.dto.UserResponseDto;
+import java.util.Date;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

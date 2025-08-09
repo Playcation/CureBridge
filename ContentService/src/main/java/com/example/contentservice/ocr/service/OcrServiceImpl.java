@@ -18,10 +18,14 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,6 +46,20 @@ public class OcrServiceImpl implements OcrService {
   private String SECRET_KEY;
   @Value("${ocr.apiUrl}")
   private String API_URL;
+
+  private final List<Pattern> SENSITIVE_PATTERNS = List.of(
+      Pattern.compile(".*(이름|성명|환자명).*"),
+      Pattern.compile(".*(생년월일|출생).*"),
+      Pattern.compile(".*(주민등록번호|주민번호).*"),
+      Pattern.compile(".*(전화|연락처).*"),
+      Pattern.compile(".*(주소).*"),
+      Pattern.compile("\\d{2,3}-\\d{3,4}-\\d{4}"),  // 전화번호
+      Pattern.compile("\\d{6}-\\d{7}")              // 주민번호
+  );
+
+  private final List<String> TITLE_KEYWORDS = Arrays.asList(
+      "진단서", "수술확인서", "진단확인서", "처방전", "소견서", "진료", "확인서"
+  );
 
   @Override
   public OcrResponseDto analyzeImageWithClovaOcr(Long userId, MultipartFile multipartFile) {
@@ -69,23 +87,30 @@ public class OcrServiceImpl implements OcrService {
       // 2. API 호출
       String result = sendOcrRequest(file, message.toString(), boundary);
 
-      Map<String, String> ocrMap = extractTitleAndDate(result);
+      List<String> lines = extractInferLines(result);
+      for (String line : lines) {
+        System.out.println("줄: " + line);
+      }
+
+      Map<String, Object> ocrMap = extractReportInfo(lines);
+      List<String> rawText = removeSensitiveLines(lines);
       OcrEntity ocrEntity = OcrEntity.builder()
-          .reportTitle(ocrMap.getOrDefault("title", "진단서"))
-          .reportDate(ocrMap.getOrDefault("date", LocalDateTime.now().toString()))
-          .parsedText(result)
-          .updatedText(result)
+          .reportTitle(ocrMap.getOrDefault("reportTitle", "진단서 기본").toString())
+          .reportDate(LocalDate.parse(ocrMap.getOrDefault("reportDate", LocalDate.now()).toString()))
+          .patientName(ocrMap.getOrDefault("patientName", "이름 기본").toString())
+          .diagnosis(ocrMap.getOrDefault("diagnosis", "병명 기본").toString())
+          .rawText(rawText)
           .userId(userId)
           .build();
-      ocrRepository.save(ocrEntity);
-      return OcrResponseDto.toDto(ocrEntity);
+      OcrEntity savedEntity = ocrRepository.insert(ocrEntity);
+      return OcrResponseDto.toDto(savedEntity);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
 
   @Override
-  public OcrResponseDto updateOcrResult(Long id, UpdateRequestDto updateRequestDto) {
+  public OcrResponseDto updateOcrResult(String id, UpdateRequestDto updateRequestDto) {
     OcrEntity ocrEntity = ocrRepository.findByIdOrElseThrow(id);
     ocrEntity.updateOcr(updateRequestDto);
     ocrRepository.save(ocrEntity);
@@ -99,15 +124,23 @@ public class OcrServiceImpl implements OcrService {
   }
 
   @Override
-  public OcrResponseDto getOcrDetalResult(Long id) {
+  public OcrResponseDto getOcrDetalResult(String id) {
     OcrEntity ocrEntity = ocrRepository.findByIdOrElseThrow(id);
     return OcrResponseDto.toDto(ocrEntity);
   }
 
   @Override
-  public String deleteOcrResult(Long id, DeleteRequestDto deleteRequestDto) {
+  public String deleteOcrResult(String id, DeleteRequestDto deleteRequestDto) {
     ocrRepository.deleteById(id);
     return "삭제되었습니다.";
+  }
+
+  @Override
+  public List<OcrEntity> findOcrEntity(Long userId, int year, int month) {
+    LocalDate start = LocalDate.of(year, month, 1);
+    LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+    return ocrRepository.findByUserIdAndReportDateBetween(userId, start, end);
   }
 
   private String sendOcrRequest(File file, String jsonMessage, String boundary) throws IOException {
@@ -170,50 +203,132 @@ public class OcrServiceImpl implements OcrService {
     out.flush();
   }
 
-  private Map<String, String> extractTitleAndDate(String ocrResultJson) {
+  private boolean containsSensitiveInfo(String line) {
+    return SENSITIVE_PATTERNS.stream().anyMatch(pattern -> pattern.matcher(line).find());
+  }
+
+  private List<String> removeSensitiveLines(List<String> lines) {
+    return lines.stream()
+        .filter(line -> !containsSensitiveInfo(line))
+        .toList();
+  }
+
+  private List<String> extractInferLines(String ocrResultJson) {
+    List<String> lines = new ArrayList<>();
+    StringBuilder currentLine = new StringBuilder();
+
     JSONObject result = new JSONObject(ocrResultJson);
     JSONArray fields = result.getJSONArray("images")
         .getJSONObject(0)
         .getJSONArray("fields");
 
-    String title = null;
-    String date = null;
-
-    // 날짜 정규표현식
-    Pattern datePattern = Pattern.compile(
-        "(\\d{4}[.-년]\\s?\\d{1,2}[.-월]\\s?\\d{1,2}[일]?)"  // 2025년 07월 22일 or 2025-07-22 or 2025.07.22
-    );
-
     for (int i = 0; i < fields.length(); i++) {
       JSONObject field = fields.getJSONObject(i);
-      String text = field.getString("inferText");
-      double confidence = field.getDouble("inferConfidence");
+      String inferText = field.optString("inferText", "");
+      double inferConfidence = field.optDouble("inferConfidence", 0.0);
+      boolean lineBreak = field.optBoolean("lineBreak", false);
 
-      if (confidence < 0.7) continue;
-
-      // 제목 추정
-      if (title == null && (text.contains("진단서") || text.contains("검진") || text.contains("소견서") || text.contains("병명"))) {
-        title = text;
+      if (inferConfidence >= 0.7 && !inferText.isEmpty()) {
+        currentLine.append(inferText).append(" ");
       }
 
-      // 날짜 추출
-      Matcher matcher = datePattern.matcher(text);
-      if (date == null && matcher.find()) {
-        date = matcher.group(1).replaceAll("\\s+", "");
+      if (lineBreak) {
+        lines.add(currentLine.toString().trim()); // 줄 단위로 추가
+        currentLine.setLength(0); // 초기화
+      }
+    }
+
+    // 마지막 줄 추가 (lineBreak 없이 끝났을 경우)
+    if (!currentLine.isEmpty()) {
+      String line = currentLine.toString().trim();
+    }
+
+    return lines;
+  }
+
+  private Map<String, Object> extractReportInfo(List<String> lines) {
+    String title = null;
+    String diagnosisDate = null;
+    String patientName = null;
+    List<String> diagnoses = new ArrayList<>();
+
+    Pattern datePattern = Pattern.compile(
+        "(\\d{4}[년.-]\\s*\\d{1,2}[월.-]\\s*\\d{1,2}[일]?)|(\\d{4}[-.]\\d{1,2}[-.]\\d{1,2})"
+    );
+
+    for (int i = 0; i < lines.size(); i++) {
+      String line = lines.get(i).replaceAll("\\s+", " ").trim();
+
+      // 제목 추출 (가장 앞쪽 줄, KEYWORD 포함 + '확인서' 등)
+      if (title == null) {
+        for (String keyword : TITLE_KEYWORDS) {
+          if (line.contains(keyword)) {
+            title = line;
+            break;
+          }
+        }
       }
 
-      // 모두 찾으면 종료
-      if (title != null && date != null) break;
+      // 날짜 추출 (진단일 or 발행일 등)
+      if (diagnosisDate == null &&
+          (line.contains("진단일") || line.contains("발행일") || line.contains("확인함") || line.contains("가료") || line.contains("통원") || line.contains("입원") || line.contains("내원일"))) {
+        Matcher matcher = datePattern.matcher(line);
+        if (matcher.find()) {
+          String raw = matcher.group().replaceAll("[^0-9]+", "-"); // 연속된 구분자 하나로
+          String[] parts = raw.split("-");
+          if (parts.length >= 3) {
+            try {
+              System.out.println(Arrays.toString(parts));
+              int year = Integer.parseInt(parts[0]);
+              int month = Integer.parseInt(parts[1]);
+              int day = Integer.parseInt(parts[2]);
+              diagnosisDate = String.format("%04d-%02d-%02d", year, month, day);
+            } catch (NumberFormatException e) {
+              // 로그 남기기 또는 무시
+              System.err.println("날짜 파싱 오류: " + raw);
+            }
+          }
+        }
+      }
+
+      // 성명 추출
+      if (patientName == null && (line.contains("성명") || line.contains("이름"))) {
+        Matcher nameMatcher = Pattern.compile("성명[:\\s]*([가-힣]{2,5})").matcher(line);
+        if (nameMatcher.find()) {
+          patientName = nameMatcher.group(1);
+        } else {
+          // '성명 홍길동 성별' 형식
+          String[] parts = line.split("\\s+");
+          for (int p = 0; p < parts.length - 1; p++) {
+            if ((parts[p].contains("성명") || parts[p].contains("이름"))
+                && parts[p + 1].matches("[가-힣]{2,5}")) {
+              patientName = parts[p + 1];
+              break;
+            }
+          }
+        }
+      }
+
+      // 병명 추출
+      if (line.contains("병명") || line.contains("진단명") || line.contains("신생물")) {
+        if (i + 1 < lines.size()) {
+          String dx = lines.get(i + 1).replaceAll("\\s+", "");
+          if (dx.length() > 1 && dx.matches(".*[가-힣]+.*")) {
+            diagnoses.add(dx);
+          }
+        }
+        // ICD 코드 포함 줄도 병명에 추가
+        if (line.matches(".*[A-Z][0-9]{2,3}.*")) {
+          diagnoses.add(line.trim());
+        }
+      }
     }
-    if (title == null){
-      title = "진단서";
-    }
-    if(date == null){
-      date = LocalDateTime.now().toString();
-    }
-    Map<String, String> resultMap = new HashMap<>();
-    resultMap.put("title", title);
-    resultMap.put("date", date);
-    return resultMap;
+
+    Map<String, Object> result = new HashMap<>();
+    result.put("reportTitle", title != null ? title : "제목 미확인");
+    result.put("reportDate", diagnosisDate != null ? diagnosisDate : LocalDate.now());
+    result.put("patientName", patientName != null ? patientName : "이름 미확인");
+    result.put("diagnosis", diagnoses.isEmpty() ? "병명 미확인" : String.join(", ", diagnoses));
+    return result;
   }
 }
