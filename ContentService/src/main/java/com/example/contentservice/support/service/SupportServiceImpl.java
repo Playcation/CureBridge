@@ -42,6 +42,7 @@ public class SupportServiceImpl implements SupportService {
     Support support = Support.builder()
         .title(requestDto.getTitle())
         .content(requestDto.getContent())
+        .viewCount(0L)
         .userId(userId)
         .build();
     Support savedSupport = supportRepository.save(support);
@@ -79,6 +80,8 @@ public class SupportServiceImpl implements SupportService {
   @Transactional(readOnly = true)
   public SupportDetailResponseDto getSupport(Long supportId) {
     Support support = supportRepository.findByIdOrElseThrow(supportId);
+    support.incrementViewCount();
+    supportRepository.save(support);
     List<BoardFile> boardFiles = boardFileRepository.findByBoardId(supportId);
     List<String> attachedFilePaths = boardFiles.stream()
         .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())

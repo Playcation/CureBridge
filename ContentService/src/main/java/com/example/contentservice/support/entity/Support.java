@@ -1,6 +1,7 @@
 package com.example.contentservice.support.entity;
 
 import com.example.commonmodule.base_entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -29,6 +30,9 @@ public class Support extends BaseEntity {
 
   private boolean isPrivate;
 
+  @Column(nullable = false)
+  private Long viewCount;
+
   // 답글 부분 컬럼
   private boolean isReplied;
   private String replyContent;
@@ -43,6 +47,11 @@ public class Support extends BaseEntity {
       this.content = content;
     }
     this.isPrivate = isPrivate;
+  }
+
+  // 조회수 증가
+  public void incrementViewCount() {
+    this.viewCount++;
   }
 
   // 답글 수정 시 업데이트

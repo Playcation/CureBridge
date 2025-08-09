@@ -48,6 +48,7 @@ public class NoticeServiceImpl implements NoticeService {
     Notice notice = Notice.builder()
         .title(requestDto.getTitle())
         .content(requestDto.getContent())
+        .viewCount(0L)
         .userId(userId)
         .build();
     Notice savedNotice = noticeRepository.save(notice);
@@ -139,6 +140,8 @@ public class NoticeServiceImpl implements NoticeService {
   @Override
   public NoticeResponseDto getNotice(Long noticeId) {
     Notice notice = noticeRepository.findByIdOrElseThrow(noticeId);
+    notice.incrementViewCount();
+    noticeRepository.save(notice);
     List<BoardFile> boardFiles = boardFileRepository.findByBoardId(noticeId);
     List<String> contentImagePaths = boardFiles.stream()
         .filter(boardFile -> boardFile.getFileType() == BoardFileType.CONTENT_IMAGE_FILE)

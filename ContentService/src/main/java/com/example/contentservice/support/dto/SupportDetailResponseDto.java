@@ -14,6 +14,7 @@ public class SupportDetailResponseDto {
   private String title;
   private String content;
   private boolean isPrivate;
+  private Long viewCount;
   private Long userId;
   private List<String> attachedFilePaths; // 첨부파일 리스트 추가
 
@@ -29,6 +30,7 @@ public class SupportDetailResponseDto {
         .title(support.getTitle())
         .content(support.getContent())
         .isPrivate(support.isPrivate())
+        .viewCount(support.getViewCount())
         .userId(support.getUserId())
         .attachedFilePaths(attachedFilePaths)
         .isReplied(support.isReplied())

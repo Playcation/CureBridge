@@ -14,6 +14,7 @@ public class NoticeResponseDto {
   private Long userId;
   private String title;
   private String content;
+  private Long viewCount;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -29,6 +30,7 @@ public class NoticeResponseDto {
         .userId(notice.getUserId())
         .title(notice.getTitle())
         .content(notice.getContent())
+        .viewCount(notice.getViewCount())
         .createdAt(notice.getCreatedAt())
         .updatedAt(notice.getUpdatedAt())
         .contentImagePaths(contentImagePaths)

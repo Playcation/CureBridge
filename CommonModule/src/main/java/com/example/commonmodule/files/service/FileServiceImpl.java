@@ -1,7 +1,6 @@
 package com.example.commonmodule.files.service;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -35,8 +34,13 @@ public class FileServiceImpl implements FileService {
   @Value("${cloud.aws.s3.bucket.ocr}")
   private String ocrBucket;
 
+  @Value("${cloud.aws.s3.bucket.board}")
+  private String boardBucket;
+
+
   private final FileRepository fileRepository;
-  private final AmazonS3 s3;
+  private final AmazonS3 boardS3Client;
+  private final AmazonS3 amazonS3Client;
 
   /**
    * S3에 파일 업로드
@@ -83,10 +87,11 @@ public class FileServiceImpl implements FileService {
   @Transactional
   public String deleteFile(String fileId) {
     FileDetail fileDetail = fileRepository.findByIdOrElseThrow(Long.parseLong(fileId));
-
+    AmazonS3 s3 = determineS3Client(fileDetail.getBucket());
     // S3 삭제
     try {
-      s3.deleteObject(new DeleteObjectRequest(fileDetail.getBucket(), fileDetail.getServerFileName()));
+      s3.deleteObject(
+          new DeleteObjectRequest(fileDetail.getBucket(), fileDetail.getServerFileName()));
     } catch (Exception e) {
       throw new InternalServerException(FileErrorCode.FAIL_UPLOAD_FILE);
     }
@@ -112,7 +117,8 @@ public class FileServiceImpl implements FileService {
     FileDetail fileDetail = fileRepository.findByFilePathOrElseThrow(filePath);
     String bucket = fileDetail.getBucket();
 
-    try (S3ObjectInputStream inputStream = getS3FileStream(bucket, fileDetail.getServerFileName())) {
+    try (S3ObjectInputStream inputStream = getS3FileStream(bucket,
+        fileDetail.getServerFileName())) {
       return FileResponseDto.toDto(fileDetail);
     } catch (IOException e) {
       throw new InternalServerException(FileErrorCode.NOT_FOUND_FILE);
@@ -122,9 +128,14 @@ public class FileServiceImpl implements FileService {
   /**
    * 파일의 버킷 결정
    */
+  /* 여기에 그외는 boardBucket 로 */
   private String determineBucket(MultipartFile file) {
     String fileType = getFileExtension(file.getOriginalFilename());
-    return ".zip".equals(fileType) ? ocrBucket : "";
+    return ".zip".equals(fileType) ? ocrBucket : boardBucket;
+  }
+
+  private AmazonS3 determineS3Client(String bucket) {
+    return bucket.equals(ocrBucket) ? amazonS3Client : boardS3Client;
   }
 
   /**
@@ -134,10 +145,10 @@ public class FileServiceImpl implements FileService {
     ObjectMetadata metadata = new ObjectMetadata();
     metadata.setContentLength(file.getSize());
     metadata.setContentType(file.getContentType());
-
+    AmazonS3 s3 = determineS3Client(bucket);
     try (InputStream inputStream = file.getInputStream()) {
-      s3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata)
-          .withCannedAcl(CannedAccessControlList.PublicRead));
+      s3.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata));
+//          .withCannedAcl(CannedAccessControlList.PublicRead));
     } catch (IOException e) {
       throw new InternalServerException(FileErrorCode.FAIL_UPLOAD_FILE);
     }
@@ -149,6 +160,7 @@ public class FileServiceImpl implements FileService {
    * S3 파일 스트림 가져오기
    */
   private S3ObjectInputStream getS3FileStream(String bucket, String fileName) {
+    AmazonS3 s3 = determineS3Client(bucket);
     S3Object s3Object = s3.getObject(new GetObjectRequest(bucket, fileName));
     return s3Object.getObjectContent();
   }
