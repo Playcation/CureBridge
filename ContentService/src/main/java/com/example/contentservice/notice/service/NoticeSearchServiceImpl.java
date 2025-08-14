@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 public class NoticeSearchServiceImpl implements NoticeSearchService {
 
   /* (TODO) 검색 페이징 처리 */
-  /* (TODO) 단어 인식 현재는 '병원'은 인식하고 '병원의'의 병원은 인식 못하는 상태. 개선 필요 */
 
   private final ElasticsearchClient elasticsearchClient;
 

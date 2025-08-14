@@ -6,7 +6,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -26,10 +25,4 @@ public class BoardFile {
   @Enumerated(EnumType.STRING)
   private BoardFileType fileType;
 
-  @Builder
-  public BoardFile(Long boardId, Long fileDetailId, BoardFileType fileType, String filePath) {
-    this.boardId = boardId;
-    this.fileDetailId = fileDetailId;
-    this.fileType = fileType;
-  }
 }
