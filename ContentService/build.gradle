@@ -39,19 +39,23 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-	// S3 연동
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
-	implementation "com.amazonaws:aws-java-sdk-s3:1.12.529"
-	testImplementation "cloud.localstack:localstack-utils:0.2.20"
+    // S3 연동
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation "com.amazonaws:aws-java-sdk-s3:1.12.529"
+    testImplementation "cloud.localstack:localstack-utils:0.2.20"
 
-	// JSON
-	implementation 'org.json:json:20240303'
+    // JSON
+    implementation 'org.json:json:20240303'
 
-	// .env
-	implementation 'me.paulschwarz:spring-dotenv:3.0.0'
+    // .env
+    implementation 'me.paulschwarz:spring-dotenv:3.0.0'
 
     //검색 기능
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
+    implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.17.2'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.13'
+    //파일 읽기
+    implementation 'org.jsoup:jsoup:1.17.2'
 }
 
 tasks.named('test') {

@@ -1,13 +1,12 @@
 package com.example.contentservice.support.entity;
 
-import java.time.LocalDateTime;
-
-import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
-
+import com.example.commonmodule.base_entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,15 +23,47 @@ public class Support extends BaseEntityDeletedAt {
 	@Id
 	private Long id;
 
-	private String title;
-	private String content;
-	private Long userId;
+  private String title;
+  private String content;
+  private Long userId;
 
-	/* (추가) 비공개/공개 여부 고민해보기 */
-	/* (추가) 첨부 파일, 글 중간 사진 컬럼 추가 */
+  private boolean isPrivate;
 
-	private boolean isReplied;
-	private String replyContent;
-	private LocalDateTime repliedAt;
+  @Column(nullable = false)
+  private Long viewCount;
+
+  // 답글 부분 컬럼
+  private boolean isReplied;
+  private String replyContent;
+  private LocalDateTime repliedAt;  // 굳이 수정 시간 필요할까 싶어서 고민 중..
+
+  // 문의 수정 시 업데이트
+  public void update(String title, String content, boolean isPrivate) {
+    if (title != null) {
+      this.title = title;
+    }
+    if (content != null) {
+      this.content = content;
+    }
+    this.isPrivate = isPrivate;
+  }
+
+  // 조회수 증가
+  public void incrementViewCount() {
+    this.viewCount++;
+  }
+
+  // 답글 수정 시 업데이트
+  public void updateReply(String replyContent) {
+    this.replyContent = replyContent == null ? this.replyContent : replyContent;
+    this.repliedAt = LocalDateTime.now(); // 수정 시간 갱신
+  }
+
+  public void deleteReply() {
+    this.replyContent = null;
+    this.isReplied = false;
+    this.repliedAt = null;
+  }
+
 
 }

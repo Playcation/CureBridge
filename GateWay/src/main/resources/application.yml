@@ -5,8 +5,19 @@ spring:
   cloud:
     gateway:
       # spring example
-      routes:
-        - id: after_route
-          uri: https://example.org
-          predicates:
-            - Cookie=mycookie,mycookievalue
+      spring:
+        cloud:
+          gateway:
+            default-filters:
+              - RemoveRequestHeader=Cookie
+            routes:
+              - id: user
+                uri: lb://USER-SERVICE
+                predicates:
+                  - Path=/api/user/**
+
+        security:
+          oauth2:
+            resourceserver:
+              jwt:
+                jwk-set-uri: http://api/user/jwks.json
