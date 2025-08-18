@@ -1,6 +1,8 @@
 package com.example.chat.topic;
 
 import com.example.chat.redis.sub.RedisSubscriber;
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.RequiredArgsConstructor;
@@ -13,20 +15,13 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class TopicManager {
 
-  private final RedisMessageListenerContainer redisMessageListenerContainer;
-  private final RedisSubscriber redisSubscriber;
+  private final List<ChannelTopic> topics;
 
-  // 채팅방 ID -> 토픽 매핑
-  private final Map<String, ChannelTopic> topics = new ConcurrentHashMap<>();
+  public TopicManager() {
+    this.topics = List.of(new ChannelTopic("chat")); // 단순한 하드코딩 or properties에서 읽기
+  }
 
-  /**
-   * 채팅방 토픽 반환. 없으면 새로 만들고 구독
-   */
-  public ChannelTopic getTopic(String roomId) {
-    return topics.computeIfAbsent(roomId, id -> {
-      ChannelTopic topic = new ChannelTopic(id);
-      redisMessageListenerContainer.addMessageListener(redisSubscriber, topic);
-      return topic;
-    });
+  public List<ChannelTopic> getAllTopics() {
+    return topics;
   }
 }

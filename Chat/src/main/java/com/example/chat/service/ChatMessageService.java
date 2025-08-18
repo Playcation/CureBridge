@@ -14,7 +14,7 @@ public class ChatMessageService {
   private final ChatMessageRepository chatMessageRepository;
 
   public void saveMessage(ChatMessageDto message) {
-    Chat document = Chat.builder()
+    Chat chat = Chat.builder()
         .roomId(message.getRoomId())
         .sender(message.getSender())
         .message(message.getMessage())
@@ -22,6 +22,6 @@ public class ChatMessageService {
         .timestamp(LocalDateTime.now())
         .build();
 
-    chatMessageRepository.save(document);
+    chatMessageRepository.save(chat);
   }
 }
