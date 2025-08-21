@@ -3,11 +3,14 @@ package com.example.contentservice.notice.controller;
 import com.example.commonmodule.common.PagingDto;
 import com.example.contentservice.notice.dto.NoticeRequestDto;
 import com.example.contentservice.notice.dto.NoticeResponseDto;
-import com.example.contentservice.notice.dto.NoticeSearchResponseDto;
+import com.example.contentservice.notice.dto.PagingNoticeResponseDto;
 import com.example.contentservice.notice.service.NoticeSearchService;
 import com.example.contentservice.notice.service.NoticeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,9 +52,10 @@ public class NoticeController {
 
   // 게시물 다건 조회
   @GetMapping
-  public ResponseEntity<PagingDto<NoticeResponseDto>> getNoticesAndPaging(
-      @RequestParam(defaultValue = "0") int page) {
-    PagingDto<NoticeResponseDto> notices = noticeService.getNoticesAndPaging(page);
+  public ResponseEntity<PagingDto<PagingNoticeResponseDto>> getNoticesAndPaging(
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+    PagingDto<PagingNoticeResponseDto> notices = noticeService.getNoticesAndPaging(
+        pageable);
     return new ResponseEntity<>(notices, HttpStatus.OK);
   }
 
@@ -73,19 +77,24 @@ public class NoticeController {
 
   // 제목 으로 검색
   @GetMapping("/search-title")
-  public ResponseEntity<List<NoticeSearchResponseDto>> searchByTitle(
-      @RequestParam("keyword") String keyword) {
+  public ResponseEntity<PagingDto<PagingNoticeResponseDto>> searchByTitleAndPaging(
+      @RequestParam("keyword") String keyword,
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+  ) {
 
-    List<NoticeSearchResponseDto> result = noticeSearchService.searchByTitle(keyword);
+    PagingDto<PagingNoticeResponseDto> result = noticeSearchService.searchByTitle(keyword,
+        pageable);
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 
   // 제목+내용 으로 검색
   @GetMapping("/search-all")
-  public ResponseEntity<List<NoticeSearchResponseDto>> searchByAll(
-      @RequestParam("keyword") String keyword) {
+  public ResponseEntity<PagingDto<PagingNoticeResponseDto>> searchByAll(
+      @RequestParam("keyword") String keyword,
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+  ) {
 
-    List<NoticeSearchResponseDto> result = noticeSearchService.searchByAll(keyword);
+    PagingDto<PagingNoticeResponseDto> result = noticeSearchService.searchByAll(keyword, pageable);
     return new ResponseEntity<>(result, HttpStatus.OK);
   }
 }

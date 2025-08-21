@@ -1,6 +1,6 @@
 package com.example.contentservice.notice.entity;
 
-import com.example.commonmodule.base_entity.BaseEntity;
+import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,10 +19,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name = "`notice`")
 @Builder
-public class Notice extends BaseEntity {
-	@GeneratedValue
-	@Id
-	private Long id;
+public class Notice extends BaseEntityDeletedAt {
+
+  @GeneratedValue
+  @Id
+  private Long id;
 
   private String title;
 
