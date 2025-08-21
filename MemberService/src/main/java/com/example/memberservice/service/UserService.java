@@ -104,7 +104,8 @@ public class UserService {
 	// TODO: 유저 삭제 절차 결정, 현재는 deletedAt 만 설정중.
 	public MessageResponseDto deleteUser(Long userId) {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
-		findUser.delete();
+		// TODO: 이 부분 Protected 라고 오류 떠요
+		// findUser.delete();
 		userRepository.save(findUser);
 		return new MessageResponseDto("유저 삭제 요청이 완료되었습니다. 30일 후 완전히 삭제됩니다.");
 	}
