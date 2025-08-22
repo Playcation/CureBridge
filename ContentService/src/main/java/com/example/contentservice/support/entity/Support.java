@@ -1,6 +1,6 @@
 package com.example.contentservice.support.entity;
 
-import com.example.commonmodule.base_entity.BaseEntity;
+import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -19,9 +19,10 @@ import lombok.NoArgsConstructor;
 @Table(name = "`support`")
 @Builder
 public class Support extends BaseEntityDeletedAt {
-	@GeneratedValue
-	@Id
-	private Long id;
+
+  @GeneratedValue
+  @Id
+  private Long id;
 
   private String title;
   private String content;

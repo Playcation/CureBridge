@@ -1,4 +1,4 @@
-package com.example.contentservice.notice.service;
+package com.example.contentservice.support.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
@@ -6,10 +6,10 @@ import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.example.commonmodule.common.PagingDto;
 import com.example.commonmodule.exceptions.BoardErrorCode;
 import com.example.commonmodule.exceptions.NotFoundException;
-import com.example.contentservice.notice.document.NoticeDocument;
-import com.example.contentservice.notice.dto.PagingNoticeResponseDto;
-import com.example.contentservice.notice.entity.Notice;
-import com.example.contentservice.notice.repository.NoticeRepository;
+import com.example.contentservice.support.document.SupportDocument;
+import com.example.contentservice.support.dto.PagingSupportResponseDto;
+import com.example.contentservice.support.entity.Support;
+import com.example.contentservice.support.repository.SupportRepository;
 import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,19 +19,21 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class NoticeSearchServiceImpl implements NoticeSearchService {
+public class SupportSearchServiceImpl implements SupportSearchService {
+
 
   private final ElasticsearchClient elasticsearchClient;
-  private final NoticeRepository noticeRepository;
+  private final SupportRepository supportRepository;
 
   // 제목 으로 검색하는 쿼리를 포함한 메서드
   @Override
-  public PagingDto<PagingNoticeResponseDto> searchByTitle(String keyword, Pageable pageable) {
+  public PagingDto<PagingSupportResponseDto> searchByTitle(String keyword, Pageable pageable) {
     String fieldSuffix = containsKorean(keyword) ? "korean" : "english";
     String ngramField = "ngram";
+    int from = pageable.getPageNumber() * pageable.getPageSize();
     try {
-      SearchResponse<NoticeDocument> response = elasticsearchClient.search(s -> s
-              .index("notice-index")
+      SearchResponse<SupportDocument> response = elasticsearchClient.search(s -> s
+              .index("support-index")
               .from(pageable.getPageNumber() * pageable.getPageSize())
               .size(pageable.getPageSize())
               .query(q -> q
@@ -45,6 +47,7 @@ public class NoticeSearchServiceImpl implements NoticeSearchService {
                           .query(keyword)
                       ))
                       .should(sb -> sb.match(m -> m.field("title." + ngramField).query(keyword)))
+
                   )
               )
               .sort(sort -> sort
@@ -53,16 +56,17 @@ public class NoticeSearchServiceImpl implements NoticeSearchService {
                       .order(SortOrder.Desc)
                   )
               )
+              .from(from)
               .size(pageable.getPageSize()),
-          NoticeDocument.class
+          SupportDocument.class
       );
 
-      List<PagingNoticeResponseDto> list = response.hits().hits().stream()
+      List<PagingSupportResponseDto> list = response.hits().hits().stream()
           .map(hit -> {
-            Long noticeId = Long.valueOf(hit.id()); // hit의 ID를 Notice ID로 사용
-            Notice notice = noticeRepository.findById(noticeId)
+            Long supportId = Long.valueOf(hit.id()); // hit의 ID를 Support ID로 사용
+            Support support = supportRepository.findById(supportId)
                 .orElseThrow(() -> new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD));
-            return PagingNoticeResponseDto.fromDocument(hit.source(), notice);
+            return PagingSupportResponseDto.fromDocument(hit.source(), support);
           })
           .collect(Collectors.toList());
 
@@ -77,12 +81,12 @@ public class NoticeSearchServiceImpl implements NoticeSearchService {
 
   // 제목+내용 으로 검색하는 쿼리를 포함한 메서드
   @Override
-  public PagingDto<PagingNoticeResponseDto> searchByAll(String keyword, Pageable pageable) {
+  public PagingDto<PagingSupportResponseDto> searchByAll(String keyword, Pageable pageable) {
     String fieldSuffix = containsKorean(keyword) ? "korean" : "english";
     String ngramField = "ngram";
     try {
-      SearchResponse<NoticeDocument> response = elasticsearchClient.search(s -> s
-              .index("notice-index")
+      SearchResponse<SupportDocument> response = elasticsearchClient.search(s -> s
+              .index("support-index")
               .from(pageable.getPageNumber() * pageable.getPageSize())
               .size(pageable.getPageSize())
               .query(q -> q
@@ -106,15 +110,15 @@ public class NoticeSearchServiceImpl implements NoticeSearchService {
                       .order(SortOrder.Desc)
                   )
               ),
-          NoticeDocument.class
+          SupportDocument.class
       );
 
-      List<PagingNoticeResponseDto> list = response.hits().hits().stream()
+      List<PagingSupportResponseDto> list = response.hits().hits().stream()
           .map(hit -> {
-            Long noticeId = Long.valueOf(hit.id()); // hit의 ID를 Notice ID로 사용
-            Notice notice = noticeRepository.findById(noticeId)
+            Long supportId = Long.valueOf(hit.id()); // hit의 ID를 Support ID로 사용
+            Support support = supportRepository.findById(supportId)
                 .orElseThrow(() -> new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD));
-            return PagingNoticeResponseDto.fromDocument(hit.source(), notice);
+            return PagingSupportResponseDto.fromDocument(hit.source(), support);
           })
           .collect(Collectors.toList());
 
