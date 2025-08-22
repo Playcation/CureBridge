@@ -1,23 +1,32 @@
 spring:
+
   application:
     name: gateway
 
+  jwt:
+    secret: ${JWT_KEY}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          secret-key: ${JWT_KEY}
+
   cloud:
     gateway:
-      # spring example
-      spring:
-        cloud:
-          gateway:
-            default-filters:
-              - RemoveRequestHeader=Cookie
-            routes:
-              - id: user
-                uri: lb://USER-SERVICE
-                predicates:
-                  - Path=/api/user/**
+      server:
+        webflux:
+          routes:
+            - id: user-service
+              uri: http://localhost:8081
+              predicates:
+                - Path=/api/user/**
 
-        security:
-          oauth2:
-            resourceserver:
-              jwt:
-                jwk-set-uri: http://api/user/jwks.json
+server:
+  port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty.http.server: DEBUG
+    org.springframework.security: DEBUG
