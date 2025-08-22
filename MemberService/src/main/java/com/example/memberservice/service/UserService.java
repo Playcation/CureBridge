@@ -2,11 +2,12 @@ package com.example.memberservice.service;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import com.example.commonmodule.exceptions.ExceptionType;
 import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.exceptions.UserErrorCode;
+import com.example.commonmodule.files.service.FileService;
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
@@ -35,12 +36,17 @@ public class UserService {
 	// 회원가입
 	// TODO: Util에 메시지만 전달하는 ResponseDto 추가?
 	@Transactional
-	public MessageResponseDto signUp(SignUpRequestDto dto) {
+	public MessageResponseDto signUp(MultipartFile file, SignUpRequestDto dto) {
 
 		// 비밀번호 암호화
 		String pw = bCryptPasswordEncoder.encode(dto.getPassword());
 
-		// TODO: Role 이 현재는 USER 로만 저장하는 중. Patient 저장도 나눠야 함.
+		// 파일 저장
+		if (file != null) {
+			// TODO: S3에 파일 저장?
+		}
+
+		// TODO: Role 이 현재는 USER 로만 저장하는 중.
 		User user = new User(dto.getEmail(), pw, dto.getName(), Role.USER, dto.getPhoneNumber(), dto.getBirthDate());
 		User savedUser = userRepository.save(user);
 
@@ -56,6 +62,7 @@ public class UserService {
 			throw new RuntimeException("비밀번호가 일치하지 않습니다.");
 		}
 	}
+
 	// 비밀번호 확인 서비스단 메서드
 	private boolean checkPassword(String inputPassword, String currPassword) {
 		return bCryptPasswordEncoder.matches(inputPassword, currPassword);
