@@ -18,12 +18,28 @@ public class S3Config {
   @Value("${cloud.aws.region.static}")
   private String region;
 
+  @Value("${cloud.aws.credentials.board-access-key}")
+  private String boardAccessKey;
+  @Value("${cloud.aws.credentials.board-secret-key}")
+  private String boardSecretKey;
+
+
   @Bean
   public AmazonS3Client amazonS3Client() {
     BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey, secretKey);
     return (AmazonS3Client) AmazonS3ClientBuilder.standard()
         .withRegion(region)
         .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+        .build();
+  }
+
+  @Bean(name = "boardS3Client")
+  public AmazonS3Client boardS3Client() {
+    BasicAWSCredentials awsCreds = new BasicAWSCredentials(boardAccessKey, boardSecretKey);
+    return (AmazonS3Client) AmazonS3ClientBuilder.standard()
+        .withRegion("eu-north-1")
+        .withCredentials(new AWSStaticCredentialsProvider(awsCreds))
+//        .withPathStyleAccessEnabled(true) // 점 포함 버킷 이름 허용
         .build();
   }
 }
