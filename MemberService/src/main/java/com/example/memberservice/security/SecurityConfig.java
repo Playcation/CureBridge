@@ -44,8 +44,8 @@ public class SecurityConfig {
 		return new BCryptPasswordEncoder();
 	}
 
-	private String[] WHITE_LIST = new String[] {
-		"/api/user/auth/signup", "/api/user/auth/login", "/error", "/refresh"
+	private final String[] WHITE_LIST = new String[] {
+		"/api/user/auth/signup", "/api/user/auth/login", "/error", "api/auth/refresh"
 	};
 
 	@Bean
