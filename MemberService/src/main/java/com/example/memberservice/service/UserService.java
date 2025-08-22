@@ -7,7 +7,6 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.exceptions.UserErrorCode;
-import com.example.commonmodule.files.service.FileService;
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
@@ -111,8 +110,7 @@ public class UserService {
 	// TODO: 유저 삭제 절차 결정, 현재는 deletedAt 만 설정중.
 	public MessageResponseDto deleteUser(Long userId) {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
-		// TODO: 이 부분 Protected 라고 오류 떠요
-		// findUser.delete();
+		findUser.delete();
 		userRepository.save(findUser);
 		return new MessageResponseDto("유저 삭제 요청이 완료되었습니다. 30일 후 완전히 삭제됩니다.");
 	}

@@ -15,7 +15,7 @@ public abstract class BaseEntityDeletedAt extends BaseEntityUpdatedAt {
 
 	protected LocalDateTime deletedAt = null;
 
-	protected void delete(){
+	public void delete(){
 		this.deletedAt = LocalDateTime.now();
 	}
 	
