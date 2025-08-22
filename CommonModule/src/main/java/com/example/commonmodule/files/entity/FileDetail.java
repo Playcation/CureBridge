@@ -27,6 +27,7 @@ public class FileDetail extends BaseEntityUpdatedAt {
 
   private String bucket;
 
+  @Builder.Default
   private String filePath = "";
 
   private Long fileSize;
