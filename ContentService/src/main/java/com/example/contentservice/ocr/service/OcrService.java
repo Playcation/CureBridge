@@ -4,6 +4,9 @@ import com.example.contentservice.ocr.dto.DeleteRequestDto;
 import com.example.contentservice.ocr.dto.OcrMultiResponseDto;
 import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.UpdateRequestDto;
+import com.example.contentservice.ocr.entity.OcrEntity;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,11 +15,14 @@ public interface OcrService {
 
   OcrResponseDto analyzeImageWithClovaOcr(Long userId, MultipartFile file);
 
-  OcrResponseDto updateOcrResult(Long id, UpdateRequestDto updateRequestDto);
+  OcrResponseDto updateOcrResult(String id, UpdateRequestDto updateRequestDto);
 
   List<OcrMultiResponseDto> getOcrResult(Long userId);
 
-  OcrResponseDto getOcrDetalResult(Long id);
+  OcrResponseDto getOcrDetalResult(String id);
 
-  String deleteOcrResult(Long id, DeleteRequestDto deleteRequestDto);
+  String deleteOcrResult(String id, DeleteRequestDto deleteRequestDto);
+
+  List<OcrEntity> findOcrEntity(Long userId, int year, int month);
+
 }

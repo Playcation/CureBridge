@@ -1,20 +1,22 @@
 package com.example.commonmodule.base_entity;
 
+import java.time.LocalDateTime;
+
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
 import lombok.Getter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
-public abstract class BaseEntityDeletedAt extends BaseEntityUpdatedAt{
+public abstract class BaseEntityDeletedAt extends BaseEntityUpdatedAt {
 
-  private LocalDateTime deletedAt = null;
+	protected LocalDateTime deletedAt = null;
 
-  public void delete(){
-    deletedAt = LocalDateTime.now();
-  }
-
+	protected void delete(){
+		this.deletedAt = LocalDateTime.now();
+	}
+	
 }
