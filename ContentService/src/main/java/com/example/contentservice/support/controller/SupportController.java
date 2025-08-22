@@ -1,12 +1,17 @@
 package com.example.contentservice.support.controller;
 
 import com.example.commonmodule.common.PagingDto;
+import com.example.contentservice.support.dto.PagingSupportResponseDto;
 import com.example.contentservice.support.dto.SupportDetailResponseDto;
 import com.example.contentservice.support.dto.SupportRequestDto;
 import com.example.contentservice.support.dto.SupportResponseDto;
+import com.example.contentservice.support.service.SupportSearchService;
 import com.example.contentservice.support.service.SupportService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -31,6 +36,7 @@ public class SupportController {
    */
 
   private final SupportService supportService;
+  private final SupportSearchService supportSearchService;
 
   // 게시물 등록
   @PostMapping
@@ -51,9 +57,9 @@ public class SupportController {
 
   // 게시물 다건 조회
   @GetMapping
-  public ResponseEntity<PagingDto<SupportResponseDto>> getSupportsAndPaging(
-      @RequestParam(defaultValue = "0") int page) {
-    PagingDto<SupportResponseDto> supports = supportService.getSupportsAndPaging(page);
+  public ResponseEntity<PagingDto<PagingSupportResponseDto>> getSupportsAndPaging(
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+    PagingDto<PagingSupportResponseDto> supports = supportService.getSupportsAndPaging(pageable);
     return new ResponseEntity<>(supports, HttpStatus.OK);
   }
 
@@ -65,10 +71,35 @@ public class SupportController {
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
+  // 게시물 삭제
   @DeleteMapping("/{supportId}")
   public ResponseEntity<String> deleteSupport(
       @PathVariable Long supportId) {    /* (추후) 토큰으로 관리자 인증 */
     supportService.deleteSupport(supportId);
     return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
+  }
+
+  // 제목 으로 검색
+  @GetMapping("/search-title")
+  public ResponseEntity<PagingDto<PagingSupportResponseDto>> searchByTitleAndPaging(
+      @RequestParam("keyword") String keyword,
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+  ) {
+
+    PagingDto<PagingSupportResponseDto> result = supportSearchService.searchByTitle(keyword,
+        pageable);
+    return new ResponseEntity<>(result, HttpStatus.OK);
+  }
+
+  // 제목+내용 으로 검색
+  @GetMapping("/search-all")
+  public ResponseEntity<PagingDto<PagingSupportResponseDto>> searchByAll(
+      @RequestParam("keyword") String keyword,
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+  ) {
+
+    PagingDto<PagingSupportResponseDto> result = supportSearchService.searchByAll(keyword,
+        pageable);
+    return new ResponseEntity<>(result, HttpStatus.OK);
   }
 }

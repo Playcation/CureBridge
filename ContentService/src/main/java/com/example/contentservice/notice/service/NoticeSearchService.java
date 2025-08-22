@@ -1,13 +1,13 @@
 package com.example.contentservice.notice.service;
 
-import java.util.List;
-
-import com.example.contentservice.notice.dto.NoticeSearchResponseDto;
+import com.example.commonmodule.common.PagingDto;
+import com.example.contentservice.notice.dto.PagingNoticeResponseDto;
+import org.springframework.data.domain.Pageable;
 
 public interface NoticeSearchService {
 
-	List<NoticeSearchResponseDto> searchByTitle(String keyword);
+  PagingDto<PagingNoticeResponseDto> searchByTitle(String keyword, Pageable pageable);
 
-	List<NoticeSearchResponseDto> searchByAll(String keyword);
+  PagingDto<PagingNoticeResponseDto> searchByAll(String keyword, Pageable pageable);
 }
 

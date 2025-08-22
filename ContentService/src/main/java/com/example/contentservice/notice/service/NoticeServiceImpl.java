@@ -10,6 +10,7 @@ import com.example.commonmodule.files.service.FileService;
 import com.example.contentservice.notice.document.NoticeDocument;
 import com.example.contentservice.notice.dto.NoticeRequestDto;
 import com.example.contentservice.notice.dto.NoticeResponseDto;
+import com.example.contentservice.notice.dto.PagingNoticeResponseDto;
 import com.example.contentservice.notice.entity.Notice;
 import com.example.contentservice.notice.repository.NoticeRepository;
 import com.example.contentservice.notice.repository.NoticeSearchRepository;
@@ -22,9 +23,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -156,35 +155,13 @@ public class NoticeServiceImpl implements NoticeService {
     return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
   }
 
-  /* (TODO) 페이징 미완성 상태. 개선 필요 */
   @Override
-  public PagingDto<NoticeResponseDto> getNoticesAndPaging(int page) {
-    Pageable pageable = PageRequest.of(page, 10, Sort.by(Sort.Direction.DESC, "id"));
+  public PagingDto<PagingNoticeResponseDto> getNoticesAndPaging(Pageable pageable) {
+    //Pageable pageable = PageRequest.of(page, s, Sort.by(Sort.Direction.DESC, "id"));
     Page<Notice> noticePage = noticeRepository.findAll(pageable);
 
-    List<NoticeResponseDto> noticeDtoList = noticePage.getContent().stream()
-        .map(notice -> {
-          // Notice에 연결된 BoardFile 조회
-          List<BoardFile> boardFiles = boardFileRepository.findByBoardId(notice.getId());
-
-          // 첨부파일 경로 추출
-          List<String> attachedFilePaths = boardFiles.stream()
-              .filter(
-                  boardFile -> boardFile.getFileType() == BoardFileType.ATTACHED_FILE) // 첨부파일 필터링
-              .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
-                  .getFilePath())
-              .toList();
-
-          // 본문 이미지 경로 추출
-          List<String> contentImagePaths = boardFiles.stream()
-              .filter(boardFile -> boardFile.getFileType()
-                  == BoardFileType.CONTENT_IMAGE_FILE) // 본문 이미지 필터링
-              .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
-                  .getFilePath())
-              .toList();
-
-          return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
-        })
+    List<PagingNoticeResponseDto> noticeDtoList = noticePage.getContent().stream()
+        .map(notice -> PagingNoticeResponseDto.toDto(notice))
         .toList();
 
     return new PagingDto<>(noticeDtoList, noticePage.getTotalElements());
