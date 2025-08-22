@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwCheckRequestDto;
@@ -34,8 +36,6 @@ public class UserController {
 	private final UserService userService;
 	private final JwtUtil jwtUtil;
 
-	// TODO: 사진 올리는 경우 RequestPart로 수정 예정
-
 	/**
 	 * 회원가입
 	 * <p>현재 별도의 인증 절차는 없음 (전화번호)</p>
@@ -45,13 +45,12 @@ public class UserController {
 	 */
 	@PostMapping("/auth/signup")
 	public ResponseEntity<MessageResponseDto> signUp(
-		 @Valid @RequestBody SignUpRequestDto dto
+		@RequestPart(name = "profile")MultipartFile profile,
+		 @Valid @RequestPart(name = "data") SignUpRequestDto dto
 	) {
-		MessageResponseDto messageResponseDto = userService.signUp(dto);
+		MessageResponseDto messageResponseDto = userService.signUp(profile, dto);
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.CREATED);
 	}
-
-	// TODO: 위 인증 파트랑 겹쳐서 "/check"로 바꿀까 고민중
 
 	/**
 	 * 현재 로그인 한 유저의 비밀번호 인증 (본인인증용)
@@ -60,7 +59,7 @@ public class UserController {
 	 * @param dto 비밀번호
 	 * @return 성공시 인증 성공 메시지
 	 */
-	@GetMapping("/auth")
+	@GetMapping("/check")
 	public ResponseEntity<MessageResponseDto> checkPassword(
 		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
 		@RequestBody PwCheckRequestDto dto
