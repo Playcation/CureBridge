@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.exceptions.UserErrorCode;
+import com.example.commonmodule.files.service.FileService;
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
@@ -31,6 +32,7 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PatientRepository patientRepository;
 	private final PasswordEncoder bCryptPasswordEncoder;
+	private final FileService fileService;
 
 	// 회원가입
 	// TODO: Util에 메시지만 전달하는 ResponseDto 추가?
@@ -42,7 +44,9 @@ public class UserService {
 
 		// 파일 저장
 		if (file != null) {
-			// TODO: S3에 파일 저장?
+			fileService.uploadFile(file);
+		} else {
+			log.info("[회원가입] 파일이 null 입니다.");
 		}
 
 		// TODO: Role 이 현재는 USER 로만 저장하는 중.
