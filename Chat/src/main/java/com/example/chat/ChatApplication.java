@@ -18,6 +18,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class ChatApplication {
 
   public static void main(String[] args) {
+    System.setProperty("application-chat", "common-application");
     SpringApplication.run(ChatApplication.class, args);
   }
 
