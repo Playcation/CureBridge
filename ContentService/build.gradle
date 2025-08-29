@@ -52,7 +52,7 @@ dependencies {
 
     //검색 기능
     implementation 'org.springframework.boot:spring-boot-starter-data-elasticsearch'
-    implementation 'org.elasticsearch.client:elasticsearch-rest-client:8.17.2'
+    implementation 'co.elastic.clients:elasticsearch-java:8.17.2'
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     //파일 읽기
     implementation 'org.jsoup:jsoup:1.17.2'

@@ -1,7 +1,6 @@
 package com.example.contentservice.news.service;
 
 import com.example.commonmodule.common.PagingDto;
-import com.example.contentservice.news.document.NewsDocument;
 import com.example.contentservice.news.dto.NewsRequestDto;
 import com.example.contentservice.news.dto.NewsResponseDto;
 import com.example.contentservice.news.entity.News;
@@ -48,11 +47,11 @@ public class NewsServiceImpl implements NewsService {
     newsRepository.saveAll(posts);
 
     // 💡 Elasticsearch에 저장
-    List<NewsDocument> documents = posts.stream()
-        .map(NewsDocument::fromEntity)
-        .collect(Collectors.toList());
+//    List<NewsDocument> documents = posts.stream()
+//        .map(NewsDocument::fromEntity)
+//        .collect(Collectors.toList());
 
-    newsSearchRepository.saveAll(documents);
+//    newsSearchRepository.saveAll(documents);
   }
 
   // 게시물 다건 조회
