@@ -33,13 +33,11 @@ public class NewsDocument {
   @Field(type = FieldType.Keyword) // Keyword 타입은 정렬 및 애그리게이션에 적합
   private List<String> combinedTokens;
 
-  public static com.example.contentservice.news.document.NewsDocument fromEntity(News news,
-      List<String> combinedTokens) {
+  public static com.example.contentservice.news.document.NewsDocument fromEntity(News news) {
     return com.example.contentservice.news.document.NewsDocument.builder()
         .id(String.valueOf(news.getId())) // Long → String
         .title(news.getTitle())
         .publishedAt(news.getPublishedAt())
-        .combinedTokens(combinedTokens)
         .build();
   }
 
