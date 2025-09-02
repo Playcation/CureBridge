@@ -1,7 +1,7 @@
 package com.example.contentservice.ocr.service;
 
 import com.example.contentservice.ocr.dto.DeleteRequestDto;
-import com.example.contentservice.ocr.dto.OcrMultiResponseDto;
+import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.UpdateRequestDto;
 import com.example.contentservice.ocr.entity.OcrEntity;
@@ -17,7 +17,7 @@ public interface OcrService {
 
   OcrResponseDto updateOcrResult(String id, UpdateRequestDto updateRequestDto);
 
-  List<OcrMultiResponseDto> getOcrResult(Long userId);
+  List<OcrResponseDto> getOcrResult(Long userId);
 
   OcrResponseDto getOcrDetalResult(String id);
 

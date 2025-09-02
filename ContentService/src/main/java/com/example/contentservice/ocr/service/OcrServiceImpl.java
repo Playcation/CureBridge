@@ -2,7 +2,7 @@ package com.example.contentservice.ocr.service;
 
 import com.example.contentservice.config.ClovaOcrClient;
 import com.example.contentservice.ocr.dto.DeleteRequestDto;
-import com.example.contentservice.ocr.dto.OcrMultiResponseDto;
+import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.UpdateRequestDto;
 import com.example.contentservice.ocr.dto.UploadRequestDto;
@@ -94,9 +94,9 @@ public class OcrServiceImpl implements OcrService {
   }
 
   @Override
-  public List<OcrMultiResponseDto> getOcrResult(Long userId) {
+  public List<OcrResponseDto> getOcrResult(Long userId) {
     List<OcrEntity> ocrEntityList = ocrRepository.findByUserId(userId);
-    return ocrEntityList.stream().map(OcrMultiResponseDto::toDto).toList();
+    return ocrEntityList.stream().map(OcrResponseDto::toDto).toList();
   }
 
   @Override
