@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableJpaAuditing
 @EnableMongoAuditing
@@ -32,6 +33,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
     "com.example.contentservice",
     "com.example.commonmodule"
 })
+@EnableScheduling
 //@SpringBootApplication
 public class ContentServiceApplication {
 
