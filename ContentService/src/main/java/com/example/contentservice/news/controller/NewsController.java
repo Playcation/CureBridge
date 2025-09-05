@@ -1,5 +1,6 @@
 package com.example.contentservice.news.controller;
 
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import com.example.commonmodule.common.PagingDto;
 import com.example.contentservice.news.dto.NewsRequestDto;
 import com.example.contentservice.news.dto.NewsResponseDto;
@@ -14,15 +15,18 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,20 +40,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class NewsController {
 
   /* (추가) URL에서 도메인 추출해서 언론사 긁어오기 (도전해보기) */
-  /* (추가) 제목 검색 기능 및 키워드 집계 시각화 기능 구현 */
-
   private final NewsService newsService;
   private final NewsSearchService newsSearchService;
   private final ObjectMapper objectMapper;
   private final NewsRepository newsRepository;
 
-  private static final String CLIENT_ID = "hwIz5ZPnJ1CnkuCntetz";
-  private static final String CLIENT_SECRET = "Y3wPA82pKT";
+  @Value("${newsapi.clientId}")
+  private String CLIENT_ID;
 
-  /* (추가) 자정에 전날 뉴스 기사 자동 업로드되도록 변경 */
-  // 뉴스 24시간 이내 게시물 가져와서 저장 (테스트용)
-  @GetMapping("/crawl")
-  public ResponseEntity<String> newsapi() {
+  @Value("${newsapi.clientSecret}")
+  private String CLIENT_SECRET;
+
+  // 매일 자정(0시 0분)에 이 메서드가 자동으로 실행됩니다.
+  @Scheduled(cron = "0 0 0 * * *")
+  public void newsapi() {
     for (int start = 1; start <= 1000; start += 100) {
       try {
         String query = "의료 의학";
@@ -87,11 +91,8 @@ public class NewsController {
 
       } catch (Exception e) {
         e.printStackTrace();
-        return ResponseEntity.internalServerError().body("뉴스 저장 중 오류 발생");
       }
     }
-
-    return ResponseEntity.ok("24시간 이내 뉴스 저장 완료");
   }
 
   // 게시물 다건 조회
@@ -126,6 +127,26 @@ public class NewsController {
     PagingDto<NewsResponseDto> result = newsSearchService.searchByTitle(keyword,
         pageable);
     return new ResponseEntity<>(result, HttpStatus.OK);
+  }
+
+
+  // 특정 기간 내 인기 키워드 조회 API
+  @GetMapping("/top-keywords")
+  public ResponseEntity<List<StringTermsBucket>> getTopKeywordsForDateRange(
+      @RequestParam(value = "gte", required = false) String gte,
+      @RequestParam(value = "lt", required = false) String lt,
+      @RequestParam(value = "size", defaultValue = "10") int size
+  ) {
+    LocalDate startDate = (gte != null) ? LocalDate.parse(gte) : LocalDate.now().minusDays(7);
+    LocalDate endDate = (lt != null) ? LocalDate.parse(lt) : LocalDate.now();
+
+    try {
+      List<StringTermsBucket> topKeywords = newsSearchService.aggregateTopKeywordsForDateRange(
+          startDate, endDate, size);
+      return new ResponseEntity<>(topKeywords, HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
 }
