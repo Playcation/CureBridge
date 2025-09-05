@@ -91,27 +91,32 @@ public class NewsSearchServiceImpl implements NewsSearchService {
   // 날짜 범위 내 인기 키워드(terms aggregation) 추출
   @Override
   public List<StringTermsBucket> aggregateTopKeywordsForDateRange(LocalDate gte, LocalDate lt,
-      int size) throws IOException {
-    SearchResponse<Void> response = elasticsearchClient.search(s -> s
-        .index("news-index-nori")
-        .size(0)
-        .sort(sort -> sort
-            .field(f -> f
-                .field("publishedAt")
-                .order(SortOrder.Desc)
-            )
-        )
-        .aggregations("top_combined_keywords", a -> a
-            .terms(t -> t
-                .field("combinedTokens")
-                .size(size)
-            )
-        ), Void.class);
+      int size) {
+    try {
+      SearchResponse<Void> response = elasticsearchClient.search(s -> s
+          .index("news-index-nori")
+          .size(0)
+          .sort(sort -> sort
+              .field(f -> f
+                  .field("publishedAt")
+                  .order(SortOrder.Desc)
+              )
+          )
+          .aggregations("top_combined_keywords", a -> a
+              .terms(t -> t
+                  .field("combinedTokens")
+                  .size(size)
+              )
+          ), Void.class);
 
-    return response.aggregations()
-        .get("top_combined_keywords")
-        .sterms()
-        .buckets()
-        .array();
+      return response.aggregations()
+          .get("top_combined_keywords")
+          .sterms()
+          .buckets()
+          .array();
+    } catch (IOException e) {
+      log.error("Elasticsearch 키워드 집계 중 오류 발생", e);
+      throw new RuntimeException("Elasticsearch 키워드 집계 중 오류 발생", e);
+    }
   }
 }
