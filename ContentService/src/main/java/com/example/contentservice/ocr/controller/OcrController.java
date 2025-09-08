@@ -1,7 +1,7 @@
 package com.example.contentservice.ocr.controller;
 
 import com.example.contentservice.ocr.dto.DeleteRequestDto;
-import com.example.contentservice.ocr.dto.OcrMultiResponseDto;
+import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.UpdateRequestDto;
 import com.example.contentservice.ocr.dto.UploadRequestDto;
@@ -44,7 +44,7 @@ public class OcrController {
   }
 
   @GetMapping("/user/{userId}")
-  private ResponseEntity<List<OcrMultiResponseDto>> getOcrResult(
+  private ResponseEntity<List<OcrResponseDto>> getOcrResult(
 //      @RequestHeader("Authorization") String authorizationHeader
       @PathVariable Long userId
   ) {
