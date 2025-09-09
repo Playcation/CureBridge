@@ -7,7 +7,10 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaAuditing
 @SpringBootApplication
-@EnableJpaRepositories
+@EnableJpaRepositories(basePackages = {
+    "com.example.chat.repository",
+    "com.example.commonmodule.files.repository"
+})
 public class ChatApplication {
 
   public static void main(String[] args) {
