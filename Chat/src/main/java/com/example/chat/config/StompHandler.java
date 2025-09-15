@@ -20,18 +20,18 @@ public class StompHandler implements ChannelInterceptor {
     final StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
 
     // 토큰 유효성 검사로 회원가입을 완료한 유저만 사용할수 있도록 변경(추후 민님 코드보면서 수정후 테스트 필요)
-//    if(StompCommand.CONNECT == accessor.getCommand()) {
-//      System.out.println("connect요청시 토큰 유효성 검증");
-//      String bearerToken = accessor.getFirstNativeHeader("Authorization");
-//      String token = bearerToken.substring(7);
-//
-//      Jwts.parserBuilder()
-//          .setSigningKey(secretKey)
-//          .build()
-//          .parseClaimsJws(token)
-//          .getBody();
-//      System.out.println("토큰 검증 완료");
-//    }
+    if(StompCommand.CONNECT == accessor.getCommand()) {
+      System.out.println("connect요청시 토큰 유효성 검증");
+      String bearerToken = accessor.getFirstNativeHeader("Authorization");
+      String token = bearerToken.substring(7);
+
+      Jwts.parserBuilder()
+          .setSigningKey(secretKey)
+          .build()
+          .parseClaimsJws(token)
+          .getBody();
+      System.out.println("토큰 검증 완료");
+    }
 
     return message;
   }

@@ -1,7 +1,6 @@
 package com.example.chat.domain;
 
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
-import com.example.memberservice.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -31,8 +30,8 @@ public class ReadStatus extends BaseEntityDeletedAt {
   @JoinColumn(name = "chat_room_id" ,nullable = false)
   private ChatRoom chatRoom;
 
-  @JoinColumn(name = "user_id" ,nullable = false)
-  private Long userId;
+  @Column(name = "email", nullable = false)
+  private String userEmail;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "chat_message_id", nullable = false)

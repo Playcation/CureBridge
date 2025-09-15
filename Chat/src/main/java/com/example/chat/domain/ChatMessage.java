@@ -33,8 +33,8 @@ public class ChatMessage extends BaseEntityDeletedAt {
   @JoinColumn(name = "chat_room_id" ,nullable = false)
   private ChatRoom chatRoom;
 
-  @Column(name = "user_id", nullable = false)
-  private Long userId;
+  @Column(name = "email", nullable = false)
+  private String userEmail;
 
   @Column(nullable = false, length = 500)
   private String content;
