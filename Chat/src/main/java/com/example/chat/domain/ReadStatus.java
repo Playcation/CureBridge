@@ -40,4 +40,8 @@ public class ReadStatus extends BaseEntityDeletedAt {
   @Column(nullable = false)
   private Boolean isRead;
 
+  public void updateReadStatus(Boolean isRead) {
+    this.isRead = isRead;
+  }
+
 }

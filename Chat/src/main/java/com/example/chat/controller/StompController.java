@@ -1,6 +1,6 @@
 package com.example.chat.controller;
 
-import com.example.chat.dto.ChatMessageRequestDto;
+import com.example.chat.dto.ChatMessageDto;
 import com.example.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
@@ -18,7 +18,7 @@ public class StompController {
    private final ChatService chatService;
 
   @MessageMapping("/{roomId}")
-  public void sendMessage(@DestinationVariable Long roomId, ChatMessageRequestDto requestDto,
+  public void sendMessage(@DestinationVariable Long roomId, ChatMessageDto requestDto,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
     System.out.println(requestDto.getMessage());
     chatService.saveMessage(roomId, requestDto, authorizationHeader);

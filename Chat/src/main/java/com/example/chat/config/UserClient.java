@@ -1,8 +1,6 @@
 package com.example.chat.config;
 
 
-import com.example.memberservice.dto.UserResponseDto;
-import com.example.memberservice.security.TokenSettings;
 import java.time.LocalDateTime;
 import java.util.Date;
 import lombok.AllArgsConstructor;
