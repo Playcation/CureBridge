@@ -41,7 +41,7 @@ public class ChatController {
   @PostMapping("/room/group/{roomId}/join")
   public ResponseEntity<?> joinGroupChatRoom(@PathVariable Long roomId,
   @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
-    chatService.addP    articipantToGroupChat(roomId, authorizationHeader);
+    chatService.addParticipantToGroupChat(roomId, authorizationHeader);
     return ResponseEntity.ok().build();
   }
 }
