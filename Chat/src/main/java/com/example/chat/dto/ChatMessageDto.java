@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChatMessageRequestDto {
+public class ChatMessageDto {
 
   private String message;
 //  TODO: 토큰에서 유저id를 찾으면 필요없을거 같음(삭제?)
