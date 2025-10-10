@@ -30,15 +30,20 @@ public class AuthTokenService {
 		String refreshToken = "";
 
 		// 1. 리프레시 토큰 얻기
-		for (Cookie cookie : request.getCookies()) {
-			if (cookie.getName().equals(TokenSettings.REFRESH_TOKEN_CATEGORY)) {
-				String token = cookie.getValue();
-				if (token != null && token.startsWith("refresh=")) {
-					token = token.substring(8);
+		Cookie[] cookies = request.getCookies();
+		if(cookies != null) {
+			for (Cookie cookie : cookies) {
+				if (cookie.getName().equals(TokenSettings.REFRESH_TOKEN_CATEGORY)) {
+					String token = cookie.getValue();
+					if (token != null && token.startsWith("refresh=")) {
+						token = token.substring(8);
+					}
+					log.info("token: {}", token);
+					refreshToken = token;
 				}
-				log.info("token: {}", token);
-				refreshToken = token;
 			}
+		} else {
+			log.warn("No cookies found in the request");
 		}
 		if (refreshToken == null || refreshToken.isEmpty()) {
 			throw new NoAuthorizedException(TokenErrorCode.NO_REFRESH_TOKEN);
