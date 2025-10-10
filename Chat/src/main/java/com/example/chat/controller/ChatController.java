@@ -63,7 +63,7 @@ public class ChatController {
     public ResponseEntity<?> getMyChatRooms
     (@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
     List<MyChatListResDto> myChatListResDtos = chatService.getMyChatRoom(authorizationHeader);
-      return new ResponseEntity<>(데이터, HttpStatus.OK);
+      return new ResponseEntity<>(myChatListResDtos, HttpStatus.OK);
     }
 
 //    채팅방 나가기

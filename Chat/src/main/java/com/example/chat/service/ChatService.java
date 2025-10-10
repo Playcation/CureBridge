@@ -12,8 +12,6 @@ import com.example.chat.repository.ChatMessageRepository;
 import com.example.chat.repository.ChatParticipantRepository;
 import com.example.chat.repository.ChatRoomRepository;
 import com.example.chat.repository.ReadStatusRepository;
-import com.example.memberservice.dto.UserResponseDto;
-import com.example.memberservice.entity.User;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
