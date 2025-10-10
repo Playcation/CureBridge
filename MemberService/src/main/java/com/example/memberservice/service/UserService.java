@@ -17,7 +17,6 @@ import com.example.memberservice.dto.UserResponseDto;
 import com.example.memberservice.entity.Patient;
 import com.example.memberservice.entity.Role;
 import com.example.memberservice.entity.User;
-import com.example.memberservice.repository.PatientRepository;
 import com.example.memberservice.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -30,9 +29,8 @@ import lombok.extern.slf4j.Slf4j;
 public class UserService {
 
 	private final UserRepository userRepository;
-	private final PatientRepository patientRepository;
 	private final PasswordEncoder bCryptPasswordEncoder;
-	// private final FileService fileService;
+	private final FileService fileService;
 
 	// 회원가입
 	// TODO: Util에 메시지만 전달하는 ResponseDto 추가?
@@ -44,7 +42,7 @@ public class UserService {
 
 		// 파일 저장
 		if (file != null) {
-			// fileService.uploadFile(file);
+			fileService.uploadFile(file);
 		} else {
 			log.info("[회원가입] 파일이 null 입니다.");
 		}
@@ -78,8 +76,9 @@ public class UserService {
 		return findUser.toDto();
 	}
 
-	// 회원 정보 수정 (Patient의 sick만 수정)
-	public UpdateUserResponseDto updateUser(Long userId, UpdateUserRequestDto dto) {
+	// TODO: 회원 정보 수정
+	// 	기존에는 Patient 의 병명만 수정 -> 변경된 기능에 맞게 로직 변경 필요
+	/*public UpdateUserResponseDto updateUser(Long userId, UpdateUserRequestDto dto) {
 
 		if (dto.getSick().isEmpty()) {
 			throw new InvalidInputException(UserErrorCode.EMPTY_INPUT_FIELDS);
@@ -88,7 +87,7 @@ public class UserService {
 		findPatient.updatePatient(dto.getSick());
 
 		return new UpdateUserResponseDto("회원 정보 수정이 완료되었습니다.", dto.getSick());
-	}
+	}*/
 
 	// 비밀번호 변경
 	public MessageResponseDto updatePassword(Long userId, PwUpdateRequestDto dto) {

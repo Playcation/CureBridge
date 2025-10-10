@@ -139,32 +139,4 @@ public class UserController {
 
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
 	}
-
-	// -------
-	// 환자- 보호자
-	// -------
-
-	// TODO: 환자 등록 요청
-	@PostMapping("/patients")
-	public ResponseEntity<?> createRelation() {
-		return null;
-	}
-
-	// TODO: 환자 등록 요청 수락
-	@PatchMapping("/family")
-	public ResponseEntity<?> acceptRelation() {
-		return null;
-	}
-
-	// TODO: 환자-보호자 관계 조회
-	@GetMapping("/relation")
-	public ResponseEntity<?> findRelation() {
-		return null;
-	}
-
-	// TODO: 환자-보호자 관계 삭제 요청
-	@DeleteMapping("/relation")
-	public ResponseEntity<?> deleteRelation() {
-		return null;
-	}
 }

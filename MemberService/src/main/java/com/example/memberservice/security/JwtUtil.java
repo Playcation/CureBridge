@@ -41,14 +41,6 @@ public class JwtUtil {
 	private final UserDetailsServiceImpl userDetailsService;
 	private final RedisTemplate<String, String> redisTemplate;
 
-	// public JwtUtil(@Value("${spring.jwt.secret}") String secret, UserDetailsServiceImpl userDetailsService,
-	// 	RedisTemplate<String, String> redisTemplate) {
-	// 	this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
-	// 		Jwts.SIG.HS256.key().build().getAlgorithm());
-	// 	this.userDetailsService = userDetailsService;
-	// 	this.redisTemplate = redisTemplate;
-	// }
-
 	// request 에 담긴 토큰 가져옴 + "Bearer " 제거
 	public String resolveToken(HttpServletRequest request) {
 		String bearer = request.getHeader(TokenSettings.ACCESS_TOKEN_CATEGORY);
@@ -176,7 +168,6 @@ public class JwtUtil {
 			.compact();
 	}
 
-	// TODO: 다른 유틸로 옮기는 게 나을까요?
 	public Cookie createCookie(String key, String value, int maxAge) {
 		Cookie cookie = new Cookie(key, value);
 		cookie.setMaxAge(maxAge);
