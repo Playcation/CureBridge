@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaAuditing
 @EntityScan(basePackages = {
-	"com.example.contentservice",         // 기존 엔티티
+	"com.example.memberservice",         // 기존 엔티티
 	"com.example.commonmodule.files.entity"
 })
 @EnableJpaRepositories(basePackages = {

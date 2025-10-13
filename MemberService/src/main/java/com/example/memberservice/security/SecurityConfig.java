@@ -23,6 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
 
+import com.example.commonmodule.utils.JwtParser;
 import com.example.memberservice.filter.CustomLoginFilter;
 import com.example.memberservice.filter.CustomLogoutFilter;
 import com.example.memberservice.filter.JwtAuthFilter;
@@ -35,7 +36,7 @@ import lombok.RequiredArgsConstructor;
 @Order(1)
 public class SecurityConfig {
 
-	private final JwtUtil jwtUtil;
+	private final JwtIssuer jwtIssuer;
 	private final SecretKey jwtSecretKey;
 
 	// 비밀번호 암호화 클래스 빈 등록
@@ -70,10 +71,10 @@ public class SecurityConfig {
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager authManager,
-		JwtUtil jwtUtil) throws Exception {
+		JwtIssuer jwtIssuer, JwtParser jwtParser) throws Exception {
 
-		CustomLoginFilter loginFilter = new CustomLoginFilter(authManager, jwtUtil);
-		CustomLogoutFilter logoutFilter = new CustomLogoutFilter(jwtUtil);
+		CustomLoginFilter loginFilter = new CustomLoginFilter(authManager, jwtIssuer);
+		CustomLogoutFilter logoutFilter = new CustomLogoutFilter(jwtIssuer, jwtParser);
 
 		http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
@@ -91,7 +92,7 @@ public class SecurityConfig {
 		);
 
 		// TODO: 커스텀 필터 적용
-		http.addFilterBefore(new JwtAuthFilter(jwtUtil), CustomLoginFilter.class);
+		http.addFilterBefore(new JwtAuthFilter(jwtIssuer, jwtParser), CustomLoginFilter.class);
 		http.addFilterBefore(logoutFilter, LogoutFilter.class);
 		http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 

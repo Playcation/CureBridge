@@ -1,6 +1,5 @@
 package com.example.memberservice.security;
 
-import java.nio.charset.StandardCharsets;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Collection;
@@ -9,23 +8,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
 import com.example.memberservice.entity.User;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class JwtUtil {
+public class JwtIssuer {
 
 	private final SecretKey secretKey;
 	private final UserDetailsServiceImpl userDetailsService;
@@ -59,7 +54,8 @@ public class JwtUtil {
 		return null;
 	}
 
-	// 토큰이 유효하지 않으면 예외처리
+	/*// 토큰이 유효하지 않으면 예외처리
+	// TODO: JWTValidator 로 이동
 	public boolean validateToken(String token) {
 		try {
 			Jwts.parser()
@@ -75,6 +71,7 @@ public class JwtUtil {
 		}
 	}
 
+	// TODO: JwtParser 로 이동
 	// 토큰으로부터 유저 정보를 가져옴
 	public Claims getUserInfoFromToken(String token) {
 		return Jwts.parser()
@@ -84,18 +81,21 @@ public class JwtUtil {
 			.getPayload();
 	}
 
+	// TODO: JwtParser 로 이동
 	// Bearer 제거한 토큰으로 유저 id 문자열 추출
 	public String parseUserId(String token) {
 		Claims claims = getUserInfoFromToken(token);
 		return claims.get("userId", Integer.class).toString();
 	}
 
+	// TODO: JwtParser 로 이동
 	// Bearer 제거한 토큰으로 유저 role(권한) 문자열 추출
 	public String parseRole(String token) {
 		Claims claims = getUserInfoFromToken(token);
 		return claims.get("roles", String.class);
 	}
 
+	// TODO: JwtParser 로 이동
 	// 토근으로 유저 id 검색
 	public Long findUserByToken(String authorizationHeader) {
 		String token = authorizationHeader.replace("Bearer", "").trim();
@@ -104,7 +104,7 @@ public class JwtUtil {
 			throw new IllegalArgumentException("Invalid JWT token");
 		}
 		return Long.parseLong(this.parseUserId(token));
-	}
+	}*/
 
 	// 인증 객체 생성
 	public Authentication createAuthentication(String username) {
@@ -177,17 +177,19 @@ public class JwtUtil {
 		return cookie;
 	}
 
-	// 토큰 만료 검사
+	/*// 토큰 만료 검사
+	// TODO: JWTValidator 로 이동
 	public void isExpired(String token) {
 		Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
 			.getExpiration().before(new Date());
 	}
 
+	// TODO: JwtValidator 로 이동
 	// 토큰 종류 반환
 	public String getCategory(String token) {
 		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
 			.get("category", String.class);
-	}
+	}*/
 
 	// 레디스에 저장된 정보로 유저 검증
 	public boolean checkUserRefreshTokenFromRedis(String id, String refresh) {

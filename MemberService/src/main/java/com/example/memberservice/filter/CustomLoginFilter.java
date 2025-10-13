@@ -12,7 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.example.memberservice.dto.LoginRequestDto;
-import com.example.memberservice.security.JwtUtil;
+import com.example.memberservice.security.JwtIssuer;
 import com.example.memberservice.security.TokenSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -26,12 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 
 	private final AuthenticationManager authenticationManager;
-	private final JwtUtil jwtUtil;
+	private final JwtIssuer jwtIssuer;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	public CustomLoginFilter(AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+	public CustomLoginFilter(AuthenticationManager authenticationManager, JwtIssuer jwtIssuer) {
 		this.authenticationManager = authenticationManager;
-		this.jwtUtil = jwtUtil;
+		this.jwtIssuer = jwtIssuer;
 		setFilterProcessesUrl("/api/user/auth/login");
 	}
 
@@ -56,12 +56,12 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 		HttpServletResponse response,
 		FilterChain chain,
 		Authentication authResult) throws IOException {
-		String[] tokens = jwtUtil.generateToken(authResult);
+		String[] tokens = jwtIssuer.generateToken(authResult);
 		String accessToken = tokens[0];
 		String refreshToken = tokens[1];
 
 		// refresh token 저장한 쿠키 생성
-		Cookie cookie = jwtUtil.createCookie(
+		Cookie cookie = jwtIssuer.createCookie(
 			TokenSettings.REFRESH_TOKEN_CATEGORY,
 			refreshToken,
 			TokenSettings.COOKIE_EXPIRATION);

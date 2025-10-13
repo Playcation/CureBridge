@@ -14,14 +14,12 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.example.commonmodule.utils.JwtParser;
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwCheckRequestDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
-import com.example.memberservice.dto.UpdateUserRequestDto;
-import com.example.memberservice.dto.UpdateUserResponseDto;
 import com.example.memberservice.dto.UserResponseDto;
-import com.example.memberservice.security.JwtUtil;
 import com.example.memberservice.security.TokenSettings;
 import com.example.memberservice.service.UserService;
 
@@ -34,7 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class UserController {
 
 	private final UserService userService;
-	private final JwtUtil jwtUtil;
+	private final JwtParser jwtParser;
 
 	/**
 	 * 회원가입
@@ -64,7 +62,7 @@ public class UserController {
 		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
 		@RequestBody PwCheckRequestDto dto
 	) {
-		Long userId = jwtUtil.findUserByToken(authorizationHeader);
+		Long userId = jwtParser.findUserByToken(authorizationHeader);
 		MessageResponseDto messageResponseDto = userService.checkPassword(userId, dto.getPassword());
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
 	}
@@ -83,7 +81,7 @@ public class UserController {
 		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
 		@RequestParam Long id
 	) {
-		Long userId = jwtUtil.findUserByToken(authorizationHeader);
+		Long userId = jwtParser.findUserByToken(authorizationHeader);
 		UserResponseDto userResponseDto = userService.findUser(userId);
 		return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
 	}
@@ -95,15 +93,16 @@ public class UserController {
 	 * @param dto 수정할 유저 정보 (질병)
 	 * @return 수정 성공시 성공 메시지
 	 */
-	@PatchMapping
+	// TODO: 유저 정보 수정 메서드 변경 필요
+	/*@PatchMapping
 	public ResponseEntity<UpdateUserResponseDto> updateUser(
 		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
 		@RequestBody UpdateUserRequestDto dto
 	) {
-		Long userId = jwtUtil.findUserByToken(authorizationHeader);
+		Long userId = jwtParser.findUserByToken(authorizationHeader);
 		UpdateUserResponseDto updateUserResponseDto = userService.updateUser(userId, dto);
 		return new ResponseEntity<>(updateUserResponseDto, HttpStatus.OK);
-	}
+	}*/
 
 	/**
 	 * 현 비밀번호를 확인한 후 비밀번호 변경
@@ -117,7 +116,7 @@ public class UserController {
 		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
 		@RequestBody PwUpdateRequestDto dto
 	) {
-		Long userId = jwtUtil.findUserByToken(authorizationHeader);
+		Long userId = jwtParser.findUserByToken(authorizationHeader);
 		MessageResponseDto messageResponseDto = userService.updatePassword(userId, dto);
 
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
@@ -134,7 +133,7 @@ public class UserController {
 	public ResponseEntity<MessageResponseDto> deleteUser(
 		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
 	) {
-		Long userId = jwtUtil.findUserByToken(authorizationHeader);
+		Long userId = jwtParser.findUserByToken(authorizationHeader);
 		MessageResponseDto messageResponseDto = userService.deleteUser(userId);
 
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
