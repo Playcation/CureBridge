@@ -24,11 +24,16 @@ spring:
             - id: content-service
               uri: http://localhost:8082
               predicates:
-                - Path=/api/notices/**,/api/groups/**/notices/**
+                - Path=/api/notices/**
+                - Path=/api/groups/**/notices/**
+              filters:
+                - RewritePath=/api/(?<role>admin|org-admin|org-manager|user)/(?<remaining>.*), /api/${remaining}
             - id: chat-service
               uri: http://localhost:8083
               predicates:
                 - Path=/api/chat/**
+              filters:
+                - RewritePath=/api/(?<role>admin|org-admin|org-manager|user)/(?<remaining>.*), /api/${remaining}
 server:
   port: 8080
 

@@ -36,7 +36,6 @@ import lombok.RequiredArgsConstructor;
 @Order(1)
 public class SecurityConfig {
 
-	private final JwtIssuer jwtIssuer;
 	private final SecretKey jwtSecretKey;
 
 	// 비밀번호 암호화 클래스 빈 등록
@@ -91,7 +90,6 @@ public class SecurityConfig {
 			.anyRequest().authenticated()
 		);
 
-		// TODO: 커스텀 필터 적용
 		http.addFilterBefore(new JwtAuthFilter(jwtIssuer, jwtParser), CustomLoginFilter.class);
 		http.addFilterBefore(logoutFilter, LogoutFilter.class);
 		http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);

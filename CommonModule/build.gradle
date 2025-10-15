@@ -43,6 +43,14 @@ dependencies {
     testImplementation "cloud.localstack:localstack-utils:0.2.20"
 
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-impl:0.12.3'
+    implementation 'io.jsonwebtoken:jjwt-jackson:0.12.3'
+
+    // security
+    implementation 'org.springframework.security:spring-security-oauth2-authorization-server'
 }
 
 tasks.named('test') {
