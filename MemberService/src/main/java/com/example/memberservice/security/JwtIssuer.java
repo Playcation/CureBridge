@@ -54,58 +54,6 @@ public class JwtIssuer {
 		return null;
 	}
 
-	/*// 토큰이 유효하지 않으면 예외처리
-	// TODO: JWTValidator 로 이동
-	public boolean validateToken(String token) {
-		try {
-			Jwts.parser()
-				.verifyWith(secretKey)
-				.build()
-				.parseSignedClaims(token);   // 서명과 만료(exp)까지 자동 검증
-			return true;
-		} catch (JwtException | IllegalArgumentException e) {
-			// - ExpiredJwtException (만료)
-			// - MalformedJwtException (형식 오류)
-			// - SecurityException / SignatureException (서명 불일치)
-			return false;
-		}
-	}
-
-	// TODO: JwtParser 로 이동
-	// 토큰으로부터 유저 정보를 가져옴
-	public Claims getUserInfoFromToken(String token) {
-		return Jwts.parser()
-			.verifyWith(secretKey)
-			.build()
-			.parseSignedClaims(token)
-			.getPayload();
-	}
-
-	// TODO: JwtParser 로 이동
-	// Bearer 제거한 토큰으로 유저 id 문자열 추출
-	public String parseUserId(String token) {
-		Claims claims = getUserInfoFromToken(token);
-		return claims.get("userId", Integer.class).toString();
-	}
-
-	// TODO: JwtParser 로 이동
-	// Bearer 제거한 토큰으로 유저 role(권한) 문자열 추출
-	public String parseRole(String token) {
-		Claims claims = getUserInfoFromToken(token);
-		return claims.get("roles", String.class);
-	}
-
-	// TODO: JwtParser 로 이동
-	// 토근으로 유저 id 검색
-	public Long findUserByToken(String authorizationHeader) {
-		String token = authorizationHeader.replace("Bearer", "").trim();
-		if (!validateToken(token)) {
-			// TODO: 커스텀 예외 처리
-			throw new IllegalArgumentException("Invalid JWT token");
-		}
-		return Long.parseLong(this.parseUserId(token));
-	}*/
-
 	// 인증 객체 생성
 	public Authentication createAuthentication(String username) {
 		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -176,20 +124,6 @@ public class JwtIssuer {
 
 		return cookie;
 	}
-
-	/*// 토큰 만료 검사
-	// TODO: JWTValidator 로 이동
-	public void isExpired(String token) {
-		Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-			.getExpiration().before(new Date());
-	}
-
-	// TODO: JwtValidator 로 이동
-	// 토큰 종류 반환
-	public String getCategory(String token) {
-		return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload()
-			.get("category", String.class);
-	}*/
 
 	// 레디스에 저장된 정보로 유저 검증
 	public boolean checkUserRefreshTokenFromRedis(String id, String refresh) {

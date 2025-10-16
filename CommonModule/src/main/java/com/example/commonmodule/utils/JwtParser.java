@@ -42,11 +42,6 @@ public class JwtParser {
 	// 토근으로 유저 id 검색
 	public Long findUserByToken(String authorizationHeader) {
 		String token = authorizationHeader.replace("Bearer", "").trim();
-		/*
-		// 토큰 검증은 GateWay 에서 마무리
-		if (!validateToken(token)) {
-			throw new IllegalArgumentException("Invalid JWT token");
-		}*/
 		return Long.parseLong(this.parseUserId(token));
 	}
 }

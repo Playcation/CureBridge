@@ -26,7 +26,6 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 import com.example.commonmodule.utils.Role;
 
-import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
 
@@ -41,7 +40,7 @@ public class GatewaySecurityConfig {
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeExchange(exchanges -> exchanges
-				.pathMatchers("/api/user/auth/**", "/api/auth/**").permitAll() // 로그인, 회원가입은 통과
+				.pathMatchers("/api/anonymous/**").permitAll() // 로그인, 회원가입은 통과
 				.pathMatchers("/api/admin/**").access((authMono, ctx) -> // 이후 권한 크기순으로 체크
 					authMono.map(auth -> hasRoleOrHigher(auth, Role.ADMIN))
 				)

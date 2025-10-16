@@ -27,7 +27,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 public class UserController {
 
@@ -85,24 +85,6 @@ public class UserController {
 		UserResponseDto userResponseDto = userService.findUser(userId);
 		return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
 	}
-
-	/**
-	 * 비밀번호 제외, 현재 로그인 한 유저 정보 수정
-	 *
-	 * @param authorizationHeader 토큰 정보
-	 * @param dto 수정할 유저 정보 (질병)
-	 * @return 수정 성공시 성공 메시지
-	 */
-	// TODO: 유저 정보 수정 메서드 변경 필요
-	/*@PatchMapping
-	public ResponseEntity<UpdateUserResponseDto> updateUser(
-		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
-		@RequestBody UpdateUserRequestDto dto
-	) {
-		Long userId = jwtParser.findUserByToken(authorizationHeader);
-		UpdateUserResponseDto updateUserResponseDto = userService.updateUser(userId, dto);
-		return new ResponseEntity<>(updateUserResponseDto, HttpStatus.OK);
-	}*/
 
 	/**
 	 * 현 비밀번호를 확인한 후 비밀번호 변경

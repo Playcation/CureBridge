@@ -32,7 +32,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 	public CustomLoginFilter(AuthenticationManager authenticationManager, JwtIssuer jwtIssuer) {
 		this.authenticationManager = authenticationManager;
 		this.jwtIssuer = jwtIssuer;
-		setFilterProcessesUrl("/api/user/auth/login");
+		setFilterProcessesUrl("/user/auth/login");
 	}
 
 	// JSON Body 에서 자격증명 파싱
