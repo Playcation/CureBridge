@@ -1,6 +1,9 @@
 package com.example.gateway.security;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -80,8 +83,26 @@ public class GatewaySecurityConfig {
 	@Bean
 	public Converter<Jwt, ? extends Mono<? extends AbstractAuthenticationToken>> jwtAuthenticationConverter() {
 		return jwt -> {
-			Claims claims = (Claims)jwt.getClaims();
-			List<String> roles = (List<String>) claims.get("roles");
+			Object rawRoles = jwt.getClaims().get("roles");
+
+			List<String> roles;
+			if (rawRoles instanceof List) {
+				@SuppressWarnings("unchecked")
+				List<Object> rawList = (List<Object>) rawRoles;
+				roles = rawList.stream()
+					.filter(Objects::nonNull)
+					.map(Object::toString)
+					.collect(Collectors.toList());
+			} else if (rawRoles instanceof String) {
+				String s = (String) rawRoles;
+				roles = Arrays.stream(s.split(","))
+					.map(String::trim)
+					.filter(r -> !r.isEmpty())
+					.collect(Collectors.toList());
+			} else {
+				roles = Collections.emptyList();
+			}
+
 			List<GrantedAuthority> authorities = roles.stream()
 				.map(role -> new SimpleGrantedAuthority("ROLE_" + role))
 				.collect(Collectors.toList());
