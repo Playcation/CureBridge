@@ -56,6 +56,9 @@ dependencies {
     implementation 'org.apache.httpcomponents:httpclient:4.5.13'
     //파일 읽기
     implementation 'org.jsoup:jsoup:1.17.2'
+
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 }
 
 tasks.named('test') {

@@ -7,7 +7,8 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.example.memberservice.security.JwtUtil;
+import com.example.commonmodule.utils.JwtParser;
+import com.example.memberservice.security.JwtIssuer;
 
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -19,13 +20,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
-	private final JwtUtil jwtUtil;
+	private final JwtIssuer jwtIssuer;
+	private final JwtParser jwtParser;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
 		FilterChain filterChain) throws ServletException, IOException {
 		// request 에 담긴 토큰을 가져온다.
-		String token = jwtUtil.resolveToken(request);
+		String token = jwtIssuer.resolveToken(request);
 
 		// 토큰이 null 이면 다음 필터로 넘어간다.
 		if (token == null) {
@@ -33,15 +35,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			return;
 		}
 
+		/*
+		// TODO: 유효성 검증 로직 GateWay 로 이동
 		// 토큰이 유효하지 않으면 예외처리
-		if (!jwtUtil.validateToken(token)) {
-			// TODO: 커스텀 예외 발생시키기
+		if (!jwtValidators.validateToken(token)) {
 			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 			return;
-		}
+		}*/
 
 		// 유효한 토큰이라면, 토큰으로부터 사용자 정보를 가져온다.
-		Claims info = jwtUtil.getUserInfoFromToken(token);
+		Claims info = jwtParser.getUserInfoFromToken(token);
 		setAuthentication(info.getSubject());   // 사용자 정보로 인증 객체 만들기
 
 		filterChain.doFilter(request, response);
@@ -49,7 +52,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 	private void setAuthentication(String username) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		Authentication authentication = jwtUtil.createAuthentication(username); // 인증 객체 만들기
+		Authentication authentication = jwtIssuer.createAuthentication(username); // 인증 객체 만들기
 		context.setAuthentication(authentication);
 
 		SecurityContextHolder.setContext(context);

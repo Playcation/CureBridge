@@ -2,15 +2,39 @@ package com.example.memberservice;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
-import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaAuditing
-@SpringBootApplication
+@EntityScan(basePackages = {
+	"com.example.memberservice",         // 기존 엔티티
+	"com.example.commonmodule.files.entity"
+})
+@EnableJpaRepositories(basePackages = {
+	"com.example.memberservice.repository",
+	"com.example.commonmodule.files.repository"
+})
+@SpringBootApplication(scanBasePackages = {
+	"com.example.memberservice",
+	"com.example.commonmodule"
+})
+@ComponentScan(basePackages = {
+	"com.example.memberservice",
+	"com.example.commonmodule"
+})
+// @SpringBootApplication
+@Import({
+		com.example.commonmodule.config.JwtKeyConfig.class,
+		com.example.commonmodule.utils.JwtParser.class,
+		com.example.commonmodule.utils.JwtValidator.class
+})
 public class MemberServiceApplication {
 
-  public static void main(String[] args) {
-    SpringApplication.run(MemberServiceApplication.class, args);
-  }
+	public static void main(String[] args) {
+		SpringApplication.run(MemberServiceApplication.class, args);
+	}
 
 }
