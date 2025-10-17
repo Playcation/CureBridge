@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -51,6 +54,16 @@ public class HealthReportServiceImpl implements HealthReportService {
     String prompt = buildPrompt(ocrEntityList, year, month);
     String result = callLLM(prompt);
 
+    Pattern starPattern = Pattern.compile("별점\\s*(\\d+)");
+    Matcher matcher = starPattern.matcher(result);
+
+    int rate = 0;
+    if (matcher.find()) {
+      rate = Integer.parseInt(matcher.group(1));
+    } else {
+      System.err.println("LLM 응답에서 별점 값을 찾지 못했습니다. 기본값 0으로 설정합니다.");
+    }
+
     List<OcrResponseDto> ocrResponseDtoList = ocrEntityList.stream().map(
         OcrResponseDto::toDto
     ).toList();
@@ -60,7 +73,7 @@ public class HealthReportServiceImpl implements HealthReportService {
         .title(year + "-" + month + "-건강 레포트 요약")
         .reportDate(LocalDate.of(year, month, 1))
         .summary(result)
-        .rate(Integer.parseInt(result.split("별점")[1].trim()))
+        .rate(rate)
         .build();
 
     healthReportRepository.save(healthReport);
@@ -125,6 +138,46 @@ public class HealthReportServiceImpl implements HealthReportService {
       DeleteHealthReportRequestDto deleteHealthReportRequestDto) {
     healthReportRepository.deleteByIdOrElseThrow(id);
     return "삭제되었습니다.";
+  }
+
+  @Override
+  public String createHealthReportThisMonth(int year, int month) {
+
+    List<OcrEntity> ocrEntityList = ocrService.findOcrEntityThisMonth(year, month);
+    if (ocrEntityList.isEmpty()) {
+      return null;
+    }
+    Map<Long, List<OcrEntity>> groupedByUserId = ocrEntityList.stream()
+        .collect(Collectors.groupingBy(OcrEntity::getUserId));
+
+    for (Map.Entry<Long, List<OcrEntity>> entry : groupedByUserId.entrySet()) {
+      Long userId = entry.getKey();
+      List<OcrEntity> userOcrList = entry.getValue();
+
+      String prompt = buildPrompt(userOcrList, year, month);
+      String result = callLLM(prompt);
+
+      Pattern starPattern = Pattern.compile("별점\\s*(\\d+)");
+      Matcher matcher = starPattern.matcher(result);
+
+      int rate = 0;
+      if (matcher.find()) {
+        rate = Integer.parseInt(matcher.group(1));
+      } else {
+        System.err.println("LLM 응답에서 별점 값을 찾지 못했습니다. 기본값 0으로 설정합니다.");
+      }
+
+      HealthReport healthReport = HealthReport.builder()
+          .userId(userId)
+          .title(year + "-" + month + "-건강 레포트 요약")
+          .reportDate(LocalDate.of(year, month, 1))
+          .summary(result)
+          .rate(rate)
+          .build();
+
+      healthReportRepository.save(healthReport);
+    }
+    return "스케줄링 완성";
   }
 
   private String buildPrompt(List<OcrEntity> ocrEntities, int year, int month) {
