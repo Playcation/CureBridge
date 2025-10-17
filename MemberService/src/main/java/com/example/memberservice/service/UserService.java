@@ -30,7 +30,7 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder bCryptPasswordEncoder;
-	// private final FileService fileService;
+	private final FileService fileService;
 
 	// 회원가입
 	// TODO: Util에 메시지만 전달하는 ResponseDto 추가?
@@ -42,7 +42,7 @@ public class UserService {
 
 		// 파일 저장
 		if (file != null) {
-			// fileService.uploadFile(file);
+			fileService.uploadFile(file);
 		} else {
 			log.info("[회원가입] 파일이 null 입니다.");
 		}

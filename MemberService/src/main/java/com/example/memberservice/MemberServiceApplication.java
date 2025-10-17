@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @EnableJpaAuditing
-/*@EntityScan(basePackages = {
+@EntityScan(basePackages = {
 	"com.example.memberservice",         // 기존 엔티티
 	"com.example.commonmodule.files.entity"
 })
@@ -18,13 +18,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 	"com.example.commonmodule.files.repository"
 })
 @SpringBootApplication(scanBasePackages = {
-	"com.example.memberservice"   // 모든 컴포넌트 포함
+	"com.example.memberservice",
+	"com.example.commonmodule"
 })
 @ComponentScan(basePackages = {
 	"com.example.memberservice",
 	"com.example.commonmodule"
-})*/
-@SpringBootApplication
+})
+// @SpringBootApplication
 @Import({
 		com.example.commonmodule.config.JwtKeyConfig.class,
 		com.example.commonmodule.utils.JwtParser.class,
