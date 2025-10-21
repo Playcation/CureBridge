@@ -1,5 +1,6 @@
 package com.example.contentservice.report.dto;
 
+import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,8 +12,10 @@ public class UpdateHealthReportRequestDto {
 
   private String title;
 
-  private String reportDate;
+  private LocalDate reportDate;
 
   private String summary;
+
+  private Integer rate;
 
 }

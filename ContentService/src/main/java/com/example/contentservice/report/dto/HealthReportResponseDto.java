@@ -1,20 +1,42 @@
 package com.example.contentservice.report.dto;
 
+import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.report.entity.HealthReport;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
+@Builder
 @AllArgsConstructor
 public class HealthReportResponseDto {
 
+  private String id;
+
   private String title;
 
-  private String reportDate;
+  private Integer count;
 
-  private String summary;
+  private LocalDate reportDate;
 
-  public static HealthReportResponseDto toDto(HealthReport healthReport) {
-    return new HealthReportResponseDto(healthReport.getTitle(), healthReport.getReportDate(), healthReport.getSummary());
+  private List<OcrResponseDto> ocrResults;
+
+  private String summery;
+
+  private Integer rate;
+
+  public static HealthReportResponseDto toDto(HealthReport healthReport,
+      List<OcrResponseDto> ocrResults) {
+    return HealthReportResponseDto.builder()
+        .id(healthReport.getId())
+        .count(ocrResults.size())
+        .title(healthReport.getTitle())
+        .ocrResults(ocrResults)
+        .summery(healthReport.getSummary())
+        .rate(healthReport.getRate())
+        .reportDate(healthReport.getReportDate())
+        .build();
   }
 }

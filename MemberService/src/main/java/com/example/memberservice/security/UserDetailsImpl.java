@@ -1,11 +1,8 @@
 package com.example.memberservice.security;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.example.memberservice.entity.Role;
@@ -24,11 +21,6 @@ public class UserDetailsImpl implements UserDetails {
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		Role role = user.getRole();
-
-		/*SimpleGrantedAuthority simpleGrantedAuthority = new SimpleGrantedAuthority(authority);
-		Collection<GrantedAuthority> authorities = new ArrayList<>();
-		authorities.add(simpleGrantedAuthority);*/
-
 		return role.toGrantedAuthorities();
 	}
 

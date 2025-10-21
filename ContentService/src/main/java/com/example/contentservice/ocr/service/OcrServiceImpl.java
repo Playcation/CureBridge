@@ -2,38 +2,22 @@ package com.example.contentservice.ocr.service;
 
 import com.example.contentservice.config.ClovaOcrClient;
 import com.example.contentservice.ocr.dto.DeleteRequestDto;
-import com.example.contentservice.ocr.dto.OcrMultiResponseDto;
 import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.UpdateRequestDto;
-import com.example.contentservice.ocr.dto.UploadRequestDto;
 import com.example.contentservice.ocr.entity.OcrEntity;
 import com.example.contentservice.ocr.repository.OcrRepository;
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,7 +56,8 @@ public class OcrServiceImpl implements OcrService {
       List<String> rawText = removeSensitiveLines(lines);
       OcrEntity ocrEntity = OcrEntity.builder()
           .reportTitle(ocrMap.getOrDefault("reportTitle", "진단서 기본").toString())
-          .reportDate(LocalDate.parse(ocrMap.getOrDefault("reportDate", LocalDate.now()).toString()))
+          .reportDate(
+              LocalDate.parse(ocrMap.getOrDefault("reportDate", LocalDate.now()).toString()))
           .patientName(ocrMap.getOrDefault("patientName", "이름 기본").toString())
           .diagnosis(ocrMap.getOrDefault("diagnosis", "병명 기본").toString())
           .rawText(rawText)
@@ -94,9 +79,9 @@ public class OcrServiceImpl implements OcrService {
   }
 
   @Override
-  public List<OcrMultiResponseDto> getOcrResult(Long userId) {
+  public List<OcrResponseDto> getOcrResult(Long userId) {
     List<OcrEntity> ocrEntityList = ocrRepository.findByUserId(userId);
-    return ocrEntityList.stream().map(OcrMultiResponseDto::toDto).toList();
+    return ocrEntityList.stream().map(OcrResponseDto::toDto).toList();
   }
 
   @Override
@@ -119,7 +104,14 @@ public class OcrServiceImpl implements OcrService {
     return ocrRepository.findByUserIdAndReportDateBetween(userId, start, end);
   }
 
-  
+  @Override
+  public List<OcrEntity> findOcrEntityThisMonth(int year, int month) {
+    LocalDate start = LocalDate.of(year, month, 1);
+    LocalDate end = start.withDayOfMonth(start.lengthOfMonth());
+
+    return ocrRepository.findByReportDateBetween(start, end);
+  }
+
 
   private boolean containsSensitiveInfo(String line) {
     return SENSITIVE_PATTERNS.stream().anyMatch(pattern -> pattern.matcher(line).find());

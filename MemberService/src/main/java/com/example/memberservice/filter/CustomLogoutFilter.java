@@ -4,7 +4,8 @@ import java.io.IOException;
 
 import org.springframework.web.filter.GenericFilterBean;
 
-import com.example.memberservice.security.JwtUtil;
+import com.example.commonmodule.utils.JwtParser;
+import com.example.memberservice.security.JwtIssuer;
 import com.example.memberservice.security.TokenSettings;
 
 import jakarta.servlet.FilterChain;
@@ -17,10 +18,12 @@ import jakarta.servlet.http.HttpServletResponse;
 
 public class CustomLogoutFilter extends GenericFilterBean {
 
-	private final JwtUtil jwtUtil;
+	private final JwtIssuer jwtIssuer;
+	private final JwtParser jwtParser;
 
-	public CustomLogoutFilter(JwtUtil jwtUtil) {
-		this.jwtUtil = jwtUtil;
+	public CustomLogoutFilter(JwtIssuer jwtIssuer, JwtParser jwtParser) {
+		this.jwtIssuer = jwtIssuer;
+		this.jwtParser = jwtParser;
 	}
 
 	@Override
@@ -63,13 +66,13 @@ public class CustomLogoutFilter extends GenericFilterBean {
 		}
 
 		// TODO: 리프레시 토큰 검증
-		String userId = jwtUtil.parseUserId(refreshToken);
-		if (!jwtUtil.checkUserRefreshTokenFromRedis(userId, refreshToken)) {
+		String userId = jwtParser.parseUserId(refreshToken);
+		if (!jwtIssuer.checkUserRefreshTokenFromRedis(userId, refreshToken)) {
 			// 예외 던지기
 		}
 
 		// TODO: 레디스에서 리프레시 토큰 삭제
-		jwtUtil.deleteRefreshTokenInRedis(userId);
+		jwtIssuer.deleteRefreshTokenInRedis(userId);
 
 		// TODO: 리프레시 토큰 쿠키 삭제
 		Cookie cookie = new Cookie(TokenSettings.REFRESH_TOKEN_CATEGORY, null);
