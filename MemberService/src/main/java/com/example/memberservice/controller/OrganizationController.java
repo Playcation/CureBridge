@@ -103,7 +103,7 @@ public class OrganizationController {
 
   private void checkOrgOrAdmin(String authorizationHeader) {
     String role = jwtParser.parseRole(authorizationHeader);
-    if (!Role.ORG_MANAGER.toString().equals(role) || !Role.ORG_ADMIN.toString().equals(role)) {
+    if (!Role.ORG_MANAGER.toString().equals(role) && !Role.ORG_ADMIN.toString().equals(role)) {
       throw new NoAuthorizedException(ManagerException.NO_AUTHORIZED_MANAGER);
     }
   }

@@ -30,6 +30,8 @@ public class OrgManager extends BaseEntityDeletedAt {
 
   private Long organizationId;
 
+  private Role role = Role.ORG_MANAGER;
+
   public void update(OrgManagerUpdateDto orgManagerUpdateDto) {
     if (orgManagerUpdateDto.getRank() != null) {
       this.managerRank = orgManagerUpdateDto.getRank();
