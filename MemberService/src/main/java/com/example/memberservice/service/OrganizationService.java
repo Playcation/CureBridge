@@ -20,7 +20,7 @@ public class OrganizationService {
         Organization.builder()
             .orgName(orgCreateRequestDto.getOrgName())
             .orgNumber(orgCreateRequestDto.getOrgNumber())
-            .account(orgCreateRequestDto.getAccount())
+            .email(orgCreateRequestDto.getAccount())
             .orgAddress(orgCreateRequestDto.getOrgAddress())
             .ownerNumber(orgCreateRequestDto.getOwnerNumber())
             .ownerName(orgCreateRequestDto.getOwnerName())

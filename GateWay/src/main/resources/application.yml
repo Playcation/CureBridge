@@ -4,13 +4,15 @@ spring:
     name: gateway
 
   jwt:
-    secret: ${JWT_KEY}
+    secret: WEFWEGWGweffwetyqwfgwwgqegqafawegEFfewfweghsdfgaerg
+  #    secret: ${JWT_KEY}
 
   security:
     oauth2:
       resourceserver:
         jwt:
-          secret-key: ${JWT_KEY}
+          secret-key: WEFWEGWGweffwetyqwfgwwgqegqafawegEFfewfweghsdfgaerg
+  #          secret-key: ${JWT_KEY}
 
   cloud:
     gateway:

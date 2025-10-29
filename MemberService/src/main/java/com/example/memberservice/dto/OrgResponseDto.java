@@ -29,7 +29,7 @@ public class OrgResponseDto {
   public static OrgResponseDto toDto(Organization org) {
     return OrgResponseDto.builder()
         .id(org.getId())
-        .account(org.getAccount())
+        .account(org.getEmail())
         .orgName(org.getOrgName())
         .orgNumber(org.getOrgNumber())
         .ownerName(org.getOwnerName())
