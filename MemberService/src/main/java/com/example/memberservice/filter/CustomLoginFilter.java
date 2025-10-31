@@ -93,12 +93,6 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
         TokenSettings.COOKIE_EXPIRATION);
     response.addCookie(cookie);
 
-    // response.setStatus(HttpServletResponse.SC_OK); // 302 Found 설정
-    // response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    // response.getWriter().write(
-    // 	"{\"token\" : \"" + accessToken + "\"}"
-    // );
-
     // access token 응답 설정
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);

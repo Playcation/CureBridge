@@ -40,16 +40,6 @@ public class SecurityConfig extends AbstractSecurityConfig {
         .build();
   }
 
-//  @Bean
-//  @Primary
-//  public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-//    // AuthenticationManagerBuilder를 가져와서
-//    AuthenticationManagerBuilder builder = http.getSharedObject(AuthenticationManagerBuilder.class);
-//    builder.authenticationProvider(customAuthenticationProvider);
-//
-//    return builder.build();
-//  }
-
   @Override
   protected void configureAuthorization(HttpSecurity http) throws Exception {
     // TODO: 세부 권한, 화이트리스트 등록
@@ -72,13 +62,10 @@ public class SecurityConfig extends AbstractSecurityConfig {
     CustomLogoutFilter logoutFilter = new CustomLogoutFilter(jwtIssuer, jwtParser);
 
     // 모듈 전용 필터 추가
-    http.addFilterBefore(new JwtAuthFilter(jwtIssuer, jwtParser), CustomLoginFilter.class);
-    http.addFilterBefore(logoutFilter, LogoutFilter.class);
+    http.addFilterBefore(new JwtAuthFilter(jwtIssuer, jwtParser),
+        UsernamePasswordAuthenticationFilter.class);
     http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
-//    http.addFilterAt(
-//        new CustomLoginFilter(am, jwtIssuer),
-//        UsernamePasswordAuthenticationFilter.class
-//    );
+    http.addFilterBefore(logoutFilter, LogoutFilter.class);
 
     return http.build();
   }
