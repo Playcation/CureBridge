@@ -65,15 +65,26 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     Object principal = authResult.getPrincipal();
 
     String[] tokens;
+    Long userId = null;
+    String userRole = null;
 
     if (principal instanceof UserDetailsImpl) {
+      UserDetailsImpl userDetails = (UserDetailsImpl) principal;
       tokens = jwtIssuer.generateUserToken(authResult);
+      userId = userDetails.getUser().getId(); // ✅ User ID 추출
+      userRole = "USER"; // ✅ 역할 설정
 
     } else if (principal instanceof ManagerDetailsImpl) {
+      ManagerDetailsImpl managerDetails = (ManagerDetailsImpl) principal;
       tokens = jwtIssuer.generateManagerToken(authResult);
+      userId = managerDetails.getManager().getId(); // ✅ Manager ID 추출
+      userRole = "ORG_MANAGER"; // ✅ 역할 설정
 
     } else if (principal instanceof OrganizationDetailsImpl) {
+      OrganizationDetailsImpl orgDetails = (OrganizationDetailsImpl) principal;
       tokens = jwtIssuer.generateOrganizationToken(authResult);
+      userId = orgDetails.getOrganization().getId(); // ✅ Organization ID 추출
+      userRole = "ORG_ADMIN"; // ✅ 역할 설정
 
     } else {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -96,7 +107,11 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     // access token 응답 설정
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-    objectMapper.writeValue(response.getWriter(), Map.of("accessToken", accessToken));
+    objectMapper.writeValue(response.getWriter(), Map.of(
+        "accessToken", accessToken,
+        "userId", userId,
+        "userRole", userRole
+    ));
   }
 
   // 인증 실패 시 에러 응답

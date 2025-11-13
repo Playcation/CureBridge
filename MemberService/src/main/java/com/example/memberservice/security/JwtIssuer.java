@@ -32,6 +32,8 @@ public class JwtIssuer {
 
   private final SecretKey secretKey;
   private final UserDetailsServiceImpl userDetailsService;
+  private final ManagerDetailsServiceImpl managerDetailsService;
+  private final OrganizationDetailsServiceImpl organizationDetailsService;
   private final RedisTemplate<String, String> redisTemplate;
 
   // request 에 담긴 토큰 가져옴 + "Bearer " 제거
@@ -147,5 +149,15 @@ public class JwtIssuer {
   public void deleteRefreshTokenInRedis(String id) {
     String redisKey = TokenSettings.REFRESH_TOKEN_CATEGORY + id;
     redisTemplate.delete(redisKey);
+  }
+
+  public Authentication createManagerAuthentication(String username) {
+    UserDetails userDetails = managerDetailsService.loadUserByUsername(username);
+    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+  }
+
+  public Authentication createOrganizationAuthentication(String username) {
+    UserDetails userDetails = organizationDetailsService.loadUserByUsername(username);
+    return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
   }
 }
