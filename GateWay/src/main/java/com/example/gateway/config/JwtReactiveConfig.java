@@ -14,8 +14,13 @@ public class JwtReactiveConfig {
   public ReactiveJwtDecoder reactiveJwtDecoder(SecretKey jwtSecretKey) {
     return NimbusReactiveJwtDecoder
         .withSecretKey(jwtSecretKey)
-        .macAlgorithm(MacAlgorithm.HS384)
+        .macAlgorithm(MacAlgorithm.HS256)
         .build();
+//    return NimbusReactiveJwtDecoder
+//        .withSecretKey(new SecretKeySpec(
+//            "WEFWEGWGweffwetyqwfgwwgqegqafawegEFfewfweghsdfgaerg".getBytes(),
+//            "HmacSHA256"
+//        )).build();
   }
 
 }

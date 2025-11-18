@@ -36,7 +36,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
     // HS256 검증용 NimbusJwtDecoder
     return NimbusJwtDecoder
         .withSecretKey(jwtSecretKey)
-        .macAlgorithm(MacAlgorithm.HS384)
+        .macAlgorithm(MacAlgorithm.HS256)
         .build();
   }
 
@@ -45,9 +45,10 @@ public class SecurityConfig extends AbstractSecurityConfig {
     // TODO: 세부 권한, 화이트리스트 등록
     String[] whiteList = {"/user/auth/signup", "/user/auth/login"};
     http.authorizeHttpRequests(auth -> auth
-        .requestMatchers(whiteList).permitAll()
-        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-        .anyRequest().authenticated()
+            .requestMatchers(whiteList).permitAll()
+            .requestMatchers("/api/admin/**").hasRole("ADMIN")
+//        .anyRequest().authenticated()
+            .anyRequest().permitAll()
     );
     super.configureJwtResourceServer(http);
   }

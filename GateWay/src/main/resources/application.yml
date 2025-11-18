@@ -1,10 +1,10 @@
 spring:
 
-  application:
-    name: gateway
+  #  application:
+  #    name: gateway
 
-  jwt:
-    secret: WEFWEGWGweffwetyqwfgwwgqegqafawegEFfewfweghsdfgaerg
+  #    jwt:
+  #      secret: WEFWEGWGweffwetyqwfgwwgqegqafawegEFfewfweghsdfgaerg
   #    secret: ${JWT_KEY}
 
   security:
@@ -24,7 +24,7 @@ spring:
               predicates:
                 - Path=/api/anonymous/user/**,/api/user/auth/**,
                   /api/user/user/**,/api/org-manager/user/**,
-                  /api/org-admin/user/**,/api/org-manager/user/**, /api/org-manager/**
+                  /api/org-admin/user/**,/api/org-manager/user/**, /api/org-manager/**, /api/organization/**
               filters:
                 - StripPrefix=2
             - id: content-service
