@@ -55,4 +55,5 @@ public class OrganizationService {
     }
     return "삭제 완료";
   }
+
 }

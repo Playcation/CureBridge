@@ -36,6 +36,8 @@ public class Organization extends BaseEntityDeletedAt {
 
   private String orgAddress;
 
+  private Role role = Role.ORG_ADMIN;
+
   public void update(OrgUpdateDto orgUpdateDto) {
     if (orgUpdateDto.getOrgAddress() != null) {
       this.orgAddress = orgUpdateDto.getOrgAddress();

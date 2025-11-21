@@ -1,5 +1,7 @@
 package com.example.memberservice.controller;
 
+import com.example.commonmodule.exceptions.NoAuthorizedException;
+import com.example.commonmodule.utils.JwtParser;
 import com.example.memberservice.dto.OrgManagerCreateRequestDto;
 import com.example.memberservice.dto.OrgManagerResponseDto;
 import com.example.memberservice.dto.OrgManagerUpdateDto;
@@ -24,12 +26,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class ManagerController {
 
   private final OrgManagerService orgManagerService;
+  private final JwtParser jwtParser;
 
   @PostMapping
   public ResponseEntity<OrgManagerResponseDto> createOrgManager(
       @RequestBody OrgManagerCreateRequestDto orgManagerCreateRequestDto,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
+    checkOrg(authorizationHeader);
     return ResponseEntity.ok().body(orgManagerService.createOrgManager(orgManagerCreateRequestDto));
   }
 
@@ -37,6 +41,7 @@ public class ManagerController {
   public ResponseEntity<List<OrgManagerResponseDto>> getAllOrgManager(
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
+    checkOrgOrManager(authorizationHeader);
     return ResponseEntity.ok().body(orgManagerService.getAllOrgManager());
   }
 
@@ -45,6 +50,7 @@ public class ManagerController {
       @PathVariable Long id,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
+    checkOrgOrManager(authorizationHeader);
     return ResponseEntity.ok().body(orgManagerService.getOrgManager(id));
   }
 
@@ -54,6 +60,7 @@ public class ManagerController {
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
       @RequestBody OrgManagerUpdateDto orgManagerUpdateDto
   ) {
+    checkOrgOrManager(authorizationHeader);
     return ResponseEntity.ok().body(orgManagerService.updateOrgManager(id, orgManagerUpdateDto));
   }
 
@@ -62,14 +69,39 @@ public class ManagerController {
       @PathVariable Long id,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
+    checkOrgOrManager(authorizationHeader);
     return ResponseEntity.ok().body(orgManagerService.deleteOrgManager(id));
   }
 
   @PostMapping("/invite")
-  public ResponseEntity<OrgManagerResponseDto> inviteUser(
-      @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
+  public ResponseEntity<String> inviteUser(
+      @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
+      @RequestBody UserInviteDto userInviteDto
   ) {
-    return null;
+    Long id = jwtParser.findUserByToken(authorizationHeader);
+    checkManager(authorizationHeader);
+    return ResponseEntity.ok().body(orgManagerService.inviteUser(id, userInviteDto));
+  }
+
+  private void checkManager(String authorizationHeader) {
+    String role = jwtParser.parseRole(authorizationHeader);
+    if (!Role.ORG_MANAGER.toString().equals(role)) {
+      throw new NoAuthorizedException(ManagerException.NO_AUTHORIZED_MANAGER);
+    }
+  }
+
+  private void checkOrg(String authorizationHeader) {
+    String role = jwtParser.parseRole(authorizationHeader);
+    if (!Role.ORG_ADMIN.toString().equals(role)) {
+      throw new NoAuthorizedException(OrganizationException.NO_AUTHORIZED_ORGANIZATION);
+    }
+  }
+
+  private void checkOrgOrManager(String authorizationHeader) {
+    String role = jwtParser.parseRole(authorizationHeader);
+    if (!Role.ORG_MANAGER.toString().equals(role) && !Role.ORG_ADMIN.toString().equals(role)) {
+      throw new NoAuthorizedException(ManagerException.NO_AUTHORIZED_MANAGER);
+    }
   }
 
 }
