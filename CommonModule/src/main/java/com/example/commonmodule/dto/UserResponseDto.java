@@ -1,13 +1,15 @@
-package com.example.memberservice.dto;
+package com.example.commonmodule.dto;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
+@NoArgsConstructor(force = true)
 public class UserResponseDto {
 
 	private final String name;

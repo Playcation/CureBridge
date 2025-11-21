@@ -7,6 +7,7 @@ import com.example.memberservice.security.OrganizationDetailsImpl;
 import com.example.memberservice.security.TokenSettings;
 import com.example.memberservice.security.UserDetailsImpl;
 import com.example.memberservice.security.UserTypeAuthenticationToken;
+import com.example.commonmodule.config.TokenSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;

@@ -1,5 +1,6 @@
 package com.example.memberservice.controller;
 
+import com.example.commonmodule.config.TokenSettings;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.utils.JwtParser;
 import com.example.memberservice.dto.OrgCreateRequestDto;
@@ -10,7 +11,7 @@ import com.example.memberservice.dto.OrgUpdateDto;
 import com.example.memberservice.entity.Role;
 import com.example.memberservice.enums.AdminException;
 import com.example.memberservice.enums.ManagerException;
-import com.example.memberservice.security.TokenSettings;
+
 import com.example.memberservice.service.OrgManagerService;
 import com.example.memberservice.service.OrganizationService;
 import java.util.List;

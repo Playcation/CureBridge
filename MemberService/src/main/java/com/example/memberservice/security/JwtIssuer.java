@@ -8,6 +8,7 @@ import com.nimbusds.jwt.SignedJWT;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import com.example.commonmodule.config.TokenSettings;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Collection;
