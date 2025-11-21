@@ -2,10 +2,9 @@ package com.example.contentservice.ocr.controller;
 
 import com.example.contentservice.ocr.dto.DeleteRequestDto;
 import com.example.contentservice.ocr.dto.OcrResponseDto;
-import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.ocr.dto.UpdateRequestDto;
-import com.example.contentservice.ocr.dto.UploadRequestDto;
 import com.example.contentservice.ocr.service.OcrService;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,16 +13,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
 
 @RestController
-@RequestMapping("/api/ocr")
+@RequestMapping("/ocr")
 @AllArgsConstructor
 public class OcrController {
 
@@ -54,7 +50,7 @@ public class OcrController {
   @GetMapping("/{id}")
   private ResponseEntity<OcrResponseDto> getOcrDetailResult(
       @PathVariable("id") String id
-  ){
+  ) {
     return ResponseEntity.ok().body(ocrService.getOcrDetalResult(id));
   }
 
@@ -62,7 +58,7 @@ public class OcrController {
   private ResponseEntity<OcrResponseDto> updateOcrResult(
       @PathVariable("id") String id,
       @RequestBody UpdateRequestDto updateRequestDto
-  ){
+  ) {
     return ResponseEntity.ok().body(ocrService.updateOcrResult(id, updateRequestDto));
   }
 
@@ -70,7 +66,7 @@ public class OcrController {
   private ResponseEntity<String> deleteOcrResult(
       @PathVariable("id") String id,
       @RequestBody DeleteRequestDto deleteRequestDto
-  ){
+  ) {
     return ResponseEntity.ok().body(ocrService.deleteOcrResult(id, deleteRequestDto));
   }
 

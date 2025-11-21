@@ -31,7 +31,8 @@ spring:
               uri: http://localhost:8082
               predicates:
                 - Path=/api/anonymous/notices/**,/api/user/notices/**,
-                  /api/org-manager/notices/**,/api/org-admin/notices/**,/api/admin/notices/**
+                  /api/org-manager/notices/**,/api/org-admin/notices/**,/api/admin/notices/**,
+                  /api/content/ocr/**
               filters:
                 - StripPrefix=2
             - id: chat-service
