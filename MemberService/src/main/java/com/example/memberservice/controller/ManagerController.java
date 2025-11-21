@@ -3,7 +3,7 @@ package com.example.memberservice.controller;
 import com.example.memberservice.dto.OrgManagerCreateRequestDto;
 import com.example.memberservice.dto.OrgManagerResponseDto;
 import com.example.memberservice.dto.OrgManagerUpdateDto;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.config.TokenSettings;
 import com.example.memberservice.service.OrgManagerService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;

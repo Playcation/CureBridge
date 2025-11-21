@@ -12,7 +12,14 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ChatMessageDto {
 
+  private Long roomId;
   private String message;
 //  TODO: 토큰에서 유저id를 찾으면 필요없을거 같음(삭제?)
   private String senderEmail;
+
+  public void chatMessageDto(Long roomId, String message, String senderEmail) {
+    this.roomId = roomId;
+    this.message = message;
+    this.senderEmail = senderEmail;
+  }
 }

@@ -1,10 +1,14 @@
 package com.example.memberservice.controller;
 
+import com.example.memberservice.dto.MemberListDto;
+import java.util.List;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -19,8 +23,8 @@ import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwCheckRequestDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
-import com.example.memberservice.dto.UserResponseDto;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.dto.UserResponseDto;
+import com.example.commonmodule.config.TokenSettings;
 import com.example.memberservice.service.UserService;
 
 import jakarta.validation.Valid;
@@ -119,5 +123,17 @@ public class UserController {
 		MessageResponseDto messageResponseDto = userService.deleteUser(userId);
 
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/{otherUserId}")
+	public ResponseEntity<UserResponseDto> findUserById(@PathVariable Long otherUserId) {
+		UserResponseDto orderUserDto = userService.findOrderUserById(otherUserId);
+		return new ResponseEntity<>(orderUserDto, HttpStatus.OK);
+	}
+
+	@GetMapping("/list")
+	public ResponseEntity<?> findMemberList() {
+		List<MemberListDto> dtos = userService.findAll();
+		return new ResponseEntity<>(dtos, HttpStatus.OK);
 	}
 }

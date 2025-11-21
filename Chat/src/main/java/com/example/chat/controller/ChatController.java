@@ -4,7 +4,7 @@ import com.example.chat.dto.ChatMessageDto;
 import com.example.chat.dto.ChatRoomListResponseDto;
 import com.example.chat.dto.MyChatListResDto;
 import com.example.chat.service.ChatService;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.config.TokenSettings;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,7 +19,7 @@ public class ChatController {
   private final ChatService chatService;
 
 //  그룹채팅방 개설
-  @PostMapping("/room/group/cerate")
+  @PostMapping("/room/group/create")
   public ResponseEntity<?> createGroupRoom(@RequestParam String roomName,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
     chatService.createGroupRoom(roomName, authorizationHeader);
@@ -41,7 +41,7 @@ public class ChatController {
     return ResponseEntity.ok().build();
   }
 
-  @GetMapping("/history/{roomId)")
+  @GetMapping("/history/{roomId}")
     public ResponseEntity<?> getChatHistory
           (@PathVariable Long roomId,
            @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
@@ -50,7 +50,7 @@ public class ChatController {
   }
 
 //  체팅 메시지 읽음 처리
-    @PostMapping("/room/{roomId}}/read")
+    @PostMapping("/room/{roomId}/read")
     public ResponseEntity<?> messageRead
     (@PathVariable Long roomId,
      @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
@@ -78,9 +78,9 @@ public class ChatController {
 //    개인 채팅방 개설 또는 기존 roomId return
     @PostMapping("/room/private/create")
     public ResponseEntity<?> getOrCreatePrivateChatRoom
-    (@RequestParam Long orderUserId,
+    (@RequestParam Long otherUserId,
      @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
-      Long roomId = chatService.getOrCreatePrivateRoom(orderUserId, authorizationHeader);
+      Long roomId = chatService.getOrCreatePrivateRoom(otherUserId, authorizationHeader);
       return new ResponseEntity<>(roomId, HttpStatus.OK);
     }
 }

@@ -12,11 +12,14 @@ import com.example.chat.repository.ChatMessageRepository;
 import com.example.chat.repository.ChatParticipantRepository;
 import com.example.chat.repository.ChatRoomRepository;
 import com.example.chat.repository.ReadStatusRepository;
+import com.example.commonmodule.dto.UserResponseDto;
+import com.example.commonmodule.utils.JwtParser;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,15 +40,15 @@ public class ChatService {
 
   private final UserClient userClient;
 
-  public void saveMessage(Long roomId, ChatMessageDto requestDto, String authorizationHeader) {
+  private final JwtParser jwtParser;
+
+  public void saveMessage(Long roomId, ChatMessageDto requestDto, Long userId) {
 //    채팅방 조회
     ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new EntityNotFoundException("room cannot be found"));
 //    보낸 사람 조회
-//    TODO : findUserByToken 위치가 옮겨질때 까지 대기(jwtUtil 내부에서도 많이 쓰는 매서드라 옯기기 어려움)
-    Long senderId = jwtUtil.findUserByToken(authorizationHeader);
 
     // ✅ 캐시 적용된 유저 조회
-    UserResponseDto sender = userCacheService.getUserByCache(authorizationHeader, senderId);
+    UserResponseDto sender = userCacheService.getUserByCache(userId);
 
 //    메시지 저장
     ChatMessage chatMessage = ChatMessage.builder()
@@ -70,9 +73,8 @@ public class ChatService {
 
   public void createGroupRoom(String roomName, String authorizationHeader) {
 
-    Long senderId = jwtUtil.findUserByToken(authorizationHeader);
-//    TODO : 서비스에서 사용하려면 DTO가 있어야하는데 나중에 DTO를 commonmodule에 모아놓는게 좋아보임 지금 당장은 import하여 사용(나중에 고침)
-    UserResponseDto sender = userCacheService.getUserByCache(authorizationHeader, senderId);
+    Long senderId = jwtParser.findUserByToken(authorizationHeader);
+    UserResponseDto sender = userClient.findUser(authorizationHeader, senderId);
 
 //    채팅방 생성
     ChatRoom chatRoom = ChatRoom.builder()
@@ -108,9 +110,9 @@ public class ChatService {
     ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new EntityNotFoundException("room cannot be found"));
 
 //    user조회
-    Long senderId = jwtUtil.findUserByToken(authorizationHeader);
+    Long senderId = jwtParser.findUserByToken(authorizationHeader);
 
-    UserResponseDto sender = userCacheService.getUserByCache(authorizationHeader, senderId);
+    UserResponseDto sender = userCacheService.getUserByCache(senderId);
 
     if(chatRoom.getIsGroupChat().equals("N")) {
         throw new IllegalArgumentException("그룹채팅이 아닙니다");
@@ -136,8 +138,8 @@ public class ChatService {
 
       ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new EntityNotFoundException("room cannot be found"));
 
-      Long userId = jwtUtil.findUserByToken(authorizationHeader);
-      UserResponseDto userDto = userCacheService.getUserByCache(authorizationHeader, userId);
+      Long userId = jwtParser.findUserByToken(authorizationHeader);
+      UserResponseDto userDto = userCacheService.getUserByCache(userId);
 
       List<ChatParticipant> chatParticipantList = chatParticipantRepository.findByChatRoom(chatRoom);
 
@@ -160,23 +162,22 @@ public class ChatService {
       for(ChatMessage chatMessage : chatMessages) {
           ChatMessageDto chatMessageDto = ChatMessageDto.builder()
                   .message(chatMessage.getContent())
-                  .senderEmail(userDto.getEmail())
+                  .senderEmail(chatMessage.getUserEmail())
                   .build();
           chatMessageDtos.add(chatMessageDto);
       }
     return  chatMessageDtos;
   }
 
-  public boolean isRoomParticipant(String email, Long roomId, String bearerToken) {
+  public boolean isRoomParticipant(Long roomId, String token) {
       ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new EntityNotFoundException("room cannot be found"));
-
 //      TODO: 일단 stompHandle에서 bearerToken를 가져오긴 했는데 맞는지 확인해야함
-      Long userId = jwtUtil.findUserByToken(bearerToken);
-      UserResponseDto userDto = userCacheService.getUserByCache(bearerToken, userId);
+      Long userId = jwtParser.findUserByToken(token);
+      UserResponseDto userDto = userCacheService.getUserByCache(userId);
 
       List<ChatParticipant> chatParticipantList = chatParticipantRepository.findByChatRoom(chatRoom);
       for(ChatParticipant chatParticipant : chatParticipantList) {
-          if(chatParticipant.getUserEmail().equals(userDto.getEmail)) {
+          if(chatParticipant.getUserEmail().equals(userDto.getEmail())) {
               return true;
           }
       }
@@ -187,9 +188,9 @@ public class ChatService {
   public void messageRead(Long roomId, String authorizationHeader) {
       ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new EntityNotFoundException("room cannot be found"));
 
-      Long userId = jwtUtil.findUserByToken(authorizationHeader);
-      UserResponseDto userDto = userCacheService.getUserByCache(authorizationHeader, userId);
-      List<ReadStatus> readStatusList = readStatusRepository.findByChatRoomAndUserEmail(chatRoom, userDto.getEmail);
+      Long userId = jwtParser.findUserByToken(authorizationHeader);
+      UserResponseDto userDto = userCacheService.getUserByCache(userId);
+      List<ReadStatus> readStatusList = readStatusRepository.findByChatRoomAndUserEmail(chatRoom, userDto.getEmail());
 
       for(ReadStatus readStatus : readStatusList) {
           readStatus.updateReadStatus(true);
@@ -198,18 +199,18 @@ public class ChatService {
   }
 
     public List<MyChatListResDto> getMyChatRoom(String authorizationHeader) {
-      Long userId = jwtUtil.findUserByToken(authorizationHeader);
-      UserResponseDto userDto = userCacheService.getUserByCache(authorizationHeader, userId);
+      Long userId = jwtParser.findUserByToken(authorizationHeader);
+      UserResponseDto userDto = userCacheService.getUserByCache(userId);
 
-      List<ChatParticipant> chatParticipantList = chatParticipantRepository.findAllByUserEmail(userDto.getEmail);
+      List<ChatParticipant> chatParticipantList = chatParticipantRepository.findAllByUserEmail(userDto.getEmail());
       List<MyChatListResDto> myChatListResDtos = new ArrayList<>();
       for(ChatParticipant chatParticipant : chatParticipantList) {
-          Long count = readStatusRepository.countByChatRoomAndUserEmailAndIsReadFalse(chatParticipant.getChatRoom(), userDto.getEmail);
+          Long count = readStatusRepository.countByChatRoomAndUserEmailAndIsReadFalse(chatParticipant.getChatRoom(), userDto.getEmail());
           MyChatListResDto dto = MyChatListResDto.builder()
                   .roomId(chatParticipant.getChatRoom().getId())
                   .roomName(chatParticipant.getChatRoom().getName())
                   .isGroupChat(chatParticipant.getChatRoom().getIsGroupChat())
-                  .unRaedCount(count)
+                  .unReadCount(count)
                   .build();
           myChatListResDtos.add(dto);
       }
@@ -220,13 +221,13 @@ public class ChatService {
 
         ChatRoom chatRoom = chatRoomRepository.findById(roomId).orElseThrow(()-> new EntityNotFoundException("room cannot be found"));
 
-        Long userId = jwtUtil.findUserByToken(authorizationHeader);
-        UserResponseDto userDto = userCacheService.getUserByCache(authorizationHeader, userId);
+        Long userId = jwtParser.findUserByToken(authorizationHeader);
+        UserResponseDto userDto = userCacheService.getUserByCache(userId);
 
-        if(!chatRoom.getIsGroupChat().equals("N")) {
+        if(!chatRoom.getIsGroupChat().equals("Y")) {
             throw new IllegalArgumentException("단체 채팅방이 아닙니다");
         }
-        ChatParticipant chatParticipant = chatParticipantRepository.findByChatRoomAndUserEmail(chatRoom, userDto.getEmail).orElseThrow(()->new EntityNotFoundException("참여자를 찾을 수 없습니다"));
+        ChatParticipant chatParticipant = chatParticipantRepository.findByChatRoomAndUserEmail(chatRoom, userDto.getEmail()).orElseThrow(()->new EntityNotFoundException("참여자를 찾을 수 없습니다"));
         chatParticipantRepository.delete(chatParticipant);
 
         List<ChatParticipant> chatParticipantList = chatParticipantRepository.findByChatRoom(chatRoom);
@@ -235,16 +236,15 @@ public class ChatService {
         }
     }
 
-    public Long getOrCreatePrivateRoom(Long orderUserId, String authorizationHeader) {
+    public Long getOrCreatePrivateRoom(Long otherUserId, String authorizationHeader) {
 
-        Long userId = jwtUtil.findUserByToken(authorizationHeader);
-        UserResponseDto userDto = userCacheService.getUserByCache(authorizationHeader, userId);
+        Long userId = jwtParser.findUserByToken(authorizationHeader);
+        UserResponseDto userDto = userCacheService.getUserByCache(userId);
 
-//        TODO : 다른 유저를 찾는 컨트롤러 필요
-//        UserResponseDto orderUserDto = userClient.findUser()
+        UserResponseDto orderUserDto = userClient.findUserById(otherUserId);
 
 //        나와 상대방이 1:1 채팅방에 이미 참여하고 있으면 해당 roomId return
-        Optional<ChatRoom> chatroom = chatParticipantRepository.findExistingPrivateRoom(userDto.getEmail(), orderUserDto.getEmail);
+        Optional<ChatRoom> chatroom = chatParticipantRepository.findExistingPrivateRoom(userDto.getEmail(), orderUserDto.getEmail());
     if(chatroom.isPresent()) {
         return chatroom.get().getId();
     }
