@@ -1,13 +1,12 @@
 package com.example.memberservice.filter;
 
+import com.example.commonmodule.config.TokenSettings;
 import com.example.memberservice.dto.LoginRequestDto;
 import com.example.memberservice.security.JwtIssuer;
 import com.example.memberservice.security.ManagerDetailsImpl;
 import com.example.memberservice.security.OrganizationDetailsImpl;
-import com.example.memberservice.security.TokenSettings;
 import com.example.memberservice.security.UserDetailsImpl;
 import com.example.memberservice.security.UserTypeAuthenticationToken;
-import com.example.commonmodule.config.TokenSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.Cookie;

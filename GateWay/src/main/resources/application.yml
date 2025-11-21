@@ -1,4 +1,6 @@
 spring:
+  main:
+    web-application-type: reactive
 
   #  application:
   #    name: gateway
@@ -41,6 +43,8 @@ spring:
                 - Path=/api/user/chat/**,/api/org-manager/chat/**,/api/org-admin/chat/**,/api/admin/chat/**
               filters:
                 - StripPrefix=2
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
 server:
   port: 8080
 
