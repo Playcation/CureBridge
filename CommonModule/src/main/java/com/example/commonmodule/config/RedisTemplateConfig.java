@@ -50,20 +50,6 @@ public class RedisTemplateConfig {
     return template;
   }
 
-//  캐싱 설정
-  @Bean
-  public RedisCacheManager redisCacheManager(RedisConnectionFactory connectionFactory) {
-    RedisCacheConfiguration defaultConfig = RedisCacheConfiguration.defaultCacheConfig()
-        .entryTtl(Duration.ofMinutes(10)) // 기본 TTL 10분
-        .serializeKeysWith(
-            RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-        .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(
-            new GenericJackson2JsonRedisSerializer()));
-
-    return RedisCacheManager.builder(connectionFactory)
-        .cacheDefaults(defaultConfig)
-        .build();
-  }
 
   @Bean
   @Primary
