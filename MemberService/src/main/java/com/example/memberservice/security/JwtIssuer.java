@@ -1,5 +1,6 @@
 package com.example.memberservice.security;
 
+import com.example.commonmodule.config.TokenSettings;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.Collection;

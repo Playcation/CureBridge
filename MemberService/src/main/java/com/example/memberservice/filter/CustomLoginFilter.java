@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.memberservice.dto.LoginRequestDto;
 import com.example.memberservice.security.JwtIssuer;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.config.TokenSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
@@ -44,7 +44,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
 			LoginRequestDto creds = objectMapper.readValue(request.getInputStream(), LoginRequestDto.class);
 			UsernamePasswordAuthenticationToken authToken =
 				new UsernamePasswordAuthenticationToken(creds.getEmail(), creds.getPassword());
-			return authenticationManager.authenticate(authToken);
+ 			return authenticationManager.authenticate(authToken);
 		} catch (IOException e) {
 			throw new AuthenticationServiceException("Invalid login request format", e);
 		}

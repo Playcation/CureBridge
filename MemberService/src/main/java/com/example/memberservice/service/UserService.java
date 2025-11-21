@@ -1,5 +1,9 @@
 package com.example.memberservice.service;
 
+import com.example.memberservice.dto.MemberListDto;
+import jakarta.transaction.UserTransaction;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -11,10 +15,7 @@ import com.example.commonmodule.files.service.FileService;
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
-import com.example.memberservice.dto.UpdateUserRequestDto;
-import com.example.memberservice.dto.UpdateUserResponseDto;
-import com.example.memberservice.dto.UserResponseDto;
-import com.example.memberservice.entity.Patient;
+import com.example.commonmodule.dto.UserResponseDto;
 import com.example.memberservice.entity.Role;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.repository.UserRepository;
@@ -116,5 +117,25 @@ public class UserService {
 		findUser.delete();
 		userRepository.save(findUser);
 		return new MessageResponseDto("유저 삭제 요청이 완료되었습니다. 30일 후 완전히 삭제됩니다.");
+	}
+
+	public UserResponseDto findOrderUserById(Long otherUserId) {
+		User user = userRepository.findByIdOrElseThrow(otherUserId);
+		return user.toDto();
+	}
+
+//	TODO: 추후에 여러가지 필터를 더해서 조건에 맞는 인원만 찾을 예정(테스트용)
+	public List<MemberListDto> findAll() {
+		List<User> userList = userRepository.findAll();
+		List<MemberListDto> memberListDtoList = new ArrayList<>();
+		for(User user : userList) {
+			MemberListDto memberListDto = MemberListDto.builder()
+					.id(user.getId())
+					.name(user.getName())
+					.email(user.getEmail())
+					.build();
+			memberListDtoList.add(memberListDto);
+		}
+		return memberListDtoList;
 	}
 }

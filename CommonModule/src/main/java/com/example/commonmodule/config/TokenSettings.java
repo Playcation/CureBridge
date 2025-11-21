@@ -1,4 +1,4 @@
-package com.example.memberservice.security;
+package com.example.commonmodule.config;
 
 public final class TokenSettings {
 
