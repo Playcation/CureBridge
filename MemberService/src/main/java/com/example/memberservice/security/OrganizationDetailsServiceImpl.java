@@ -1,7 +1,7 @@
 package com.example.memberservice.security;
 
-import com.example.memberservice.entity.User;
-import com.example.memberservice.repository.UserRepository;
+import com.example.memberservice.entity.Organization;
+import com.example.memberservice.repository.OrganizationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -10,16 +10,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class OrganizationDetailsServiceImpl implements UserDetailsService {
 
-  private final UserRepository userRepository;
+  private final OrganizationRepository organizationRepository;
 
   @Override
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    User user = userRepository.findUserByEmail(username)
-        .orElseThrow(
-            () -> new UsernameNotFoundException("username을 찾을 수 없습니다."));   // 사용자가 DB 에 없으면 예외처리
+    Organization organization = organizationRepository.findByEmailOrElseThrow(username);
 
-    return new UserDetailsImpl(user, user.getEmail());
+    return new OrganizationDetailsImpl(organization, organization.getEmail());
   }
 }

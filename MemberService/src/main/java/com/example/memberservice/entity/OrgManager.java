@@ -3,6 +3,8 @@ package com.example.memberservice.entity;
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 import com.example.memberservice.dto.OrgManagerUpdateDto;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -22,6 +24,10 @@ public class OrgManager extends BaseEntityDeletedAt {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  private String email;
+
+  private String password;
+
   private String name;
 
   private String managerRank;
@@ -30,6 +36,7 @@ public class OrgManager extends BaseEntityDeletedAt {
 
   private Long organizationId;
 
+  @Enumerated(value = EnumType.STRING)
   private Role role = Role.ORG_MANAGER;
 
   public void update(OrgManagerUpdateDto orgManagerUpdateDto) {

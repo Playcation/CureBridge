@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/manager")
+@RequestMapping("/org-manager")
 @RequiredArgsConstructor
 public class ManagerController {
 
@@ -41,7 +41,7 @@ public class ManagerController {
     return ResponseEntity.ok().body(orgManagerService.createOrgManager(orgManagerCreateRequestDto));
   }
 
-  @GetMapping
+  @GetMapping("/all")
   public ResponseEntity<List<OrgManagerResponseDto>> getAllOrgManager(
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
@@ -49,11 +49,11 @@ public class ManagerController {
     return ResponseEntity.ok().body(orgManagerService.getAllOrgManager());
   }
 
-  @GetMapping("/{id}")
+  @GetMapping
   public ResponseEntity<OrgManagerResponseDto> getOrgManager(
-      @PathVariable Long id,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
+    Long id = jwtParser.findUserByToken(authorizationHeader);
     checkOrgOrManager(authorizationHeader);
     return ResponseEntity.ok().body(orgManagerService.getOrgManager(id));
   }
