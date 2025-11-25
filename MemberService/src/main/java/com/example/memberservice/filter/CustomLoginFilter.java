@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.memberservice.dto.LoginRequestDto;
 import com.example.memberservice.security.JwtIssuer;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.security.TokenSettings;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;

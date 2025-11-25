@@ -17,6 +17,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
+import com.example.commonmodule.security.TokenSettings;
 import com.example.memberservice.entity.User;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jwt.SignedJWT;
@@ -64,16 +65,16 @@ public class JwtIssuer {
 	public String[] generateToken(Authentication auth) {
 		UserDetailsImpl principal = (UserDetailsImpl)auth.getPrincipal();
 		User user = principal.getUser();
-		return generateToken(user.getEmail(), user.getId(), auth.getAuthorities());
+		return generateToken(user.getEmail(), user.getId(), user.getOrganizationId(), auth.getAuthorities());
 	}
 
-	public String[] generateToken(String email, Long id, Collection<? extends GrantedAuthority> authCollect) {
+	public String[] generateToken(String email, Long id, Long orgId, Collection<? extends GrantedAuthority> authCollect) {
 
 		List<String> authList = authCollect.stream()
 			.map(GrantedAuthority::getAuthority)
 			.collect(Collectors.toList());
 
-		String accessToken = generateAccessToken(email, id, authList);
+		String accessToken = generateAccessToken(email, id, orgId, authList);
 		String refreshToken = generateRefreshToken(id);
 
 		// 레디스에 refresh 토큰 저장
@@ -85,7 +86,7 @@ public class JwtIssuer {
 	}
 
 	// Access Token 생성
-	private String generateAccessToken(String email, Long id, List<String> authList) {
+	private String generateAccessToken(String email, Long id, Long orgId, List<String> authList) {
 		Date now = new Date();
 		Date expiry = new Date(now.getTime() + TokenSettings.ACCESS_TOKEN_EXPIRATION);
 
@@ -93,6 +94,7 @@ public class JwtIssuer {
 			.issuer(TokenSettings.TOKEN_ISSUER)
 			.subject(email)
 			.claim("userId", id)
+			.claim("orgId", orgId)
 			.claim("roles", authList)
 			.claim("category", TokenSettings.ACCESS_TOKEN_CATEGORY)
 			.issuedAt(now)

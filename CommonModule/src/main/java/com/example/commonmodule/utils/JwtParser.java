@@ -31,6 +31,12 @@ public class JwtParser {
     return claims.get("userId", Integer.class).toString();
   }
 
+  // Bearer 제거한 토큰으로 orgId 문자열 추출
+  public String parseOrgId(String token) {
+    Claims claims = getUserInfoFromToken(token);
+    return claims.get("orgId", Integer.class).toString();
+  }
+
   // Bearer 제거한 토큰으로 유저 role(권한) 문자열 추출
   public String parseRole(String authorizationHeader) {
     String token = authorizationHeader.replace("Bearer", "").trim();
@@ -42,5 +48,11 @@ public class JwtParser {
   public Long findUserByToken(String authorizationHeader) {
     String token = authorizationHeader.replace("Bearer", "").trim();
     return Long.parseLong(this.parseUserId(token));
+  }
+
+  // 토근으로 유저 orgId 검색
+  public Long findOrgIdByToken(String authorizationHeader) {
+    String token = authorizationHeader.replace("Bearer", "").trim();
+    return Long.parseLong(this.parseOrgId(token));
   }
 }

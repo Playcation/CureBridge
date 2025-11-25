@@ -20,7 +20,7 @@ import com.example.memberservice.dto.PwCheckRequestDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.memberservice.dto.UserResponseDto;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.security.TokenSettings;
 import com.example.memberservice.service.UserService;
 
 import jakarta.validation.Valid;

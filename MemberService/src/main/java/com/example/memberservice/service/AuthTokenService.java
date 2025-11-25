@@ -9,7 +9,7 @@ import com.example.commonmodule.utils.JwtParser;
 import com.example.commonmodule.utils.JwtValidator;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.security.JwtIssuer;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.security.TokenSettings;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
