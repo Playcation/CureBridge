@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.example.commonmodule.config.TokenSettings;
 import java.text.ParseException;
 import java.time.Duration;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
@@ -65,29 +66,29 @@ public class JwtIssuer {
   public String[] generateUserToken(Authentication auth) {
     UserDetailsImpl principal = (UserDetailsImpl) auth.getPrincipal();
     User user = principal.getUser();
-    return generateUserToken(user.getEmail(), user.getId(), auth.getAuthorities());
+    return generateUserToken(user.getEmail(), user.getId(), user.getOrganizationId(), auth.getAuthorities());
   }
 
   public String[] generateManagerToken(Authentication auth) {
     ManagerDetailsImpl principal = (ManagerDetailsImpl) auth.getPrincipal();
     OrgManager manager = principal.getManager();
-    return generateUserToken(manager.getEmail(), manager.getId(), auth.getAuthorities());
+    return generateUserToken(manager.getEmail(), manager.getId(), manager.getOrganizationId(), auth.getAuthorities());
   }
 
   public String[] generateOrganizationToken(Authentication auth) {
     OrganizationDetailsImpl principal = (OrganizationDetailsImpl) auth.getPrincipal();
     Organization organization = principal.getOrganization();
-    return generateUserToken(organization.getEmail(), organization.getId(), auth.getAuthorities());
+    return generateUserToken(organization.getEmail(), organization.getId(), organization.getId(), auth.getAuthorities());
   }
 
-  public String[] generateUserToken(String email, Long id,
+  public String[] generateUserToken(String email, Long id, Long orgId,
       Collection<? extends GrantedAuthority> authCollect) {
 
     List<String> authList = authCollect.stream()
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
 
-    String accessToken = generateAccessToken(email, id, authList);
+    String accessToken = generateAccessToken(email, id, orgId, authList);
     String refreshToken = generateRefreshToken(id);
 
     // 레디스에 refresh 토큰 저장
@@ -99,20 +100,28 @@ public class JwtIssuer {
   }
 
   // Access Token 생성
-  private String generateAccessToken(String email, Long id, List<String> authList) {
+  private String generateAccessToken(String email, Long id, Long orgId, List<String> authList) {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + TokenSettings.ACCESS_TOKEN_EXPIRATION);
 
-    return Jwts.builder()
+    String token =  Jwts.builder()
         .issuer(TokenSettings.TOKEN_ISSUER)
         .subject(email)
         .claim("userId", id)
+        .claim("orgId", orgId)
         .claim("roles", authList)
         .claim("category", TokenSettings.ACCESS_TOKEN_CATEGORY)
         .issuedAt(now)
         .expiration(expiry)
         .signWith(secretKey)
         .compact();
+
+    // 토큰 헤더 확인
+    String[] parts = token.split("\\.");
+    String headerJson = new String(Base64.getUrlDecoder().decode(parts[0]));
+    System.out.println(headerJson); // {"alg":"HS256","typ":"JWT"}
+
+    return token;
   }
 
   // Refresh Token 생성

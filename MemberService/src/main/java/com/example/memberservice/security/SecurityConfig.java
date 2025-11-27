@@ -27,16 +27,15 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 public class SecurityConfig extends AbstractSecurityConfig {
 
   private final CustomAuthenticationProvider customAuthenticationProvider;
-  private final SecretKey jwtSecretKey;
   private final JwtIssuer jwtIssuer;
   private final JwtParser jwtParser;
 
   @Bean
-  public JwtDecoder jwtDecoder() {
-    // HS256 검증용 NimbusJwtDecoder
+  public JwtDecoder jwtDecoder(SecretKey jwtSecretKey) {
+    // HS384 검증용 NimbusJwtDecoder
     return NimbusJwtDecoder
         .withSecretKey(jwtSecretKey)
-        .macAlgorithm(MacAlgorithm.HS256)
+        .macAlgorithm(MacAlgorithm.HS384)
         .build();
   }
 
@@ -47,8 +46,8 @@ public class SecurityConfig extends AbstractSecurityConfig {
     http.authorizeHttpRequests(auth -> auth
             .requestMatchers(whiteList).permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
-//        .anyRequest().authenticated()
-            .anyRequest().permitAll()
+            .anyRequest().authenticated()
+            // .anyRequest().permitAll()
     );
     super.configureJwtResourceServer(http);
   }

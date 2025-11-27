@@ -70,7 +70,7 @@ public class AuthTokenService {
 
     // 4. 새 토큰 발급
     User user = userService.findUserById(Long.parseLong(userId));
-    return jwtIssuer.generateUserToken(user.getEmail(), user.getId(),
+    return jwtIssuer.generateUserToken(user.getEmail(), user.getId(), user.getOrganizationId(),
         user.getRole().toGrantedAuthorities());
   }
 
