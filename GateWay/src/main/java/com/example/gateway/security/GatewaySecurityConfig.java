@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.crypto.SecretKey;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,11 +17,15 @@ import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authorization.AuthorizationDecision;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
@@ -31,33 +38,46 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class GatewaySecurityConfig {
 
-  @Bean
-  public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
-    http
-        .csrf(ServerHttpSecurity.CsrfSpec::disable)
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .authorizeExchange(exchanges -> exchanges
-                .pathMatchers("/api/anonymous/**").permitAll() // 로그인, 회원가입은 통과
-                .pathMatchers("/api/admin/**").access((authMono, ctx) -> // 이후 권한 크기순으로 체크
-                    authMono.map(auth -> hasRoleOrHigher(auth, Role.ADMIN))
-                )
-                .pathMatchers("/api/org-admin/**").access((authMono, ctx) ->
-                    authMono.map(auth -> hasRoleOrHigher(auth, Role.ORG_ADMIN))
-                )
-                .pathMatchers("/api/org-manager/**").access((authMono, ctx) ->
-                    authMono.map(auth -> hasRoleOrHigher(auth, Role.ORG_MANAGER))
-                )
-                .pathMatchers("/api/user/**").access((authMono, ctx) ->
-                    authMono.map(auth -> hasRoleOrHigher(auth, Role.USER))
-                )
-//				.anyExchange().authenticated()
-                .anyExchange().permitAll()
-        )
-        .oauth2ResourceServer(oauth2 -> oauth2
-            .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
-        );
-    return http.build();
-  }
+	@Bean
+	public JwtDecoder jwtDecoder(SecretKey secretKey) {
+		return NimbusJwtDecoder
+			.withSecretKey(secretKey)
+			.macAlgorithm(MacAlgorithm.HS384)
+			.build();
+	}
+
+	@Bean
+	public SecurityWebFilterChain springSecurityFilterChain(ServerHttpSecurity http) {
+		http
+			.csrf(ServerHttpSecurity.CsrfSpec::disable)
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.authorizeExchange(exchanges -> exchanges
+				.pathMatchers("/api/anonymous/**").permitAll() // 로그인, 회원가입은 통과
+				.pathMatchers("/api/admin/**").access((authMono, ctx) -> // 이후 권한 크기순으로 체크
+					authMono.map(auth -> hasRoleOrHigher(auth, Role.ADMIN))
+				)
+				.pathMatchers("/api/org-admin/**").access((authMono, ctx) ->
+					authMono.map(auth -> hasRoleOrHigher(auth, Role.ORG_ADMIN))
+				)
+				.pathMatchers("/api/org-manager/**").access((authMono, ctx) ->
+					authMono.map(auth -> hasRoleOrHigher(auth, Role.ORG_MANAGER))
+				)
+				.pathMatchers("/api/user/**").access((authMono, ctx) ->
+					authMono.map(auth -> hasRoleOrHigher(auth, Role.USER))
+				)
+				.anyExchange().authenticated()
+			)
+		.oauth2ResourceServer(oauth2 -> oauth2
+			.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+		);
+		// 헤더 로그 남기기용
+		// ).addFilterBefore((exchange, chain) -> {
+		// 		String authHeader = exchange.getRequest().getHeaders().getFirst("Authorization");
+		// 		System.out.println(">>> Gateway received Authorization header = " + authHeader);
+		// 		return chain.filter(exchange);
+		// 	}, SecurityWebFiltersOrder.AUTHENTICATION);
+		return http.build();
+	}
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {

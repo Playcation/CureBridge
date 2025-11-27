@@ -1,20 +1,16 @@
 spring:
-  main:
-    web-application-type: reactive
 
   #  application:
   #    name: gateway
 
-  #    jwt:
-  #      secret: WEFWEGWGweffwetyqwfgwwgqegqafawegEFfewfweghsdfgaerg
-  #    secret: ${JWT_KEY}
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          secret-key: WEFWEGWGweffwetyqwfgwwgqegqafawegEFfewfweghsdfgaerg
-  #          secret-key: ${JWT_KEY}
+  main:
+    web-application-type: reactive
+
+  config:
+     import: classpath:application-common.properties
 
   cloud:
     gateway:
