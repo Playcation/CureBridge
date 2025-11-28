@@ -33,6 +33,8 @@ public class Notice extends BaseEntityDeletedAt {
 
   private Long userId;
 
+  private Long orgId;
+
   @Column(nullable = false)
   private Long viewCount;
 

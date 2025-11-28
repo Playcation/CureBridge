@@ -18,7 +18,7 @@ public interface SupportService {
 
   PagingDto<PagingSupportResponseDto> getSupportsAndPaging(Pageable pageable);
 
-  SupportResponseDto updateSupport(Long supportId, SupportRequestDto dto);
+  SupportResponseDto updateSupport(Long supportId, Long userId, SupportRequestDto dto);
 
-  void deleteSupport(Long supportId);
+  void deleteSupport(Long supportId, Long userId);
 }

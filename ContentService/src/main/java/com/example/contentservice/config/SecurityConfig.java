@@ -19,6 +19,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
     http.authorizeHttpRequests(auth -> auth
         .requestMatchers(whiteList).permitAll()
         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+        .requestMatchers("/orgs/**/notices/**").hasRole("ORG_ADMIN")
         .anyRequest().permitAll()
     );
     super.configureJwtResourceServer(http);
