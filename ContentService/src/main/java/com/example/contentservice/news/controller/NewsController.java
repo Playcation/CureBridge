@@ -2,6 +2,8 @@ package com.example.contentservice.news.controller;
 
 import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import com.example.commonmodule.common.PagingDto;
+import com.example.commonmodule.config.TokenSettings;
+import com.example.commonmodule.utils.JwtParser;
 import com.example.contentservice.news.dto.NewsRequestDto;
 import com.example.contentservice.news.dto.NewsResponseDto;
 import com.example.contentservice.news.entity.News;
@@ -30,13 +32,14 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/news")
+@RequestMapping("/news")
 public class NewsController {
 
   /* (추가) URL에서 도메인 추출해서 언론사 긁어오기 (도전해보기) */
@@ -44,6 +47,8 @@ public class NewsController {
   private final NewsSearchService newsSearchService;
   private final ObjectMapper objectMapper;
   private final NewsRepository newsRepository;
+  private final JwtParser jwtParser;
+
 
   @Value("${newsapi.clientId}")
   private String CLIENT_ID;
@@ -52,7 +57,7 @@ public class NewsController {
   private String CLIENT_SECRET;
 
   // 매일 자정(0시 0분)에 이 메서드가 자동으로 실행됩니다.
-  @Scheduled(cron = "0 0 0 * * *")
+  @Scheduled(cron = "0 54 20 * * *")
   public void newsapi() {
     for (int start = 1; start <= 1000; start += 100) {
       try {
@@ -105,7 +110,9 @@ public class NewsController {
 
   // 게시물 삭제
   @DeleteMapping("/{newsId}")
-  public ResponseEntity<String> deleteById(@PathVariable Long newsId) {     /* (추가) 토큰으로 관리자 인증 */
+  public ResponseEntity<String> deleteById(@PathVariable Long newsId,
+      @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {     /* (추가) 토큰으로 관리자 인증 */
+    jwtParser.checkAdmin(authorizationHeader);
     newsService.deleteNews(newsId);
     return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
   }

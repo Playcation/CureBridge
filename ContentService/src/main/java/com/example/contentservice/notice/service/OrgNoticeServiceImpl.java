@@ -30,7 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class NoticeServiceImpl implements NoticeService {
+public class OrgNoticeServiceImpl implements OrgNoticeService {
 
   private final NoticeRepository noticeRepository;
   private final NoticeSearchRepository noticeSearchRepository;
@@ -40,14 +40,14 @@ public class NoticeServiceImpl implements NoticeService {
 
   @Override
   @Transactional
-  public NoticeResponseDto createNotice(Long userId, NoticeRequestDto requestDto,
+  public NoticeResponseDto createOrgNotice(Long orgId, Long userId, NoticeRequestDto requestDto,
       List<MultipartFile> attachedFiles,
       List<MultipartFile> contentImages) {
 
     Notice notice = Notice.builder()
         .title(requestDto.getTitle())
         .content(requestDto.getContent())
-        .orgId(null)
+        .orgId(orgId)
         .viewCount(0L)
         .userId(userId)
         .build();
@@ -138,8 +138,8 @@ public class NoticeServiceImpl implements NoticeService {
   }
 
   @Override
-  public NoticeResponseDto getNotice(Long noticeId) {
-    Notice notice = noticeRepository.findByIdOrElseThrow(noticeId);
+  public NoticeResponseDto getOrgNotice(Long orgId, Long noticeId) {
+    Notice notice = noticeRepository.findByIdAndOrgIdOrThrow(noticeId, orgId);
     notice.incrementViewCount();
     noticeRepository.save(notice);
     List<BoardFile> boardFiles = boardFileRepository.findByBoardId(noticeId);
@@ -157,7 +157,7 @@ public class NoticeServiceImpl implements NoticeService {
   }
 
   @Override
-  public PagingDto<PagingNoticeResponseDto> getNoticesAndPaging(Pageable pageable) {
+  public PagingDto<PagingNoticeResponseDto> getOrgNoticesAndPaging(Long orgId, Pageable pageable) {
     //Pageable pageable = PageRequest.of(page, s, Sort.by(Sort.Direction.DESC, "id"));
     Page<Notice> noticePage = noticeRepository.findAll(pageable);
 
@@ -170,8 +170,8 @@ public class NoticeServiceImpl implements NoticeService {
 
   @Override
   @Transactional
-  public NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto requestDto) {
-    Notice notice = noticeRepository.findByIdOrElseThrow(noticeId);
+  public NoticeResponseDto updateOrgNotice(Long orgId, Long noticeId, NoticeRequestDto requestDto) {
+    Notice notice = noticeRepository.findByIdAndOrgIdOrThrow(noticeId, orgId);
     notice.update(requestDto.getTitle(), requestDto.getContent());
     Notice updatedNotice = noticeRepository.save(notice);
     noticeSearchRepository.save(
@@ -193,8 +193,9 @@ public class NoticeServiceImpl implements NoticeService {
 
   @Override
   @Transactional
-  public void deleteNotice(Long noticeId) {
-    noticeRepository.findByIdOrElseThrow(noticeId);
+  public void deleteOrgNotice(Long orgId, Long noticeId) {
+    noticeRepository.findByIdAndOrgIdOrThrow(noticeId, orgId);
+
     noticeRepository.deleteById(noticeId);
 
     noticeSearchRepository.deleteById(String.valueOf(noticeId));

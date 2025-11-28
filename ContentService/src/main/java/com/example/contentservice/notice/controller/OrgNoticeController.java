@@ -7,7 +7,7 @@ import com.example.contentservice.notice.dto.NoticeRequestDto;
 import com.example.contentservice.notice.dto.NoticeResponseDto;
 import com.example.contentservice.notice.dto.PagingNoticeResponseDto;
 import com.example.contentservice.notice.service.NoticeSearchService;
-import com.example.contentservice.notice.service.NoticeService;
+import com.example.contentservice.notice.service.OrgNoticeService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -29,10 +29,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/notices")
-public class NoticeController {
+@RequestMapping("/orgs/{orgId}/notices")
+public class OrgNoticeController {
 
-  private final NoticeService noticeService;
+  private final OrgNoticeService noticeOrgService;
   private final NoticeSearchService noticeSearchService;
   private final JwtParser jwtParser;
 
@@ -40,12 +40,13 @@ public class NoticeController {
   @PostMapping
   public ResponseEntity<NoticeResponseDto> createNotice(
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
+      @PathVariable Long orgId,
       @RequestPart(value = "json") NoticeRequestDto requestDto,
       @RequestPart(value = "attachedFile", required = false) List<MultipartFile> attachedFiles,
       @RequestPart(value = "contentImage", required = false) List<MultipartFile> contentImages) {    /* (TODO) 토큰으로 관리자 인증 */
     Long userId = jwtParser.findUserByToken(authorizationHeader);
-    jwtParser.checkAdmin(authorizationHeader);
-    NoticeResponseDto responseDto = noticeService.createNotice(userId, requestDto,
+    jwtParser.checkOrgOrAdmin(authorizationHeader);
+    NoticeResponseDto responseDto = noticeOrgService.createOrgNotice(userId, orgId, requestDto,
         attachedFiles,
         contentImages);
     return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
@@ -53,48 +54,40 @@ public class NoticeController {
 
   // 게시물 단건 조회
   @GetMapping("/{noticeId}")
-  public ResponseEntity<NoticeResponseDto> getNotice(@PathVariable Long noticeId) {
-    NoticeResponseDto responseDto = noticeService.getNotice(noticeId);
+  public ResponseEntity<NoticeResponseDto> getNotice(@PathVariable Long orgId,
+      @PathVariable Long noticeId) {
+    NoticeResponseDto responseDto = noticeOrgService.getOrgNotice(orgId, noticeId);
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
   // 게시물 다건 조회
   @GetMapping
   public ResponseEntity<PagingDto<PagingNoticeResponseDto>> getNoticesAndPaging(
+      @PathVariable Long orgId,
       @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-    PagingDto<PagingNoticeResponseDto> notices = noticeService.getNoticesAndPaging(
+    PagingDto<PagingNoticeResponseDto> notices = noticeOrgService.getOrgNoticesAndPaging(orgId,
         pageable);
     return new ResponseEntity<>(notices, HttpStatus.OK);
   }
 
-//  // 게시물 다건 조회
-//  @GetMapping
-//  public ResponseEntity<PagingDto<PagingNoticeResponseDto>> getNoticesAndPaging(
-//      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-//      @RequestParam(required = false) NoticeScope scope,
-//      @RequestParam(required = false) Long orgId) {
-//    PagingDto<PagingNoticeResponseDto> notices = noticeService.getNoticesAndPaging(
-//        pageable, scope, orgId);
-//    return new ResponseEntity<>(notices, HttpStatus.OK);
-//  }
-
   // 게시물 수정
   @PatchMapping("/{noticeId}")
-  public ResponseEntity<NoticeResponseDto> updateNotice(@PathVariable Long noticeId,
+  public ResponseEntity<NoticeResponseDto> updateNotice(@PathVariable Long orgId,
+      @PathVariable Long noticeId,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
       @RequestPart(value = "json") NoticeRequestDto requestDto) {
-    jwtParser.checkAdmin(authorizationHeader);
-    NoticeResponseDto responseDto = noticeService.updateNotice(noticeId, requestDto);
+    jwtParser.checkOrgOrAdmin(authorizationHeader);
+    NoticeResponseDto responseDto = noticeOrgService.updateOrgNotice(orgId, noticeId, requestDto);
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
   // 게시물 삭제
   @DeleteMapping("/{noticeId}")
-  public ResponseEntity<String> deleteNotice(
+  public ResponseEntity<String> deleteNotice(@PathVariable Long orgId,
       @PathVariable Long noticeId,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
-    jwtParser.checkAdmin(authorizationHeader);
-    noticeService.deleteNotice(noticeId);
+    jwtParser.checkOrgOrAdmin(authorizationHeader);
+    noticeOrgService.deleteOrgNotice(orgId, noticeId);
     return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
   }
 
