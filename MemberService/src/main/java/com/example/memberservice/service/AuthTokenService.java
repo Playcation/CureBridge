@@ -2,11 +2,12 @@ package com.example.memberservice.service;
 
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.exceptions.TokenErrorCode;
-import com.example.commonmodule.security.TokenSettings;
 import com.example.commonmodule.utils.JwtParser;
 import com.example.commonmodule.utils.JwtValidator;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.security.JwtIssuer;
+import com.example.commonmodule.config.TokenSettings;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -69,7 +70,7 @@ public class AuthTokenService {
 
     // 4. 새 토큰 발급
     User user = userService.findUserById(Long.parseLong(userId));
-    return jwtIssuer.generateToken(user.getEmail(), user.getId(), user.getOrganizationId(),
+    return jwtIssuer.generateUserToken(user.getEmail(), user.getId(), user.getOrganizationId(),
         user.getRole().toGrantedAuthorities());
   }
 

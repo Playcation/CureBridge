@@ -47,6 +47,7 @@ public class NoticeServiceImpl implements NoticeService {
     Notice notice = Notice.builder()
         .title(requestDto.getTitle())
         .content(requestDto.getContent())
+        .orgId(null)
         .viewCount(0L)
         .userId(userId)
         .build();

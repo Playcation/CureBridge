@@ -1,4 +1,8 @@
+<<<<<<<< HEAD:CommonModule/src/main/java/com/example/commonmodule/security/TokenSettings.java
 package com.example.commonmodule.security;
+========
+package com.example.commonmodule.config;
+>>>>>>>> develop:CommonModule/src/main/java/com/example/commonmodule/config/TokenSettings.java
 
 public final class TokenSettings {
 

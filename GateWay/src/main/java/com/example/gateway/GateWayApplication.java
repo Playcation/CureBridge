@@ -4,7 +4,11 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@SpringBootApplication(scanBasePackages = {
+    "com.example.gateway",
+    "com.example.commonmodule.config"
+},
+    exclude = DataSourceAutoConfiguration.class)
 public class GateWayApplication {
 
   public static void main(String[] args) {
