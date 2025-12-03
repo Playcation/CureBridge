@@ -1,6 +1,7 @@
 package com.example.memberservice.entity;
 
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
+import com.example.memberservice.dto.UpdateUserRequestDto;
 import com.example.memberservice.dto.UserResponseDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -72,5 +73,10 @@ public class User extends BaseEntityDeletedAt {
 
   public void registrationOrg(Long organizationId) {
     this.organizationId = organizationId;
+  }
+
+  public void update(UpdateUserRequestDto dto) {
+    this.phoneNumber = dto.getPhoneNumber() == null ? this.phoneNumber : dto.getPhoneNumber();
+    this.birth = dto.getBirth() == null ? this.birth : dto.getBirth();
   }
 }
