@@ -103,7 +103,7 @@ public class UserController {
     return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
   }
 
-  @PatchMapping("/password")
+  @PatchMapping("/update")
   public ResponseEntity<?> updateUser(
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
       @RequestBody UpdateUserRequestDto dto
