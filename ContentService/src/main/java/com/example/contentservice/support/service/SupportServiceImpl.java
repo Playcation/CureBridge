@@ -3,6 +3,7 @@ package com.example.contentservice.support.service;
 import com.example.commonmodule.common.PagingDto;
 import com.example.commonmodule.exceptions.BoardErrorCode;
 import com.example.commonmodule.exceptions.InvalidInputException;
+import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.files.dto.FileResponseDto;
 import com.example.commonmodule.files.entity.BoardFile;
 import com.example.commonmodule.files.entity.BoardFileType;
@@ -109,12 +110,17 @@ public class SupportServiceImpl implements SupportService {
 
   @Override
   @Transactional
-  public SupportResponseDto updateSupport(Long supportId, SupportRequestDto requestDto) {
+  public SupportResponseDto updateSupport(Long supportId, Long userId,
+      SupportRequestDto requestDto) {
     Support support = supportRepository.findByIdOrElseThrow(supportId);
 
     // isReplied가 true이면 수정 불가
     if (support.isReplied()) {
       throw new InvalidInputException(BoardErrorCode.REPLIED_SUPPORT);
+    }
+
+    if (!support.getUserId().equals(userId)) {
+      throw new NoAuthorizedException(BoardErrorCode.INVALID_OWNER);
     }
 
     support.update(requestDto.getTitle(), requestDto.getContent(), requestDto.isPrivate());
@@ -133,12 +139,16 @@ public class SupportServiceImpl implements SupportService {
 
   @Override
   @Transactional
-  public void deleteSupport(Long supportId) {
+  public void deleteSupport(Long supportId, Long userId) {
     Support support = supportRepository.findByIdOrElseThrow(supportId);
 
     // isReplied가 true이면 수정 불가
     if (support.isReplied()) {
       throw new InvalidInputException(BoardErrorCode.REPLIED_SUPPORT);
+    }
+
+    if (!support.getUserId().equals(userId)) {
+      throw new NoAuthorizedException(BoardErrorCode.INVALID_OWNER);
     }
 
     supportRepository.deleteById(supportId);

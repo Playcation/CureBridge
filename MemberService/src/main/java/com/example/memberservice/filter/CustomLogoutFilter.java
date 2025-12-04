@@ -6,7 +6,7 @@ import org.springframework.web.filter.GenericFilterBean;
 
 import com.example.commonmodule.utils.JwtParser;
 import com.example.memberservice.security.JwtIssuer;
-import com.example.memberservice.security.TokenSettings;
+import com.example.commonmodule.config.TokenSettings;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,5 +1,6 @@
 package com.example.memberservice.controller;
 
+import com.example.commonmodule.config.TokenSettings;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.utils.JwtParser;
 import com.example.memberservice.dto.OrgCreateRequestDto;
@@ -10,7 +11,7 @@ import com.example.memberservice.dto.OrgUpdateDto;
 import com.example.memberservice.entity.Role;
 import com.example.memberservice.enums.AdminException;
 import com.example.memberservice.enums.ManagerException;
-import com.example.memberservice.security.TokenSettings;
+
 import com.example.memberservice.service.OrgManagerService;
 import com.example.memberservice.service.OrganizationService;
 import java.util.List;
@@ -27,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/organization")
+@RequestMapping("/organization")
 @RequiredArgsConstructor
 public class OrganizationController {
 
@@ -44,7 +45,7 @@ public class OrganizationController {
     return ResponseEntity.ok().body(organizationService.createOrganization(orgCreateRequestDto));
   }
 
-  @GetMapping
+  @GetMapping("/all")
   public ResponseEntity<List<OrgResponseDto>> getAllOrganization(
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
@@ -52,11 +53,11 @@ public class OrganizationController {
     return ResponseEntity.ok().body(organizationService.getAllOrganization());
   }
 
-  @GetMapping("/{id}")
+  @GetMapping
   public ResponseEntity<OrgResponseDto> getOrganization(
-      @PathVariable Long id,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
   ) {
+    Long id = jwtParser.findUserByToken(authorizationHeader);
     checkOrgOrAdmin(authorizationHeader);
     return ResponseEntity.ok().body(organizationService.getOrganization(id));
   }
