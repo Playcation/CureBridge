@@ -10,7 +10,7 @@ spring:
     web-application-type: reactive
 
   config:
-     import: classpath:application-common.properties
+    import: classpath:application-common.properties
 
   cloud:
     gateway:
@@ -30,7 +30,12 @@ spring:
               predicates:
                 - Path=/api/anonymous/notices/**,/api/user/notices/**,
                   /api/org-manager/notices/**,/api/org-admin/notices/**,/api/admin/notices/**,
-                  /api/content/ocr/**
+                  /api/content/ocr/**,
+                  /api/anonymous/news/**,/api/user/news/**,
+                  /api/org-manager/news/**,/api/org-admin/news/**,/api/admin/news/**,
+                  /api/anonymous/support/**,/api/user/support/**,
+                  /api/org-manager/support/**,/api/org-admin/support/**,/api/admin/support/**,
+
               filters:
                 - StripPrefix=2
             - id: chat-service
@@ -42,7 +47,7 @@ spring:
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
 server:
-  port: 8080
+  port: 8084
 
 logging:
   level:

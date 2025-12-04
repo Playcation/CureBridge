@@ -42,7 +42,7 @@ public class NoticeController {
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
       @RequestPart(value = "json") NoticeRequestDto requestDto,
       @RequestPart(value = "attachedFile", required = false) List<MultipartFile> attachedFiles,
-      @RequestPart(value = "contentImage", required = false) List<MultipartFile> contentImages) {    /* (TODO) 토큰으로 관리자 인증 */
+      @RequestPart(value = "contentImage", required = false) List<MultipartFile> contentImages) {
     Long userId = jwtParser.findUserByToken(authorizationHeader);
     jwtParser.checkAdmin(authorizationHeader);
     NoticeResponseDto responseDto = noticeService.createNotice(userId, requestDto,
@@ -66,17 +66,6 @@ public class NoticeController {
         pageable);
     return new ResponseEntity<>(notices, HttpStatus.OK);
   }
-
-//  // 게시물 다건 조회
-//  @GetMapping
-//  public ResponseEntity<PagingDto<PagingNoticeResponseDto>> getNoticesAndPaging(
-//      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable,
-//      @RequestParam(required = false) NoticeScope scope,
-//      @RequestParam(required = false) Long orgId) {
-//    PagingDto<PagingNoticeResponseDto> notices = noticeService.getNoticesAndPaging(
-//        pageable, scope, orgId);
-//    return new ResponseEntity<>(notices, HttpStatus.OK);
-//  }
 
   // 게시물 수정
   @PatchMapping("/{noticeId}")
