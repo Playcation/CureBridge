@@ -1,7 +1,7 @@
 package com.example.commonmodule.dto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ public class UserResponseDto {
 
 	private final String name;
 	private final String email;
-	private final Date birthDate;
+	private final LocalDate birthDate;
 	private final String sick;
 	private final LocalDateTime createdAt;
 	private final LocalDateTime updatedAt;

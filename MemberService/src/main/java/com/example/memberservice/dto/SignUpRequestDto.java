@@ -1,13 +1,15 @@
 package com.example.memberservice.dto;
 
-import java.util.Date;
+import java.time.LocalDate;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class SignUpRequestDto {
 
 	@NotBlank(message = "이메일은 필수값입니다.")
@@ -25,5 +27,5 @@ public class SignUpRequestDto {
 	private String name;
 
 	private String phoneNumber;
-	private Date birthDate;
+	private LocalDate birthDate;
 }
