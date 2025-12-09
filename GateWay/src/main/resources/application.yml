@@ -10,7 +10,7 @@ spring:
     web-application-type: reactive
 
   config:
-     import: classpath:application-common.properties
+    import: classpath:application-common.properties
 
   cloud:
     gateway:
@@ -30,7 +30,7 @@ spring:
               predicates:
                 - Path=/api/anonymous/notices/**,/api/user/notices/**,
                   /api/org-manager/notices/**,/api/org-admin/notices/**,/api/admin/notices/**,
-                  /api/content/ocr/**
+                  /api/content/ocr/**, /api/content/calendar/**
               filters:
                 - StripPrefix=2
             - id: chat-service

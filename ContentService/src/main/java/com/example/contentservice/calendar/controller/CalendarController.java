@@ -1,6 +1,6 @@
 package com.example.contentservice.calendar.controller;
 
-import com.example.commonmodule.security.TokenSettings;
+import com.example.commonmodule.config.TokenSettings;
 import com.example.commonmodule.utils.JwtParser;
 import com.example.contentservice.calendar.dto.CreateScheduleRequestDto;
 import com.example.contentservice.calendar.dto.CreateScheduleResponseDto;
@@ -30,7 +30,7 @@ public class CalendarController {
 
   private final CalendarService calendarService;
   private final JwtParser jwtParser;
-	
+
   @PostMapping
   public ResponseEntity<CreateScheduleResponseDto> createSchedule(
       @RequestBody @Valid CreateScheduleRequestDto requestDto,

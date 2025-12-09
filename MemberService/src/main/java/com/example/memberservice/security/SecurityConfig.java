@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -47,21 +48,25 @@ public class SecurityConfig extends AbstractSecurityConfig {
             .requestMatchers(whiteList).permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")
             .anyRequest().authenticated()
-            // .anyRequest().permitAll()
+        // .anyRequest().permitAll()
     );
     super.configureJwtResourceServer(http);
   }
 
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationManager am)
+  public SecurityFilterChain filterChain(HttpSecurity http,
+      AuthenticationConfiguration authenticationConfiguration)
       throws Exception {
+
+    // [중요] 여기서 Manager를 꺼냅니다.
+    AuthenticationManager am = authenticationConfiguration.getAuthenticationManager();
+
     super.commonHttpConfig(http);
     configureAuthorization(http);
 
     CustomLoginFilter loginFilter = new CustomLoginFilter(am, jwtIssuer);
     CustomLogoutFilter logoutFilter = new CustomLogoutFilter(jwtIssuer, jwtParser);
 
-    // 모듈 전용 필터 추가
     http.addFilterBefore(new JwtAuthFilter(jwtIssuer, jwtParser),
         UsernamePasswordAuthenticationFilter.class);
     http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
