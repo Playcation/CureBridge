@@ -73,26 +73,23 @@ jobs:
           push: true
           tags: ${{ vars.DOCKERHUB_USERNAME }}/curebridge-common:latest
 
-  #  EC2 자동 배포
-  deploy-contentservice-to-ec2:
-    needs: docker-build-and-push
-    runs-on: ubuntu-latest
+  deploy-to-swarm:
+  needs: docker-build-and-push
+  runs-on: ubuntu-latest
 
-    steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
-          script: |
-            cd ~/envfile
-            git pull
-            echo "${{ secrets.GATEWAY_ENV }}" > gateway.env
-            echo "${{ secrets.CONTENT_ENV }}" > content.env
-            echo "${{ secrets.CHAT_ENV }}" > chat.env
-            echo "${{ secrets.MEMBER_ENV }}" > member.env
-            
-            docker-compose pull
-            docker-compose down
-            docker-compose up -d
+  steps:
+    - name: Deploy to Swarm Manager
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.SWARM_MANAGER_HOST }}
+        username: ${{ secrets.EC2_USER }}
+        key: ${{ secrets.EC2_KEY }}
+        script: |
+          cd ~/curebridge   
+
+          echo "${{ secrets.GATEWAY_ENV }}" > gateway.env
+          echo "${{ secrets.CONTENT_ENV }}" > content.env
+          echo "${{ secrets.CHAT_ENV }}" > chat.env
+          echo "${{ secrets.MEMBER_ENV }}" > member.env
+
+          docker stack deploy -c docker-stack.yml curebridge
