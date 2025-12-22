@@ -49,7 +49,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
             .anyRequest().authenticated()
             // .anyRequest().permitAll()
     );
-    super.configureJwtResourceServer(http);
+//    super.configureJwtResourceServer(http);
   }
 
   @Bean
