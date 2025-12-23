@@ -53,7 +53,7 @@ class OcrServiceImplTest {
 
     @Test
     @DisplayName("OCR 파일 업로드 및 분석 테스트")
-    void analyzeImageWithClovaOcr() throws IOException {
+    void analyzeImageWithClovaOcrTest() throws IOException {
         // Given
         Long userId = 1L;
         MockMultipartFile mockFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test data".getBytes());
@@ -73,45 +73,175 @@ class OcrServiceImplTest {
     }
 
     @Test
+    @DisplayName("OCR 분석 실패 - 파일 처리 중 IOException 발생")
+    void analyzeImageWithClovaOcr_FileError_Test() throws IOException {
+        // Given
+        Long userId = 1L;
+        // transferTo 호출 시 IOException이 발생하도록 Mock 설정
+        MockMultipartFile mockFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test data".getBytes()) {
+            @Override
+            public void transferTo(java.io.File dest) throws IOException, IllegalStateException {
+                throw new IOException("Disk full or permission denied");
+            }
+        };
+
+        // When & Then
+        // Service 내부에서 try-catch로 잡아 RuntimeException으로 던지는지 확인
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            ocrService.analyzeImageWithClovaOcr(userId, mockFile);
+        });
+    }
+
+    @Test
+    @DisplayName("OCR 분석 실패 - 외부 API 응답 오류 (JSON 파싱 실패)")
+    void analyzeImageWithClovaOcr_JsonParseError_Test() throws IOException {
+        // Given
+        Long userId = 1L;
+        MockMultipartFile mockFile = new MockMultipartFile("file", "test.jpg", "image/jpeg", "test data".getBytes());
+
+        // 정상적인 JSON이 아닌 에러 메시지나 잘못된 형식이 반환된 경우
+        String invalidJson = "Internal Server Error";
+
+        when(clovaOcrClient.requestOcr(any())).thenReturn(invalidJson);
+
+        // When & Then
+        // JSONObject 파싱 중 에러가 발생하여 RuntimeException으로 전파되는지 확인
+        org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () -> {
+            ocrService.analyzeImageWithClovaOcr(userId, mockFile);
+        });
+    }
+
+    @Test
     @DisplayName("OCR 결과 업데이트 테스트")
-    void updateOcrResult() {
+    void updateOcrResultTest() {
+        // Given
         UpdateRequestDto updateRequestDto = new UpdateRequestDto("수정된 진단서", LocalDate.now().plusDays(1), "김철수", "독감", Arrays.asList("new text1", "new text2"));
         when(ocrRepository.findByIdOrElseThrow("testId")).thenReturn(ocrEntity);
         when(ocrRepository.save(any(OcrEntity.class))).thenReturn(ocrEntity);
 
+        // When
         OcrResponseDto ocrResponseDto = ocrService.updateOcrResult("testId", updateRequestDto);
 
+        // Then
         assertEquals("수정된 진단서", ocrResponseDto.getReportTitle());
         assertEquals("김철수", ocrResponseDto.getPatientName());
     }
 
     @Test
+    @DisplayName("OCR 업데이트 실패 - 존재하지 않는 ID 조회")
+    void updateOcrResult_NotFound_Test() {
+        // Given
+        String invalidId = "unknownId";
+        UpdateRequestDto updateRequestDto = new UpdateRequestDto("title", LocalDate.now(), "name", "diag", List.of());
+
+        // findByIdOrElseThrow가 예외를 던지도록 설정 (Repository 구현체에 따라 예외 종류는 다를 수 있음)
+        // 여기서는 보통 사용되는 NoSuchElementException 또는 IllegalArgumentException 가정
+        when(ocrRepository.findByIdOrElseThrow(invalidId))
+            .thenThrow(new java.util.NoSuchElementException("해당 ID를 찾을 수 없습니다."));
+
+        // When & Then
+        org.junit.jupiter.api.Assertions.assertThrows(java.util.NoSuchElementException.class, () -> {
+            ocrService.updateOcrResult(invalidId, updateRequestDto);
+        });
+    }
+
+    @Test
     @DisplayName("OCR 상세 결과 조회 테스트")
-    void getOcrDetailResult() {
+    void getOcrDetailResultTest() {
+        // Given
         when(ocrRepository.findByIdOrElseThrow("testId")).thenReturn(ocrEntity);
 
+        // When
         OcrResponseDto ocrResponseDto = ocrService.getOcrDetalResult("testId");
 
+        // Then
         assertEquals("진단서", ocrResponseDto.getReportTitle());
         assertEquals("홍길동", ocrResponseDto.getPatientName());
     }
 
     @Test
     @DisplayName("사용자 OCR 결과 목록 조회 테스트")
-    void getOcrResult() {
+    void getOcrResultTest() {
+        // Given
         when(ocrRepository.findByUserId(1L)).thenReturn(Arrays.asList(ocrEntity));
 
+        // When
         var result = ocrService.getOcrResult(1L);
 
+        // Then
         assertEquals(1, result.size());
         assertEquals("진단서", result.get(0).getReportTitle());
     }
 
     @Test
     @DisplayName("OCR 결과 삭제 테스트")
-    void deleteOcrResult() {
+    void deleteOcrResultTest() {
+        // Given & When
         String result = ocrService.deleteOcrResult("testId", new com.example.contentservice.ocr.dto.DeleteRequestDto("password"));
 
+        // Then
         assertEquals("삭제되었습니다.", result);
+    }
+
+    @Test
+    @DisplayName("userId와 날짜(년, 월)로 OCR 검색 테스트")
+    void findOcrEntityTest() {
+        // Given
+        Long userId = 1L;
+        // Given
+        int year = LocalDate.now().getYear();
+        int month = LocalDate.now().getMonthValue();
+
+        // 서비스 로직 내부에서 계산될 것으로 예상되는 날짜
+        LocalDate expectedStart = LocalDate.of(year, month, 1);
+        LocalDate expectedEnd = LocalDate.of(year, month, 31);
+        when(ocrRepository.findByUserIdAndReportDateBetween(userId, expectedStart, expectedEnd))
+            .thenReturn(Arrays.asList(ocrEntity));
+
+        // When
+        List<OcrEntity> result = ocrService.findOcrEntity(userId, year, month);
+
+        // Then
+        assertEquals(1, result.size());
+        assertEquals(ocrEntity.getOcrId(), result.get(0).getOcrId());
+        assertEquals(ocrEntity.getPatientName(), result.get(0).getPatientName());
+        assertEquals(ocrEntity.getCreatedAt(), result.get(0).getCreatedAt());
+    }
+
+    @Test
+    @DisplayName("날짜(년, 월)로 전체 OCR 검색 테스트")
+    void findOcrEntityThisMonthTest() {
+        // Given
+        int year = LocalDate.now().getYear();
+        int month = LocalDate.now().getMonthValue();
+
+        // 서비스 로직 내부에서 계산될 것으로 예상되는 날짜
+        LocalDate expectedStart = LocalDate.of(year, month, 1);
+        LocalDate expectedEnd = LocalDate.of(year, month, 31);
+        when(ocrRepository.findByReportDateBetween(expectedStart, expectedEnd))
+            .thenReturn(Arrays.asList(ocrEntity));
+
+        // When
+        List<OcrEntity> result = ocrService.findOcrEntityThisMonth(year, month);
+
+        // Then
+        assertEquals(1, result.size());
+        assertEquals(ocrEntity.getReportTitle(), result.get(0).getReportTitle());
+        assertEquals(ocrEntity.getCreatedAt(), result.get(0).getCreatedAt());
+    }
+
+    @Test
+    @DisplayName("OCR 검색 실패 - 유효하지 않는 날짜 입력 (DateTimeException)")
+    void findOcrEntity_InvalidDate_Test() {
+        // Given
+        Long userId = 1L;
+        int year = 2025;
+        int invalidMonth = 13; // 13월은 존재하지 않음
+
+        // When & Then
+        // LocalDate.of(year, month, 1) 에서 DateTimeException 발생 예상
+        org.junit.jupiter.api.Assertions.assertThrows(java.time.DateTimeException.class, () -> {
+            ocrService.findOcrEntity(userId, year, invalidMonth);
+        });
     }
 }
