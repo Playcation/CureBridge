@@ -1,4 +1,4 @@
-package com.example.contentservice.ocr.service;
+package com.example.contentservice.report.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

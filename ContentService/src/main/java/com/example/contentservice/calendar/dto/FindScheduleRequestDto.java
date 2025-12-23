@@ -1,10 +1,13 @@
 package com.example.contentservice.calendar.dto;
 
 import java.time.LocalDate;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import lombok.Getter;
-
-@Getter
+//@Getter
+@Data
 public class FindScheduleRequestDto {
-	private LocalDate date;
+
+  @DateTimeFormat(pattern = "yyyy-MM-dd")
+  private LocalDate date;
 }
