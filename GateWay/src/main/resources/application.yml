@@ -35,6 +35,7 @@ spring:
                   /api/org-manager/news/**,/api/org-admin/news/**,/api/admin/news/**,
                   /api/anonymous/support/**,/api/user/support/**,
                   /api/org-manager/support/**,/api/org-admin/support/**,/api/admin/support/**,
+                  /api/org-manager/reply/**,/api/org-admin/reply/**,/api/admin/reply/**
 
               filters:
                 - StripPrefix=2

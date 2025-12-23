@@ -31,7 +31,8 @@ public class Support extends BaseEntityDeletedAt {
   private boolean isPrivate;
 
   @Column(nullable = false)
-  private Long viewCount;
+  @Builder.Default
+  private Long viewCount = 0L;
 
   // 답글 부분 컬럼
   private boolean isReplied;
