@@ -61,6 +61,9 @@ dependencies {
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+
+    // 테스트용 Embedded MongoDB
+    testImplementation 'de.flapdoodle.embed:de.flapdoodle.embed.mongo.spring3x:4.11.0'
 }
 
 tasks.named('test') {
