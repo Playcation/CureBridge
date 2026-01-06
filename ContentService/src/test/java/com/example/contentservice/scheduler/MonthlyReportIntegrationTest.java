@@ -14,6 +14,7 @@ import com.example.contentservice.report.repository.HealthReportRepository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
@@ -40,8 +41,15 @@ class MonthlyReportIntegrationTest {
   @Autowired
   private HealthReportRepository healthReportRepository;
 
+  @BeforeEach
+  void setUp() {
+    ocrRepository.deleteAll();
+    healthReportRepository.deleteAll();
+  }
+
   @Test
-  @DisplayName("통합 테스트: 이번 달 OCR 데이터가 있을 때 리포트가 생성되어야 한다")
+  @Transactional
+  @DisplayName("이번 달 OCR 데이터가 있을 때 리포트가 생성되어야 한다")
   void monthlyReport_Integration_Success_Test() {
     // 1. Given: 현재 날짜 기준의 테스트 데이터 DB 저장
     int year = LocalDate.now().getYear();
@@ -79,6 +87,15 @@ class MonthlyReportIntegrationTest {
     // 3. Then: DB에 리포트가 저장되었는지 검증
     List<HealthReport> reports = healthReportRepository.findByUserId(userId);
 
+    for (int i = 0; i < reports.size(); i++) {
+      System.out.println("start!!!!!!!!!!!!!!!!!");
+      System.out.println("Title " +
+          reports.get(i).getTitle() + " Summary " + reports.get(i).getSummary() + " Rate "
+          + reports.get(i)
+          .getRate());
+      System.out.println("end!!!!!!!!!!!!!!!!!");
+    }
+
     assertThat(reports).hasSize(1);
     HealthReport savedReport = reports.get(0);
     assertThat(savedReport.getTitle()).contains(year + "-" + month);
@@ -87,7 +104,8 @@ class MonthlyReportIntegrationTest {
   }
 
   @Test
-  @DisplayName("통합 테스트: 이번 달 OCR 데이터가 없으면 리포트가 생성되지 않아야 한다")
+  @Transactional
+  @DisplayName("이번 달 OCR 데이터가 없으면 리포트가 생성되지 않아야 한다")
   void monthlyReport_NoData_Test() {
     // 1. Given: 데이터 없음 (저장 안 함)
     // 확실한 검증을 위해 다른 달의 데이터를 넣을 수도 있음
