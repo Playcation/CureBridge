@@ -1,5 +1,6 @@
 package com.example.memberservice.service;
 
+import com.example.commonmodule.dto.UserResponseDto;
 import com.example.memberservice.dto.OrgManagerCreateRequestDto;
 import com.example.memberservice.dto.OrgManagerResponseDto;
 import com.example.memberservice.dto.OrgManagerUpdateDto;
@@ -58,5 +59,12 @@ public class OrgManagerService {
     user.registrationOrg(orgManager.getOrganizationId());
     userRepository.save(user);
     return "초대되었습니다.";
+  }
+
+
+  public List<UserResponseDto> getMembers(Long id) {
+    OrgManager orgManager = orgManagerRepository.findByIdOrElseThrow(id);
+    List<User> userList = userRepository.findUserByOrganizationId(orgManager.getOrganizationId());
+    return userList.stream().map(User::toDto).toList();
   }
 }

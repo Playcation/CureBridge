@@ -2,8 +2,6 @@ package com.example.memberservice.entity;
 
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 import com.example.commonmodule.dto.UserResponseDto;
-import java.util.Date;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -58,10 +56,11 @@ public class User extends BaseEntityDeletedAt {
   // TODO: sick 부분 기본값 정하기
   public UserResponseDto toDto() {
     return new UserResponseDto(
+        this.id,
         this.name,
         this.email,
         this.birth,
-        "없음",
+        this.phoneNumber,
         this.getCreatedAt(),
         this.getUpdatedAt(),
         this.getDeletedAt()
