@@ -43,7 +43,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
   @Override
   protected void configureAuthorization(HttpSecurity http) throws Exception {
     // TODO: 세부 권한, 화이트리스트 등록
-    String[] whiteList = {"/user/auth/signup", "/user/auth/login"};
+    String[] whiteList = {"/user/auth/signup", "/user/auth/login", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"};
     http.authorizeHttpRequests(auth -> auth
             .requestMatchers(whiteList).permitAll()
             .requestMatchers("/api/admin/**").hasRole("ADMIN")

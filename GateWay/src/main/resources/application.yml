@@ -39,6 +39,29 @@ spring:
                 - Path=/api/user/chat/**,/api/org-manager/chat/**,/api/org-admin/chat/**,/api/admin/chat/**
               filters:
                 - StripPrefix=2
+            
+            # Swagger Routes
+            - id: member-service-docs
+              uri: http://localhost:8081
+              predicates:
+                - Path=/member-service/v3/api-docs
+              filters:
+                - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+            
+            - id: content-service-docs
+              uri: http://localhost:8082
+              predicates:
+                - Path=/content-service/v3/api-docs
+              filters:
+                - RewritePath=/content-service/(?<segment>.*), /$\{segment}
+            
+            - id: chat-service-docs
+              uri: http://localhost:8083
+              predicates:
+                - Path=/chat-service/v3/api-docs
+              filters:
+                - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
 server:
@@ -49,3 +72,15 @@ logging:
     org.springframework.cloud.gateway: DEBUG
     reactor.netty.http.server: DEBUG
     org.springframework.security: DEBUG
+
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
+    display-query-params-with-url: true
+    urls:
+      - name: Member Service
+        url: /member-service/v3/api-docs
+      - name: Content Service
+        url: /content-service/v3/api-docs
+  api-docs:
+    enabled: true
