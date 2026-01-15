@@ -18,11 +18,11 @@ public class SecurityConfig extends AbstractSecurityConfig {
     String[] whiteList = {"/api/example"};
     http.authorizeHttpRequests(auth -> auth
         .requestMatchers(whiteList).permitAll()
+        .requestMatchers("/error").permitAll()
         .requestMatchers("/api/admin/**").hasRole("ADMIN")
         .requestMatchers("/orgs/*/notices/**").hasRole("ORG_ADMIN")
         .anyRequest().permitAll()
     );
-    super.configureJwtResourceServer(http);
   }
 
   @Bean
