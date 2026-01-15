@@ -57,7 +57,7 @@ public class NewsController {
   private String CLIENT_SECRET;
 
   // 매일 자정(0시 0분)에 이 메서드가 자동으로 실행됩니다.
-  @Scheduled(cron = "0 09 21 * * *", zone = "Asia/Seoul")
+  @Scheduled(cron = "0 54 20 * * *")
   public void newsapi() {
     for (int start = 1; start <= 1000; start += 100) {
       try {
