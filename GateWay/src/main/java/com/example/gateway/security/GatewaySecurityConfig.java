@@ -52,7 +52,7 @@ public class GatewaySecurityConfig {
 			.csrf(ServerHttpSecurity.CsrfSpec::disable)
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeExchange(exchanges -> exchanges
-				.pathMatchers("/api/anonymous/**").permitAll() // 로그인, 회원가입은 통과
+				.pathMatchers("/api/anonymous/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/member-service/v3/api-docs", "/content-service/v3/api-docs", "/chat-service/v3/api-docs").permitAll() // 로그인, 회원가입은 통과
 				.pathMatchers("/api/admin/**").access((authMono, ctx) -> // 이후 권한 크기순으로 체크
 					authMono.map(auth -> hasRoleOrHigher(auth, Role.ADMIN))
 				)
