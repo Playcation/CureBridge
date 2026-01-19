@@ -28,9 +28,8 @@ spring:
             - id: content-service
               uri: http://localhost:8082
               predicates:
-                - Path=/api/anonymous/notices/**,/api/user/notices/**,
-                  /api/org-manager/notices/**,/api/org-admin/notices/**,/api/admin/notices/**,
-                  /api/content/ocr/**
+                - Path=/api/anonymous/content/**,/api/user/content/**,
+                  /api/org-manager/content/**,/api/org-admin/content/**,/api/admin/content/**
               filters:
                 - StripPrefix=2
             - id: chat-service
@@ -38,7 +37,7 @@ spring:
               predicates:
                 - Path=/api/user/chat/**,/api/org-manager/chat/**,/api/org-admin/chat/**,/api/admin/chat/**
               filters:
-                - StripPrefix=2
+                - StripPrefix=3
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
 server:
