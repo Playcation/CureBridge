@@ -3,6 +3,7 @@ package com.example.memberservice.service;
 import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.exceptions.UserErrorCode;
+import com.example.commonmodule.files.dto.FileResponseDto;
 import com.example.commonmodule.files.service.FileService;
 import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
@@ -37,7 +38,7 @@ class UserServiceTest {
 	}
 
 	@Test
-	@DisplayName("회원가입 성공 테스트")
+	@DisplayName("회원가입 성공 테스트 - 파일 업로드 mock 처리")
 	void signUp_success() {
 		// given
 		SignUpRequestDto dto = new SignUpRequestDto("test@test.com", "1234", "홍길동", "01012345678", LocalDate.of(1990,1,1));
@@ -45,6 +46,9 @@ class UserServiceTest {
 
 		when(passwordEncoder.encode("1234")).thenReturn("encodedPw");
 		when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+		FileResponseDto mockResponse = new FileResponseDto();
+		when(fileService.uploadFile(file)).thenReturn(mockResponse);
 
 		// when
 		MessageResponseDto response = userService.signUp(file, dto);
@@ -54,6 +58,7 @@ class UserServiceTest {
 		verify(userRepository, times(1)).save(any(User.class));
 		assertThat(response.getMessage()).isEqualTo("회원가입 성공");
 	}
+
 
 	@Test
 	@DisplayName("비밀번호 확인 성공")
