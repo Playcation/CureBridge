@@ -4,13 +4,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
@@ -25,11 +22,16 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @RequiredArgsConstructor
 public abstract class AbstractSecurityConfig {
 
-  @Bean
-  public AuthenticationManager authenticationManager(
-      AuthenticationConfiguration authenticationConfiguration) throws Exception {
-    return authenticationConfiguration.getAuthenticationManager();
-  }
+//	@Bean
+//	public BCryptPasswordEncoder passwordEncoder() {
+//		return new BCryptPasswordEncoder();
+//	}
+
+//  @Bean
+//  public AuthenticationManager authenticationManager(
+//      AuthenticationConfiguration authenticationConfiguration) throws Exception {
+//    return authenticationConfiguration.getAuthenticationManager();
+//  }
 
   protected void commonHttpConfig(HttpSecurity http) throws Exception {
     http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -39,9 +41,6 @@ public abstract class AbstractSecurityConfig {
         .headers(h -> h.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
   }
 
-  /**
-   * ✅ JWT 리소스 서버 설정 + roles 클레임 → ROLE_xxx 권한 매핑
-   */
   protected void configureJwtResourceServer(HttpSecurity http) throws Exception {
     http.oauth2ResourceServer(oauth2 -> oauth2
         .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
@@ -69,11 +68,14 @@ public abstract class AbstractSecurityConfig {
       return convertJwtToAuth(jwt, roles);
     };
   }
-
+// 원래 위에 두개 아니고 아래거였음
+  //  protected void configureJwtResourceServer(HttpSecurity http) throws Exception {
+//    http.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
+//  }
   protected AbstractAuthenticationToken convertJwtToAuth(Jwt jwt, List<String> roles) {
     List<GrantedAuthority> authorities = roles.stream()
-        .map(String::trim)
-        .filter(r -> !r.isEmpty())
+        //.map(String::trim)
+        //.filter(r -> !r.isEmpty())
         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
         .collect(Collectors.toList());
     return new JwtAuthenticationToken(jwt, authorities);
@@ -81,6 +83,9 @@ public abstract class AbstractSecurityConfig {
 
   /**
    * 모듈별로 화이트리스트, 세부 권한을 설정할 메서드
+   *
+   * @param http
+   * @throws Exception
    */
   protected abstract void configureAuthorization(HttpSecurity http) throws Exception;
 }

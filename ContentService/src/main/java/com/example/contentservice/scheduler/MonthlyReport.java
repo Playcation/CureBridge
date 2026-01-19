@@ -21,6 +21,7 @@ public class MonthlyReport {
    * 매월 1일 오전 12시에 실행
    */
   @Scheduled(cron = "0 0 0 1 * *") // 초 분 시 일 월 요일
+//  @Scheduled(cron = "0/10 * * * * *") // 초 분 시 일 월 요일
   public void updateRankingBatch() {
     log.info("레포트 작성 시작");
     int year = LocalDate.now().getYear();
