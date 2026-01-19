@@ -15,7 +15,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
   // TODO: 모듈별 권한 세부 설정
   @Override
   protected void configureAuthorization(HttpSecurity http) throws Exception {
-    String[] whiteList = {"/api/example"};
+    String[] whiteList = {"/api/example", "/support/**"};
     http.authorizeHttpRequests(auth -> auth
         .requestMatchers(whiteList).permitAll()
         .requestMatchers("/api/admin/**").hasRole("ADMIN")
