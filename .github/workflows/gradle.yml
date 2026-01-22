@@ -2,10 +2,10 @@ name: backend-sript
 on:
   push:
     branches:
-      - develop
+      - feature-boardhb
   pull_request:
     branches:
-      - develop
+      - feature-boardhb
 
 permissions: write-all
 
@@ -26,8 +26,13 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Run tests (exclude SpringBootTest context load)
+      - name: Run tests with gradle
         run: ./gradlew test --no-daemon -x :CommonModule:test
+        env:
+          # 💡 GitHub Settings에 등록한 Secrets 값을 환경 변수로 매핑합니다.
+          SPRING_DATA_MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          SPRING_ELASTICSEARCH_URIS: ${{ secrets.ELASTICSEARCH_URI }}
+          SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
 
 
   docker-build-and-push:
