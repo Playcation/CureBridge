@@ -120,7 +120,7 @@ public class NoticeServiceImpl implements NoticeService {
         NoticeDocument.fromEntity(savedNotice)
     );
 
-    return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
+    return NoticeResponseDto.toDto(savedNotice, contentImagePaths, attachedFilePaths);
   }
 
   /**
