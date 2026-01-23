@@ -1,11 +1,11 @@
 package com.example.contentservice.news.controller;
 
-import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import com.example.commonmodule.common.PagingDto;
 import com.example.commonmodule.config.TokenSettings;
 import com.example.commonmodule.utils.JwtParser;
 import com.example.contentservice.news.dto.NewsRequestDto;
 import com.example.contentservice.news.dto.NewsResponseDto;
+import com.example.contentservice.news.dto.TopKeywordResponseDto;
 import com.example.contentservice.news.entity.News;
 import com.example.contentservice.news.repository.NewsRepository;
 import com.example.contentservice.news.service.NewsSearchService;
@@ -57,7 +57,7 @@ public class NewsController {
   private String CLIENT_SECRET;
 
   // 매일 자정(0시 0분)에 이 메서드가 자동으로 실행됩니다.
-  @Scheduled(cron = "0 54 20 * * *")
+  @Scheduled(cron = "0 00 17 * * *")
   public void newsapi() {
     for (int start = 1; start <= 1000; start += 100) {
       try {
@@ -139,7 +139,7 @@ public class NewsController {
 
   // 특정 기간 내 인기 키워드 조회 API
   @GetMapping("/top-keywords")
-  public ResponseEntity<List<StringTermsBucket>> getTopKeywordsForDateRange(
+  public ResponseEntity<List<TopKeywordResponseDto>> getTopKeywordsForDateRange(
       @RequestParam(value = "gte", required = false) String gte,
       @RequestParam(value = "lt", required = false) String lt,
       @RequestParam(value = "size", defaultValue = "10") int size
@@ -148,11 +148,12 @@ public class NewsController {
     LocalDate endDate = (lt != null) ? LocalDate.parse(lt) : LocalDate.now();
 
     try {
-      List<StringTermsBucket> topKeywords = newsSearchService.aggregateTopKeywordsForDateRange(
-          startDate, endDate, size);
-      return new ResponseEntity<>(topKeywords, HttpStatus.OK);
+      List<TopKeywordResponseDto> topKeywords =
+          newsSearchService.aggregateTopKeywordsForDateRange(startDate, endDate, size);
+
+      return ResponseEntity.ok(topKeywords);
     } catch (Exception e) {
-      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }
 

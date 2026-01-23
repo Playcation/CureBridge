@@ -44,7 +44,6 @@ public class NewsServiceImpl implements NewsService {
             .publishedAt(ZonedDateTime.parse(dto.getPubDate(), formatter).toLocalDateTime())
             .build())
         .collect(Collectors.toList());
-
     newsRepository.saveAll(posts);
 
     // 💡 Elasticsearch에 저장

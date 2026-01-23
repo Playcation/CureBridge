@@ -47,7 +47,7 @@ public class NoticeServiceImpl implements NoticeService {
     Notice notice = Notice.builder()
         .title(requestDto.getTitle())
         .content(requestDto.getContent())
-        .orgId(null)
+        .orgId(0L)
         .viewCount(0L)
         .userId(userId)
         .build();
@@ -120,7 +120,7 @@ public class NoticeServiceImpl implements NoticeService {
         NoticeDocument.fromEntity(savedNotice)
     );
 
-    return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
+    return NoticeResponseDto.toDto(savedNotice, contentImagePaths, attachedFilePaths);
   }
 
   /**

@@ -32,7 +32,7 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
   public CustomLoginFilter(AuthenticationManager authenticationManager, JwtIssuer jwtIssuer) {
     this.authenticationManager = authenticationManager;
     this.jwtIssuer = jwtIssuer;
-    setFilterProcessesUrl("/user/auth/login");
+    setFilterProcessesUrl("/user/login");
   }
 
   // JSON Body 에서 자격증명 파싱
@@ -68,23 +68,22 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     Long userId = null;
     String userRole = null;
 
-    if (principal instanceof UserDetailsImpl) {
-      UserDetailsImpl userDetails = (UserDetailsImpl) principal;
+    if (principal instanceof UserDetailsImpl userDetails) {
       tokens = jwtIssuer.generateUserToken(authResult);
-      userId = userDetails.getUser().getId(); // ✅ User ID 추출
-      userRole = "USER"; // ✅ 역할 설정
+      userId = userDetails.getUser().getId();
+      // 🔥 여기서 실제 DB에 저장된 role 사용
+      userRole = userDetails.getUser().getRole().name();  // ADMIN / USER
 
-    } else if (principal instanceof ManagerDetailsImpl) {
-      ManagerDetailsImpl managerDetails = (ManagerDetailsImpl) principal;
+    } else if (principal instanceof ManagerDetailsImpl managerDetails) {
       tokens = jwtIssuer.generateManagerToken(authResult);
-      userId = managerDetails.getManager().getId(); // ✅ Manager ID 추출
-      userRole = "ORG_MANAGER"; // ✅ 역할 설정
+      userId = managerDetails.getManager().getId();
+      // 마찬가지로 하드코딩 말고 실제 role 쓰는 게 더 안전
+      userRole = managerDetails.getManager().getRole().name(); // ORG_MANAGER 등
 
-    } else if (principal instanceof OrganizationDetailsImpl) {
-      OrganizationDetailsImpl orgDetails = (OrganizationDetailsImpl) principal;
+    } else if (principal instanceof OrganizationDetailsImpl orgDetails) {
       tokens = jwtIssuer.generateOrganizationToken(authResult);
-      userId = orgDetails.getOrganization().getId(); // ✅ Organization ID 추출
-      userRole = "ORG_ADMIN"; // ✅ 역할 설정
+      userId = orgDetails.getOrganization().getId();
+      userRole = orgDetails.getOrganization().getRole().name(); // ORG_ADMIN 등
 
     } else {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -97,20 +96,18 @@ public class CustomLoginFilter extends UsernamePasswordAuthenticationFilter {
     String accessToken = tokens[0];
     String refreshToken = tokens[1];
 
-    // refresh token 저장한 쿠키 생성
     Cookie cookie = jwtIssuer.createCookie(
         TokenSettings.REFRESH_TOKEN_CATEGORY,
         refreshToken,
         TokenSettings.COOKIE_EXPIRATION);
     response.addCookie(cookie);
 
-    // access token 응답 설정
     response.setStatus(HttpServletResponse.SC_OK);
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     objectMapper.writeValue(response.getWriter(), Map.of(
         "accessToken", accessToken,
         "userId", userId,
-        "userRole", userRole
+        "userRole", userRole   // 👉 이제 ADMIN / USER / ORG_ADMIN / ORG_MANAGER 제대로 반영
     ));
   }
 
