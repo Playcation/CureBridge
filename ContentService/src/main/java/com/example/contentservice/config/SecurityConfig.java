@@ -1,6 +1,8 @@
 package com.example.contentservice.config;
 
 import com.example.commonmodule.security.AbstractSecurityConfig;
+import com.example.commonmodule.utils.Role;
+
 import java.util.Base64;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,12 +37,12 @@ public class SecurityConfig extends AbstractSecurityConfig {
   // TODO: 모듈별 권한 세부 설정
   @Override
   protected void configureAuthorization(HttpSecurity http) throws Exception {
-    String[] whiteList = {"/api/example", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"};
+    String[] whiteList = {"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"};
     http.authorizeHttpRequests(auth -> auth
         .requestMatchers(whiteList).permitAll()
-        .requestMatchers("/api/admin/**").hasRole("ADMIN")
-        .requestMatchers(RegexRequestMatcher.regexMatcher("/orgs/.*/notices/.*"))
-        .hasRole("ORG_ADMIN").anyRequest().permitAll()
+        .requestMatchers(RegexRequestMatcher.regexMatcher("/orgs/.*/notices/.*")).hasRole(Role.ORG_ADMIN.getAuthority())
+        .requestMatchers("/ocr/upload/**").hasRole(Role.ORG_MANAGER.getAuthority())
+        .anyRequest().permitAll()
     );
     //super.configureJwtResourceServer(http);
   }

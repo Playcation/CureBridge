@@ -45,7 +45,7 @@ public class UserController {
 	 * @param dto 저장해야 하는 회원 정보
 	 * @return 성공시 계정이 생성되었다는 메시지
 	 */
-	@PostMapping("/auth/signup")
+	@PostMapping("/signup")
 	public ResponseEntity<MessageResponseDto> signUp(
 		@RequestPart(name = "profile")MultipartFile profile,
 		 @Valid @RequestPart(name = "data") SignUpRequestDto dto
