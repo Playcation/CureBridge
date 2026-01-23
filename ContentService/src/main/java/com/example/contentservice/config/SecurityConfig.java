@@ -44,7 +44,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
         .requestMatchers("/ocr/upload/**").hasRole(Role.ORG_MANAGER.getAuthority())
         .anyRequest().permitAll()
     );
-    super.configureJwtResourceServer(http);
+    //super.configureJwtResourceServer(http);
   }
 
   @Bean

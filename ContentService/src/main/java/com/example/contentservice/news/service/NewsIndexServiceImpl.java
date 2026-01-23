@@ -83,6 +83,9 @@ public class NewsIndexServiceImpl implements NewsIndexService {
                   }
                 }
               },
+              "combinedTokens": { // 필드 추가
+                    "type": "keyword"\s
+                  },
               "content": {
                 "type": "text",
                 "fields": {

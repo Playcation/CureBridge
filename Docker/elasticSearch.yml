@@ -1,18 +1,17 @@
 services:
   es:
     build:
-      context: .                # Dockerfile이 위치한 경로
-      dockerfile: Dockerfile    # Dockerfile
+      context: .
+      dockerfile: Dockerfile
     container_name: es
     environment:
-      - node.name=single-node
+      - node.name=es
       - cluster.name=backtony
       - discovery.type=single-node
-      - xpack.security.enabled=false          # 보안 기능 끔
-      - xpack.security.transport.ssl.enabled=false
-      - xpack.security.http.ssl.enabled=false
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
-      - 9200:9200
+      - "9200:9200"
     networks:
       - es-bridge
 
@@ -23,8 +22,7 @@ services:
       SERVER_NAME: kibana
       ELASTICSEARCH_HOSTS: http://es:9200
     ports:
-      - 5601:5601
-    # Elasticsearch Start Dependency
+      - "5601:5601"
     depends_on:
       - es
     networks:

@@ -1,12 +1,12 @@
 package com.example.commonmodule.security;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -42,11 +42,37 @@ public abstract class AbstractSecurityConfig {
   }
 
   protected void configureJwtResourceServer(HttpSecurity http) throws Exception {
-    http.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
+    http.oauth2ResourceServer(oauth2 -> oauth2
+        .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+    );
+  }
+
+  /**
+   * Jwt 의 "roles" 클레임을 읽어서 GrantedAuthority 로 변환하는 Converter
+   */
+  private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
+    return jwt -> {
+      // "roles": ["ADMIN", "USER"] 이런 구조라고 가정
+      List<String> roles = jwt.getClaimAsStringList("roles");
+      if (roles == null) {
+        // 혹시 문자열로 들어갈 수도 있으면 대비
+        String rolesStr = jwt.getClaimAsString("roles");
+        if (rolesStr != null && !rolesStr.isBlank()) {
+          roles = List.of(rolesStr.split(","));
+        } else {
+          roles = Collections.emptyList();
+        }
+      }
+
+      // 실제 Authentication 으로 변환
+      return convertJwtToAuth(jwt, roles);
+    };
   }
 
   protected AbstractAuthenticationToken convertJwtToAuth(Jwt jwt, List<String> roles) {
     List<GrantedAuthority> authorities = roles.stream()
+        //.map(String::trim)
+        //.filter(r -> !r.isEmpty())
         .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
         .collect(Collectors.toList());
     return new JwtAuthenticationToken(jwt, authorities);

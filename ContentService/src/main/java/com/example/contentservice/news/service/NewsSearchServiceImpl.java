@@ -2,13 +2,13 @@ package com.example.contentservice.news.service;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.aggregations.StringTermsBucket;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
 import com.example.commonmodule.common.PagingDto;
 import com.example.commonmodule.exceptions.BoardErrorCode;
 import com.example.commonmodule.exceptions.NotFoundException;
 import com.example.contentservice.news.document.NewsDocument;
 import com.example.contentservice.news.dto.NewsResponseDto;
+import com.example.contentservice.news.dto.TopKeywordResponseDto;
 import com.example.contentservice.news.entity.News;
 import com.example.contentservice.news.repository.NewsRepository;
 import java.io.IOException;
@@ -90,32 +90,36 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 
   // 날짜 범위 내 인기 키워드(terms aggregation) 추출
   @Override
-  public List<StringTermsBucket> aggregateTopKeywordsForDateRange(LocalDate gte, LocalDate lt,
+  public List<TopKeywordResponseDto> aggregateTopKeywordsForDateRange(LocalDate gte, LocalDate lt,
       int size) {
     try {
       SearchResponse<Void> response = elasticsearchClient.search(s -> s
-          .index("news-index-nori")
-          .size(0)
-          .sort(sort -> sort
-              .field(f -> f
-                  .field("publishedAt")
-                  .order(SortOrder.Desc)
-              )
-          )
-          .aggregations("top_combined_keywords", a -> a
-              .terms(t -> t
-                  .field("combinedTokens")
-                  .size(size)
-              )
-          ), Void.class);
+              .index("news-index")
+              .size(0)
+              .query(q -> q.range(r -> r
+                  .date(d -> d
+                      .field("publishedAt")
+                      .gte(gte.toString())
+                      .lt(lt.toString())
+                  )
+              ))
+              .aggregations("top_combined_keywords", a -> a
+                  .terms(t -> t.field("combinedTokens").size(size))
+              ),
+          Void.class
+      );
 
-      return response.aggregations()
+      var buckets = response.aggregations()
           .get("top_combined_keywords")
           .sterms()
           .buckets()
           .array();
+
+      return buckets.stream()
+          .map(b -> new TopKeywordResponseDto(b.key().stringValue(), b.docCount()))
+          .toList();
+
     } catch (IOException e) {
-      log.error("Elasticsearch 키워드 집계 중 오류 발생", e);
       throw new RuntimeException("Elasticsearch 키워드 집계 중 오류 발생", e);
     }
   }
