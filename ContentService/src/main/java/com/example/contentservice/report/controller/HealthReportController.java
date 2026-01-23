@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/health-report")
+@RequestMapping("/health-report")
 @AllArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class HealthReportController {

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/v1/fortune")
+@RequestMapping("/fortune")
 @RequiredArgsConstructor
 public class FortuneController {
 
