@@ -38,7 +38,7 @@ spring:
                   /api/org-admin/chat/**,/api/admin/chat/**
               filters:
                 - StripPrefix=3
-            
+
             # Swagger Routes
             - id: member-service-docs
               uri: http://localhost:8081
@@ -46,14 +46,14 @@ spring:
                 - Path=/member-service/v3/api-docs
               filters:
                 - RewritePath=/member-service/(?<segment>.*), /$\{segment}
-            
+
             - id: content-service-docs
               uri: http://localhost:8082
               predicates:
                 - Path=/content-service/v3/api-docs
               filters:
                 - RewritePath=/content-service/(?<segment>.*), /$\{segment}
-            
+
             - id: chat-service-docs
               uri: http://localhost:8083
               predicates:
