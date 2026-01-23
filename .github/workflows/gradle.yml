@@ -29,10 +29,14 @@ jobs:
       - name: Run tests with gradle
         run: ./gradlew test --no-daemon -x :CommonModule:test
         env:
-          SPRING_DATA_MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          SPRING_ELASTICSEARCH_URIS: ${{ secrets.ELASTICSEARCH_URI }}
-          SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
-          SPRING_DATA_REDIS_PORT: ${{ secirets.REDIS_PORT }}
+          SPRING_DATA_MONGODB_URI: mongodb://localhost:27017/testdb
+          SPRING_ELASTICSEARCH_URIS: http://localhost:9200
+          SPRING_DATA_REDIS_HOST: localhost
+          SPRING_DATA_REDIS_PORT: "6379"
+  #          SPRING_DATA_MONGODB_URI: ${{ secrets.MONGODB_URI }}
+  #          SPRING_ELASTICSEARCH_URIS: ${{ secrets.ELASTICSEARCH_URI }}
+  #          SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
+  #          SPRING_DATA_REDIS_PORT: ${{ secirets.REDIS_PORT }}
 
   docker-build-and-push:
     needs: test
