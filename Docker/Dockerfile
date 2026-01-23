@@ -1,0 +1,4 @@
+FROM docker.elastic.co/elasticsearch/elasticsearch:8.17.2
+
+# Nori 분석기 설치
+RUN elasticsearch-plugin install analysis-nori

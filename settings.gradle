@@ -1,5 +1,5 @@
 rootProject.name = "CureBridge"
-include("Gateway")
+include("GateWay")
 include("Chat")
 include("MemberService")
 include("ContentService")

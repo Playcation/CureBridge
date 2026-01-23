@@ -24,6 +24,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
     "com.example.contentservice.news.repository",
     "com.example.contentservice.notice.repository",
     "com.example.contentservice.support.repository",
+    "com.example.contentservice.calendar.repository",
     "com.example.commonmodule.files.repository"
 })
 @SpringBootApplication(scanBasePackages = {

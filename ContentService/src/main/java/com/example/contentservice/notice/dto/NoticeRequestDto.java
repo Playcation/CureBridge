@@ -6,11 +6,16 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class NoticeRequestDto {
-	private String title;
-	private String content;
 
-	public NoticeRequestDto(String title, String content) {
-		this.title = title;
-		this.content = content;
-	}
+  // 공지사항 제목
+  private String title;
+
+  // 공지사항 본문 내용
+  private String content;
+
+  // 공지사항 생성 또는 수정 시 사용되는 요청 DTO
+  public NoticeRequestDto(String title, String content) {
+    this.title = title;
+    this.content = content;
+  }
 }

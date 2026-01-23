@@ -1,11 +1,12 @@
 package com.example.memberservice.controller;
 
+import com.example.commonmodule.config.TokenSettings;
+import com.example.commonmodule.dto.UserResponseDto;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import com.example.commonmodule.utils.JwtParser;
 import com.example.memberservice.dto.OrgManagerCreateRequestDto;
 import com.example.memberservice.dto.OrgManagerResponseDto;
 import com.example.memberservice.dto.OrgManagerUpdateDto;
-import com.example.commonmodule.config.TokenSettings;
 import com.example.memberservice.dto.UserInviteDto;
 import com.example.memberservice.entity.Role;
 import com.example.memberservice.enums.ManagerException;
@@ -87,6 +88,15 @@ public class ManagerController {
     return ResponseEntity.ok().body(orgManagerService.inviteUser(id, userInviteDto));
   }
 
+  @GetMapping("/list")
+  public ResponseEntity<List<UserResponseDto>> getMembers(
+      @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
+  ) {
+    Long id = jwtParser.findUserByToken(authorizationHeader);
+    checkOrgOrManager(authorizationHeader);
+    return ResponseEntity.ok().body(orgManagerService.getMembers(id));
+  }
+
   private void checkManager(String authorizationHeader) {
     String role = jwtParser.parseRole(authorizationHeader);
     if (!Role.ORG_MANAGER.toString().equals(role)) {
@@ -107,5 +117,4 @@ public class ManagerController {
       throw new NoAuthorizedException(ManagerException.NO_AUTHORIZED_MANAGER);
     }
   }
-
 }

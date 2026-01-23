@@ -36,7 +36,8 @@ public class Notice extends BaseEntityDeletedAt {
   private Long orgId;
 
   @Column(nullable = false)
-  private Long viewCount;
+  @Builder.Default
+  private Long viewCount = 0L;
 
   // 게시물 수정 시 업데이트
   public void update(String title, String content) {

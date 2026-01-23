@@ -43,9 +43,11 @@ public class SupportController {
 
   // 게시물 등록
   @PostMapping
-  public ResponseEntity<SupportResponseDto> createSupport(@RequestParam Long userId,
+  public ResponseEntity<SupportResponseDto> createSupport(
+      @RequestHeader("Authorization") String authorizationHeader,
       @RequestPart(value = "json") SupportRequestDto requestDto,
       @RequestPart(value = "attachedFile", required = false) List<MultipartFile> attachedFiles) {
+    Long userId = jwtParser.findUserByToken(authorizationHeader);
     SupportResponseDto responseDto = supportService.createSupport(requestDto, userId,
         attachedFiles);
     return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
