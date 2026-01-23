@@ -4,6 +4,7 @@ import com.example.contentservice.news.entity.News;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -33,12 +34,15 @@ public class NewsDocument {
   @Field(type = FieldType.Keyword) // Keyword 타입은 정렬 및 애그리게이션에 적합
   private List<String> combinedTokens;
 
-  public static com.example.contentservice.news.document.NewsDocument fromEntity(News news) {
-    return com.example.contentservice.news.document.NewsDocument.builder()
-        .id(String.valueOf(news.getId())) // Long → String
+
+  public static NewsDocument fromEntity(News news) {
+    List<String> tokens = Arrays.asList(news.getTitle().split(" "));
+
+    return NewsDocument.builder()
+        .id(String.valueOf(news.getId()))
         .title(news.getTitle())
         .publishedAt(news.getPublishedAt())
+        .combinedTokens(tokens) //  토큰 데이터 삽입
         .build();
   }
-
 }
