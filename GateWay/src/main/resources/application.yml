@@ -72,7 +72,7 @@ spring:
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
 server:
-  port: 8084  #하빈
+  port: 8084
 
 logging:
   level:

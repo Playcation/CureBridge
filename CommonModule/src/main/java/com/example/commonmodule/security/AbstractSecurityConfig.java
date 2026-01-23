@@ -68,10 +68,7 @@ public abstract class AbstractSecurityConfig {
       return convertJwtToAuth(jwt, roles);
     };
   }
-// 원래 위에 두개 아니고 아래거였음
-  //  protected void configureJwtResourceServer(HttpSecurity http) throws Exception {
-//    http.oauth2ResourceServer(oauth2 -> oauth2.jwt(withDefaults()));
-//  }
+
   protected AbstractAuthenticationToken convertJwtToAuth(Jwt jwt, List<String> roles) {
     List<GrantedAuthority> authorities = roles.stream()
         //.map(String::trim)

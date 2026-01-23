@@ -29,11 +29,10 @@ jobs:
       - name: Run tests with gradle
         run: ./gradlew test --no-daemon -x :CommonModule:test
         env:
-          # 💡 GitHub Settings에 등록한 Secrets 값을 환경 변수로 매핑합니다.
           SPRING_DATA_MONGODB_URI: ${{ secrets.MONGODB_URI }}
           SPRING_ELASTICSEARCH_URIS: ${{ secrets.ELASTICSEARCH_URI }}
           SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
-
+          SPRING_DATA_REDIS_PORT: ${{ secirets.REDIS_PORT }}
 
   docker-build-and-push:
     needs: test

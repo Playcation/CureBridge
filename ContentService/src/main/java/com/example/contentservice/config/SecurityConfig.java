@@ -42,7 +42,6 @@ public class SecurityConfig extends AbstractSecurityConfig {
         .requestMatchers(RegexRequestMatcher.regexMatcher("/orgs/.*/notices/.*"))
         .hasRole("ORG_ADMIN").anyRequest().permitAll()
     );
-    //하빈
     //super.configureJwtResourceServer(http);
   }
 
