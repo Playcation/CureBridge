@@ -30,7 +30,7 @@ spring:
               predicates:
                 - Path=/api/anonymous/notices/**,/api/user/notices/**,
                   /api/org-manager/notices/**,/api/org-admin/notices/**,/api/admin/notices/**,
-                  /api/content/**, /api/content/calendar/**
+                  /api/content/**, /api/content/calendar/**, /api/user/ocr/**
               filters:
                 - StripPrefix=2
             - id: chat-service
@@ -47,14 +47,14 @@ spring:
                 - Path=/member-service/v3/api-docs
               filters:
                 - RewritePath=/member-service/(?<segment>.*), /$\{segment}
-            
+
             - id: content-service-docs
               uri: http://localhost:8082
               predicates:
                 - Path=/content-service/v3/api-docs
               filters:
                 - RewritePath=/content-service/(?<segment>.*), /$\{segment}
-            
+
             - id: chat-service-docs
               uri: http://localhost:8083
               predicates:
