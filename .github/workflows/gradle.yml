@@ -5,7 +5,7 @@ on:
       - feature-boardhb
   pull_request:
     branches:
-      - feature-boardhb
+      - develop
 
 permissions: write-all
 
