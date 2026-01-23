@@ -44,15 +44,14 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Run tests with gradle
-        run: ./gradlew test --no-daemon -x :CommonModule:test
-        env:
-          SPRING_DATA_MONGODB_URI: mongodb://localhost:27017/testdb
-          SPRING_ELASTICSEARCH_URIS: http://localhost:9200
-          SPRING_DATA_REDIS_HOST: localhost
-          SPRING_DATA_REDIS_PORT: "6379"
-          # JWT 테스트를 위해 시크릿 키를 임의로 주입
-          SPRING_JWT_SECRET: VGhpc0lzQVZhbGlkQmFzZTY0S2V5Rm9yVGVzdGluZ1B1cnBvc2VzT25seTEyMzQ1Njc4OTA=
-
+        run: |
+          ./gradlew :ContentService:test --no-daemon \
+            -Dspring.data.mongodb.uri=mongodb://localhost:27017/testdb \
+            -Dspring.elasticsearch.uris=http://localhost:9200 \
+            -Dspring.data.redis.host=localhost \
+            -Dspring.data.redis.port=6379 \
+            -Dspring.jwt.secret=VGhpc0lzQVZhbGlkQmFzZTY0S2V5Rm9yVGVzdGluZ1B1cnBvc2VzT25seTEyMzQ1Njc4OTA=
+            
   #          SPRING_DATA_MONGODB_URI: ${{ secrets.MONGODB_URI }}
   #          SPRING_ELASTICSEARCH_URIS: ${{ secrets.ELASTICSEARCH_URI }}
   #          SPRING_DATA_REDIS_HOST: ${{ secrets.REDIS_HOST }}
