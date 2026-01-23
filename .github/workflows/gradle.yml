@@ -2,7 +2,7 @@ name: backend-sript
 on:
   push:
     branches:
-      - feature-boardhb
+      - develop
   pull_request:
     branches:
       - develop
