@@ -8,6 +8,7 @@ import com.example.contentservice.news.dto.NewsResponseDto;
 import com.example.contentservice.news.dto.TopKeywordResponseDto;
 import com.example.contentservice.news.entity.News;
 import com.example.contentservice.news.repository.NewsRepository;
+import com.example.contentservice.news.repository.NewsSearchRepository;
 import com.example.contentservice.news.service.NewsSearchService;
 import com.example.contentservice.news.service.NewsService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -18,6 +19,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +50,7 @@ public class NewsController {
   private final NewsSearchService newsSearchService;
   private final ObjectMapper objectMapper;
   private final NewsRepository newsRepository;
+  private final NewsSearchRepository newsSearchRepository;
   private final JwtParser jwtParser;
 
 
@@ -59,6 +63,7 @@ public class NewsController {
   // 매일 자정(0시 0분)에 이 메서드가 자동으로 실행됩니다.
   @Scheduled(cron = "0 00 17 * * *")
   public void newsapi() {
+    List<NewsRequestDto> dtoList = new ArrayList<>();
     for (int start = 1; start <= 1000; start += 100) {
       try {
         String query = "의료 의학";
@@ -83,7 +88,6 @@ public class NewsController {
 
         JsonNode items = objectMapper.readTree(sb.toString()).get("items");
 
-        List<NewsRequestDto> dtoList = new ArrayList<>();
         for (JsonNode item : items) {
           String title = item.get("title").asText().replaceAll("<.*?>", ""); // 태그 제거
           String link = item.get("link").asText();
@@ -92,18 +96,26 @@ public class NewsController {
           dtoList.add(new NewsRequestDto(title, link, pubDate));
         }
 
-        newsService.saveRecentNews(dtoList);
 
       } catch (Exception e) {
         e.printStackTrace();
       }
+    }
+    DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
+    dtoList.sort((a, b) -> {
+      ZonedDateTime dtA = ZonedDateTime.parse(a.getPubDate(), formatter);
+      ZonedDateTime dtB = ZonedDateTime.parse(b.getPubDate(), formatter);
+      return dtA.compareTo(dtB); // 과거 -> 최신 순 정렬
+    });
+    if (!dtoList.isEmpty()) {
+      newsService.saveRecentNews(dtoList);
     }
   }
 
   // 게시물 다건 조회
   @GetMapping
   public ResponseEntity<PagingDto<NewsResponseDto>> getNewsAndPaging(
-      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+      @PageableDefault(size = 10, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable) {
     PagingDto<NewsResponseDto> newsList = newsService.getNewsAndPaging(pageable);
     return new ResponseEntity<>(newsList, HttpStatus.OK);
   }
@@ -114,6 +126,7 @@ public class NewsController {
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {     /* (추가) 토큰으로 관리자 인증 */
     jwtParser.checkAdmin(authorizationHeader);
     newsService.deleteNews(newsId);
+    newsSearchRepository.deleteById(String.valueOf(newsId));
     return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
   }
 
@@ -128,7 +141,7 @@ public class NewsController {
   @GetMapping("/search-title")
   public ResponseEntity<PagingDto<NewsResponseDto>> searchByTitleAndPaging(
       @RequestParam("keyword") String keyword,
-      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
+      @PageableDefault(size = 10, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable
   ) {
 
     PagingDto<NewsResponseDto> result = newsSearchService.searchByTitle(keyword,
