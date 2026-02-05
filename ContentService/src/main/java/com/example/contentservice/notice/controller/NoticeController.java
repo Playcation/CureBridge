@@ -29,7 +29,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/notices")
+@RequestMapping("/notice")
 public class NoticeController {
 
   private final NoticeService noticeService;
