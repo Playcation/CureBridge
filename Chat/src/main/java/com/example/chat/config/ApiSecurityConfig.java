@@ -1,6 +1,8 @@
 package com.example.chat.config;
 
 import com.example.commonmodule.security.AbstractSecurityConfig;
+import com.example.commonmodule.utils.Role;
+
 import java.util.List;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -31,14 +33,11 @@ public class ApiSecurityConfig extends AbstractSecurityConfig {
             // 🔥 1) 프리플라이트 OPTIONS는 전부 허용 (Network Error 핵심 해결)
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-            // 🔥 2) 로그인/회원가입은 인증 없이 사용
-            .requestMatchers("/user/auth/**").permitAll()
-
             // 🔥 3) WebSocket 관련 경로는 여기서도 열어둠(안전용)
             .requestMatchers("/connect/**", "/ws/**", "/stomp/**").permitAll()
 
             // 🔥 4) 채팅 REST API는 인증 필요
-            .requestMatchers("/chat/**").authenticated()
+            .requestMatchers("/chat/**").hasRole(Role.USER.getAuthority())
 
             // 🔥 5) 나머지는 기본적으로 인증 필요
             .anyRequest().authenticated()
