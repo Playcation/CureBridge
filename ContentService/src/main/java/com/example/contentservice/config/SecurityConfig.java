@@ -37,7 +37,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
   // TODO: 모듈별 권한 세부 설정
   @Override
   protected void configureAuthorization(HttpSecurity http) throws Exception {
-    String[] whiteList = {"/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"};
+    String[] whiteList = {"/api/example", "/v3/api-docs/**","/support/**", "/swagger-ui/**", "/swagger-ui.html"};
     http.authorizeHttpRequests(auth -> auth
         .requestMatchers(whiteList).permitAll()
         .requestMatchers(RegexRequestMatcher.regexMatcher("/orgs/.*/notices/.*")).hasRole(Role.ORG_ADMIN.getAuthority())

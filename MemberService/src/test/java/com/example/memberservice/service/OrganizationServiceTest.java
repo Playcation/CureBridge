@@ -1,95 +1,138 @@
 package com.example.memberservice.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.doAnswer;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.spy;
-import static org.mockito.BDDMockito.times;
-import static org.mockito.BDDMockito.verify;
-
 import com.example.memberservice.dto.OrgCreateRequestDto;
 import com.example.memberservice.dto.OrgResponseDto;
 import com.example.memberservice.dto.OrgUpdateDto;
 import com.example.memberservice.entity.Organization;
 import com.example.memberservice.repository.OrganizationRepository;
-import java.time.LocalDateTime;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(MockitoExtension.class)
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 class OrganizationServiceTest {
 
-  @Mock
-  private OrganizationRepository organizationRepository;
+	private OrganizationRepository organizationRepository;
+	private OrganizationService organizationService;
 
-  @InjectMocks
-  private OrganizationService organizationService;
+	@BeforeEach
+	void setUp() {
+		organizationRepository = mock(OrganizationRepository.class);
+		organizationService = new OrganizationService(organizationRepository);
+	}
 
-  @Test
-  @DisplayName("조직 생성 테스트")
-  void createOrganization_Success() {
-    // given
-    OrgCreateRequestDto requestDto = new OrgCreateRequestDto(
-        "OrgName", "123-45-67890", "test@org.com", "Address", "010-1234-5678", "Owner"
-    );
-    Organization org = Organization.builder().id(1L).orgName("OrgName").build();
-    given(organizationRepository.save(any(Organization.class))).willReturn(org);
+	@Test
+	@DisplayName("조직 생성 성공")
+	void createOrganization_success() {
+		OrgCreateRequestDto dto = new OrgCreateRequestDto(
+			"test@test.com", "테스트조직", "0212345678",
+			"홍길동", "01012345678", "서울시 강남구"
+		);
 
-    // when
-    OrgResponseDto response = organizationService.createOrganization(requestDto);
+		Organization savedOrg = Organization.builder()
+			.orgName(dto.getOrgName())
+			.orgNumber(dto.getOrgNumber())
+			.email(dto.getAccount())
+			.orgAddress(dto.getOrgAddress())
+			.ownerNumber(dto.getOwnerNumber())
+			.ownerName(dto.getOwnerName())
+			.password("0000")
+			.build();
 
-    // then
-    assertNotNull(response);
-    verify(organizationRepository, times(1)).save(any(Organization.class));
-  }
+		when(organizationRepository.save(any(Organization.class))).thenReturn(savedOrg);
 
-  @Test
-  @DisplayName("조직 수정 테스트")
-  void updateOrganization_Success() {
-    // given
-    Long orgId = 1L;
-    OrgUpdateDto updateDto = new OrgUpdateDto("password", "010-0000-0000", "New Name",
-        "010-1234-5678", "New Address");
-    Organization organization = Organization.builder().id(orgId).orgName("Old Name").build();
+		OrgResponseDto response = organizationService.createOrganization(dto);
 
-    given(organizationRepository.findByIdOrElseThrow(orgId)).willReturn(organization);
-    given(organizationRepository.save(any(Organization.class))).willReturn(organization);
+		verify(organizationRepository, times(1)).save(any(Organization.class));
+		assertThat(response.getOrgName()).isEqualTo("테스트조직");
+		assertThat(response.getOwnerName()).isEqualTo("홍길동");
+	}
 
-    // when
-    OrgResponseDto response = organizationService.updateOrganization(orgId, updateDto);
+	@Test
+	@DisplayName("전체 조직 조회")
+	void getAllOrganization_success() {
+		Organization org1 = Organization.builder().id(1L).orgName("조직1").build();
+		Organization org2 = Organization.builder().id(2L).orgName("조직2").build();
 
-    // then
-    assertNotNull(response);
-    verify(organizationRepository).save(organization);
-  }
+		when(organizationRepository.findAll()).thenReturn(List.of(org1, org2));
 
-  @Test
-  @DisplayName("조직 삭제 테스트 - 성공")
-  void deleteOrganization_Success() {
-    // given
-    Long orgId = 1L;
-    Organization organization = spy(Organization.builder().id(orgId).build());
+		List<OrgResponseDto> result = organizationService.getAllOrganization();
 
-    given(organizationRepository.findByIdOrElseThrow(orgId)).willReturn(organization);
-    // delete() 호출 시 deletedAt이 설정되었다고 가정 (BaseEntity 동작 시뮬레이션)
-    doAnswer(invocation -> {
-      organization.delete(); // 실제 delete() 메서드 호출
-      return organization;
-    }).when(organizationRepository).save(organization);
+		verify(organizationRepository, times(1)).findAll();
+		assertThat(result).hasSize(2);
+		assertThat(result.get(0).getOrgName()).isEqualTo("조직1");
+	}
 
-    // Mockito의 spy나 실제 필드 주입 없이 deletedAt이 null이 아니라고 가정하기 위해 상황 설정
-    given(organization.getDeletedAt()).willReturn(LocalDateTime.now());
+	@Test
+	@DisplayName("특정 조직 조회")
+	void getOrganization_success() {
+		Organization org = Organization.builder().id(1L).orgName("조회조직").build();
+		when(organizationRepository.findByIdOrElseThrow(1L)).thenReturn(org);
 
-    // when
-    String result = organizationService.deleteOrganization(orgId);
+		OrgResponseDto response = organizationService.getOrganization(1L);
 
-    // then
-    assertEquals("삭제 완료", result);
-  }
+		verify(organizationRepository, times(1)).findByIdOrElseThrow(1L);
+		assertThat(response.getOrgName()).isEqualTo("조회조직");
+	}
+
+	@Test
+	@DisplayName("조직 수정 성공")
+	void updateOrganization_success() {
+		// 기존 조직 엔티티
+		Organization org = Organization.builder()
+			.orgName("기존조직")
+			.orgNumber("11111")
+			.ownerName("홍길동")
+			.ownerNumber("01011112222")
+			.orgAddress("서울시 강남구")
+			.password("0000")
+			.build();
+
+		// 모든 필드를 채운 OrgUpdateDto
+		OrgUpdateDto updateDto = new OrgUpdateDto(
+			"9999",
+			"22222",
+			"김철수",
+			"01099998888",
+			"서울시 서초구"
+		);
+
+		when(organizationRepository.findByIdOrElseThrow(1L)).thenReturn(org);
+		when(organizationRepository.save(any(Organization.class)))
+			.thenAnswer(invocation -> invocation.getArgument(0));
+
+		// 실행
+		OrgResponseDto response = organizationService.updateOrganization(1L, updateDto);
+
+		// 검증
+		verify(organizationRepository, times(1)).save(org);
+		assertThat(response.getOrgNumber()).isEqualTo("22222");
+		assertThat(response.getOwnerName()).isEqualTo("김철수");
+		assertThat(response.getOwnerNumber()).isEqualTo("01099998888");
+		assertThat(response.getOrgAddress()).isEqualTo("서울시 서초구");
+	}
+
+
+	@Test
+	@DisplayName("조직 삭제 성공")
+	void deleteOrganization_success() {
+		Organization org = Organization.builder().id(1L).orgName("삭제조직").build();
+
+		when(organizationRepository.findByIdOrElseThrow(1L)).thenReturn(org);
+		when(organizationRepository.save(org)).thenReturn(org);
+
+		String result = organizationService.deleteOrganization(1L);
+
+		verify(organizationRepository, times(1)).save(org);
+		assertThat(result).isEqualTo("삭제 완료");
+	}
+
+	// 삭제 실패가 발생하지 않음?
+	// 항상 org.delete() 호출하면 항상 deletedAt을 설정하므로 실패 발생 X
+	// 해당 부분 조건부로 설정하도록 하면 좋을듯함.
+	//	ex) 이미 deletedAt이 존재하는 경우 throw
 }
