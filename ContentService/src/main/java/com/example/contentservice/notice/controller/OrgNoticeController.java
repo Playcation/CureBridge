@@ -48,7 +48,7 @@ public class OrgNoticeController {
       @RequestPart(value = "contentImage", required = false) List<MultipartFile> contentImages) {
 
     Long userId = jwtParser.findUserByToken(authorizationHeader);   // 토큰에서 사용자 ID 파싱
-    jwtParser.checkOrgAdmin(authorizationHeader);                 // 조직 관리자 또는 상위 관리자 권한 검증
+    jwtParser.checkOrgOrManager(authorizationHeader);                 // 조직 관리자 또는 상위 관리자 권한 검증
 
     NoticeResponseDto responseDto = noticeOrgService.createOrgNotice(
         userId, orgId, requestDto, attachedFiles, contentImages);
@@ -87,7 +87,7 @@ public class OrgNoticeController {
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
       @RequestPart(value = "json") NoticeRequestDto requestDto) {
 
-    jwtParser.checkOrgAdmin(authorizationHeader);   // 권한 검사
+    jwtParser.checkOrgOrManager(authorizationHeader);   // 권한 검사
 
     NoticeResponseDto responseDto =
         noticeOrgService.updateOrgNotice(orgId, noticeId, requestDto);
@@ -103,7 +103,7 @@ public class OrgNoticeController {
       @PathVariable Long noticeId,
       @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader) {
 
-    jwtParser.checkOrgAdmin(authorizationHeader);   // 권한 검사
+    jwtParser.checkOrgOrManager(authorizationHeader);   // 권한 검사
     noticeOrgService.deleteOrgNotice(orgId, noticeId);
 
     return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
