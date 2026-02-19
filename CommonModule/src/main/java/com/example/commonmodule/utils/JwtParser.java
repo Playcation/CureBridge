@@ -68,7 +68,7 @@ public class JwtParser {
     }
   }
 
-  public void checkOrgOrAdmin(String authorizationHeader) {
+  public void checkOrgOrManager(String authorizationHeader) {
     String role = parseRole(authorizationHeader);
     if (!Role.ORG_MANAGER.toString().equals(role) && !Role.ORG_ADMIN.toString().equals(role)) {
       throw new NoAuthorizedException(AdminException.NO_AUTHORIZED_ADMIN);
