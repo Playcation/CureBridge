@@ -9,11 +9,6 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-  private final MultipartJackson2HttpMessageConverter multipartConverter;
-
-  public WebConfig(MultipartJackson2HttpMessageConverter multipartConverter) {
-    this.multipartConverter = multipartConverter;
-  }
 
   @Override
   public void addCorsMappings(CorsRegistry registry) {
