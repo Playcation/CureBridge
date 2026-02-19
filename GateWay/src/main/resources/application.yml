@@ -1,8 +1,4 @@
 spring:
-
-  #  application:
-  #    name: gateway
-
   autoconfigure:
     exclude: org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
@@ -18,51 +14,51 @@ spring:
         webflux:
           routes:
             - id: user-service
-              uri: http://localhost:8081
+              uri: http://user-service:8081
               predicates:
-                - Path=/api/anonymous/member/**,/api/user/member/**,
-                  /api/org-manager/member/**,/api/org-admin/member/**,/api/admin/member/**
-              filters:
-                - StripPrefix=3
-            - id: content-service
-              uri: http://localhost:8082
-              predicates:
-                - Path=/api/anonymous/content/**,/api/user/content/**,
-                  /api/org-manager/content/**,/api/org-admin/content/**,/api/admin/content/**
-              filters:
-                - StripPrefix=3
-            - id: chat-service
-              uri: http://localhost:8083
-              predicates:
-                - Path=/api/user/chat/**,/api/org-manager/chat/**,
-                  /api/org-admin/chat/**,/api/admin/chat/**
+                - Path=/api/anonymous/member/**,/api/user/member/**,/api/org-manager/member/**,/api/org-admin/member/**,/api/admin/member/**
               filters:
                 - StripPrefix=3
 
-            # Swagger Routes
+            - id: content-service
+              uri: http://content-service:8082
+              predicates:
+                - Path=/api/anonymous/content/**,/api/user/content/**,/api/org-manager/content/**,/api/org-admin/content/**,/api/admin/content/**
+              filters:
+                - StripPrefix=3
+
+            - id: chat-service
+              uri: http://chat-service:8083
+              predicates:
+                - Path=/api/user/chat/**,/api/org-manager/chat/**,/api/org-admin/chat/**,/api/admin/chat/**
+              filters:
+                - StripPrefix=3
+
+            # Swagger Routes (각 서비스의 v3/api-docs를 gateway에서 한 URL로 노출)
             - id: member-service-docs
-              uri: http://localhost:8081
+              uri: http://user-service:8081
               predicates:
                 - Path=/member-service/v3/api-docs
               filters:
-                - RewritePath=/member-service/(?<segment>.*), /$\{segment}
+                - RewritePath=/member-service/(?<segment>.*), /${segment}
 
             - id: content-service-docs
-              uri: http://localhost:8082
+              uri: http://content-service:8082
               predicates:
                 - Path=/content-service/v3/api-docs
               filters:
-                - RewritePath=/content-service/(?<segment>.*), /$\{segment}
+                - RewritePath=/content-service/(?<segment>.*), /${segment}
 
             - id: chat-service-docs
-              uri: http://localhost:8083
+              uri: http://chat-service:8083
               predicates:
                 - Path=/chat-service/v3/api-docs
               filters:
-                - RewritePath=/chat-service/(?<segment>.*), /$\{segment}
+                - RewritePath=/chat-service/(?<segment>.*), /${segment}
 
           default-filters:
             - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
+
 server:
   port: 8080
 
