@@ -22,8 +22,4 @@ public class WebConfig implements WebMvcConfigurer {
         .allowCredentials(true);
   }
 
-  @Override
-  public void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-    converters.add(0, multipartConverter);
-  }
 }
