@@ -1,6 +1,8 @@
 # 1) build stage
-RUN chmod +x ./gradlew
-RUN ./gradlew :GateWay:clean :GateWay:build -x test --no-daemon --stacktrace --info
+FROM gradle:8.5-jdk17 AS build
+WORKDIR /app
+COPY . .
+RUN gradle :MemberService:clean :MemberService:build -x test
 
 # 2) run stage
 FROM eclipse-temurin:17-jdk
