@@ -62,8 +62,8 @@ jobs:
           file: Chat/Dockerfile
           push: true
           tags: |
-            ${{ vars.DOCKERHUB_USERNAME }}/curebridge-chat:latest
-            ${{ vars.DOCKERHUB_USERNAME }}/curebridge-chat:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
