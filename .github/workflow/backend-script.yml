@@ -19,30 +19,37 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up JDK 17 (for PR compile check)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Compile CommonModule (PR & push)
+        run: ./gradlew :CommonModule:compileJava --no-daemon --stacktrace --info
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Ensure DOCKERHUB_USERNAME is set
-        run: | 
-        test -n "${{ secrets.DOCKERHUB_USERNAME }}" || (echo "DOCKERHUB_USERNAME is empty" && exit 1)
+      - name: Ensure DOCKERHUB_USERNAME is set (push only)
+        if: github.event_name == 'push'
+        run: |
+          test -n "${{ secrets.DOCKERHUB_USERNAME }}" || (echo "DOCKERHUB_USERNAME is empty" && exit 1)
 
-      - name: Login to Docker Hub
+      - name: Login to Docker Hub (push only)
+        if: github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: 에러가 날 것 같은 단계
-        run: ./maybe-fail.sh
-        continue-on-error: true
-  
       # Gateway
-      - name: Build and Push GateWay
+      - name: Build (and Push on push event) GateWay
         uses: docker/build-push-action@v6
         with:
           context: .
           file: GateWay/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-gateway:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-gateway:${{ github.sha }}
@@ -50,12 +57,12 @@ jobs:
           cache-to: type=gha,mode=max
 
       # Content
-      - name: Build and Push ContentService
+      - name: Build (and Push on push event) ContentService
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ContentService/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-content:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-content:${{ github.sha }}
@@ -63,12 +70,12 @@ jobs:
           cache-to: type=gha,mode=max
 
       # Chat
-      - name: Build and Push Chat
+      - name: Build (and Push on push event) Chat
         uses: docker/build-push-action@v6
         with:
           context: .
           file: Chat/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:${{ github.sha }}
@@ -76,25 +83,25 @@ jobs:
           cache-to: type=gha,mode=max
 
       # Member
-      - name: Build and Push MemberService
+      - name: Build (and Push on push event) MemberService
         uses: docker/build-push-action@v6
         with:
           context: .
           file: MemberService/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-member:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-member:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # AppService (추가!)
-      - name: Build and Push AppService
+      # AppService
+      - name: Build (and Push on push event) AppService
         uses: docker/build-push-action@v6
         with:
           context: .
           file: AppService/Dockerfile
-          push: true
+          push: ${{ github.event_name == 'push' }}
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-app:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-app:${{ github.sha }}
@@ -102,7 +109,6 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-to-swarm:
-    # PR에서는 배포 막고, develop에 push될 때만 배포
     if: github.event_name == 'push'
     needs: docker-build-and-push
     runs-on: ubuntu-latest
@@ -119,13 +125,13 @@ jobs:
 
             cd ~/curebridge
 
-            # env 파일 생성 (기존 유지)
+            # env 파일 생성
             echo "${{ secrets.GATEWAY_ENV }}" > gateway.env
             echo "${{ secrets.CONTENT_ENV }}" > content.env
             echo "${{ secrets.MEMBER_ENV }}" > member.env
             echo "${{ secrets.CHAT_ENV }}" > chat.env
 
-            # (권장) 최신 이미지 땡겨오기
+            # 최신 이미지 pull
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-gateway:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-content:latest
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:latest
