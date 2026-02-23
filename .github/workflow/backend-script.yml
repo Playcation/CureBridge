@@ -22,6 +22,9 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Show GitHub Event
+        run: echo "Event is ${{ github.event_name }}"    
+
       - name: Compile CommonModule
         run: ./gradlew :CommonModule:compileJava --no-daemon --stacktrace --info
 
