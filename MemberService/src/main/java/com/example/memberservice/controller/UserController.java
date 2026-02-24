@@ -76,14 +76,12 @@ public class UserController {
 	/**
 	 * param 의 id에 해당하는 유저의 정보 조회
 	 *
-	 * @param id 유저 id
 	 * @param authorizationHeader 토큰 정보
 	 * @return 현재 로그인 한 유저 정보
 	 */
 	@GetMapping
 	public ResponseEntity<UserResponseDto> findUser(
-		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
-		@RequestParam Long id
+		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader
 	) {
 		Long userId = jwtParser.findUserByToken(authorizationHeader);
 		UserResponseDto userResponseDto = userService.findUser(userId);

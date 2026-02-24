@@ -31,7 +31,7 @@ public class WebSocketSecurityConfig {
         .formLogin(AbstractHttpConfigurer::disable)
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         // 🔥 WebSocket 연결은 모두 허용
-        .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
+        .authorizeHttpRequests(auth -> auth.requestMatchers("/connect/**").permitAll());
 
     return http.build();
   }

@@ -4,9 +4,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -85,4 +89,12 @@ public abstract class AbstractSecurityConfig {
    * @throws Exception
    */
   protected abstract void configureAuthorization(HttpSecurity http) throws Exception;
+
+  @Bean
+  public RoleHierarchy roleHierarchy() {
+    return RoleHierarchyImpl.fromHierarchy(
+        "ROLE_ADMIN > ROLE_ORG_ADMIN\n" +
+        "ROLE_ORG_ADMIN > ROLE_ORG_MANAGER\n" +
+        "ROLE_ORG_MANAGER > ROLE_USER");
+  }
 }
