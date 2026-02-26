@@ -1,0 +1,194 @@
+name: backend-script
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+permissions:
+  contents: read
+
+jobs:
+  pr-check:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show event
+        run: echo "EVENT=${{ github.event_name }}"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Compile CommonModule
+        run: ./gradlew :CommonModule:compileJava --no-daemon --stacktrace --info
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # PR에서는 tags/push 없이 빌드만
+      - name: Build GateWay (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: GateWay/Dockerfile
+          push: false
+
+      - name: Build ContentService (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ContentService/Dockerfile
+          push: false
+
+      - name: Build Chat (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Chat/Dockerfile
+          push: false
+
+      - name: Build MemberService (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: MemberService/Dockerfile
+          push: false
+
+      - name: Build AppService (no push)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: AppService/Dockerfile
+          push: false
+
+  docker-build-and-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show event
+        run: echo "EVENT=${{ github.event_name }}"
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Compile CommonModule
+        run: ./gradlew :CommonModule:compileJava --no-daemon --stacktrace --info
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Ensure DOCKERHUB_USERNAME is set
+        if: github.event_name == 'push'
+        run: |
+          test -n "${{ secrets.DOCKERHUB_USERNAME }}" || (echo "DOCKERHUB_USERNAME is empty" && exit 1)
+
+      - name: Login to Docker Hub
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push GateWay
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: GateWay/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-gateway:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-gateway:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and Push ContentService
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ContentService/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-content:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-content:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and Push Chat
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Chat/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and Push MemberService
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: MemberService/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-member:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-member:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Build and Push AppService
+        if: github.event_name == 'push'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: AppService/Dockerfile
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-app:latest
+            ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-app:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-to-swarm:
+    if: github.event_name == 'push'
+    needs: docker-build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Swarm Manager
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SWARM_MANAGER_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            set -e
+            cd ~/curebridge
+
+            echo "${{ secrets.GATEWAY_ENV }}" > gateway.env
+            echo "${{ secrets.CONTENT_ENV }}" > content.env
+            echo "${{ secrets.MEMBER_ENV }}" > member.env
+            echo "${{ secrets.CHAT_ENV }}" > chat.env
+
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-gateway:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-content:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-chat:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-member:latest
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/curebridge-app:latest
+
+            docker stack deploy -c docker-stack.yml curebridge --with-registry-auth
