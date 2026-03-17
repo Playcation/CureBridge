@@ -15,7 +15,7 @@ import com.example.memberservice.dto.OrgManagerResponseDto;
 import com.example.memberservice.dto.OrgManagerUpdateDto;
 import com.example.memberservice.dto.UserInviteDto;
 import com.example.memberservice.entity.OrgManager;
-import com.example.memberservice.entity.Role;
+import com.example.commonmodule.utils.Role;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.repository.OrgManagerRepository;
 import com.example.memberservice.repository.UserRepository;

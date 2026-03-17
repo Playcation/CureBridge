@@ -2,6 +2,7 @@ package com.example.memberservice.entity;
 
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 import com.example.memberservice.dto.OrgManagerUpdateDto;
+import com.example.commonmodule.utils.Role;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

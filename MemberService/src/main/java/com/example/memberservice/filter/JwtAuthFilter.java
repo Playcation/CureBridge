@@ -1,7 +1,7 @@
 package com.example.memberservice.filter;
 
 import com.example.commonmodule.utils.JwtParser;
-import com.example.memberservice.entity.Role;
+import com.example.commonmodule.utils.Role;
 import com.example.memberservice.security.JwtIssuer;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.impl.DefaultClaims;

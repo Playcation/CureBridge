@@ -5,7 +5,7 @@ import java.util.Collection;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import com.example.memberservice.entity.Role;
+import com.example.commonmodule.utils.Role;
 import com.example.memberservice.entity.User;
 
 import lombok.Getter;

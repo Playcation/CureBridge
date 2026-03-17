@@ -1,7 +1,6 @@
 package com.example.memberservice.service;
 
 import com.example.memberservice.dto.MemberListDto;
-import jakarta.transaction.UserTransaction;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,7 +15,7 @@ import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.commonmodule.dto.UserResponseDto;
-import com.example.memberservice.entity.Role;
+import com.example.commonmodule.utils.Role;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.repository.UserRepository;
 

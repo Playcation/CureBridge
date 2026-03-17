@@ -1,3 +1,4 @@
+/*
 package com.example.memberservice.entity;
 
 import java.util.ArrayList;
@@ -27,3 +28,4 @@ public enum Role {
     return authorities;
   }
 }
+*/

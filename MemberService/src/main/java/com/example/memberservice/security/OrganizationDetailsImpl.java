@@ -1,7 +1,7 @@
 package com.example.memberservice.security;
 
 import com.example.memberservice.entity.Organization;
-import com.example.memberservice.entity.Role;
+import com.example.commonmodule.utils.Role;
 import java.util.Collection;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
