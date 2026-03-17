@@ -1,6 +1,7 @@
 package com.example.commonmodule.utils;
 
 import com.example.commonmodule.exceptions.AdminException;
+import com.example.commonmodule.exceptions.ManagerException;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -71,7 +72,7 @@ public class JwtParser {
   public void checkOrgOrManager(String authorizationHeader) {
     String role = parseRole(authorizationHeader);
     if (!Role.ORG_MANAGER.toString().equals(role) && !Role.ORG_ADMIN.toString().equals(role)) {
-      throw new NoAuthorizedException(AdminException.NO_AUTHORIZED_ADMIN);
+      throw new NoAuthorizedException(ManagerException.NO_AUTHORIZED_MANAGER);
     }
   }
 }

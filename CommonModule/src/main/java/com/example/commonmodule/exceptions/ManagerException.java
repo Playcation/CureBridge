@@ -1,6 +1,5 @@
-package com.example.memberservice.enums;
+package com.example.commonmodule.exceptions;
 
-import com.example.commonmodule.exceptions.ExceptionType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -10,11 +9,11 @@ import org.springframework.http.HttpStatus;
 public enum ManagerException implements ExceptionType {
 
   // NOT FOUND
-  NOT_FOUND_MANAGER("관리자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+  NOT_FOUND_MANAGER("기업 관리자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
   // DUPLICATED
   DUPLICATED_MANAGER("이미 존재하는 관리자입니다.", HttpStatus.BAD_REQUEST),
   // NO_AUTHORIZED
-  NO_AUTHORIZED_MANAGER("관리자 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
+  NO_AUTHORIZED_MANAGER("기업 관리자 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
   // INVALID_INPUT
   INVALID_INPUT_MANAGER("유효하지 않은 입력입니다.", HttpStatus.BAD_REQUEST);
   // INTERNAL_SERVER

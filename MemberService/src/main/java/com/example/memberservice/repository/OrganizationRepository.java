@@ -2,7 +2,7 @@ package com.example.memberservice.repository;
 
 import com.example.commonmodule.exceptions.NotFoundException;
 import com.example.memberservice.entity.Organization;
-import com.example.memberservice.enums.OrganizationException;
+import com.example.commonmodule.exceptions.OrganizationException;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 

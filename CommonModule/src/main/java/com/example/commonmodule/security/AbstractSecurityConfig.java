@@ -22,17 +22,6 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 @RequiredArgsConstructor
 public abstract class AbstractSecurityConfig {
 
-//	@Bean
-//	public BCryptPasswordEncoder passwordEncoder() {
-//		return new BCryptPasswordEncoder();
-//	}
-
-//  @Bean
-//  public AuthenticationManager authenticationManager(
-//      AuthenticationConfiguration authenticationConfiguration) throws Exception {
-//    return authenticationConfiguration.getAuthenticationManager();
-//  }
-
   protected void commonHttpConfig(HttpSecurity http) throws Exception {
     http.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .csrf(AbstractHttpConfigurer::disable)
@@ -52,10 +41,10 @@ public abstract class AbstractSecurityConfig {
    */
   private Converter<Jwt, ? extends AbstractAuthenticationToken> jwtAuthenticationConverter() {
     return jwt -> {
-      // "roles": ["ADMIN", "USER"] 이런 구조라고 가정
+      // "roles": ["ADMIN"]
       List<String> roles = jwt.getClaimAsStringList("roles");
       if (roles == null) {
-        // 혹시 문자열로 들어갈 수도 있으면 대비
+        // 문자열인 경우
         String rolesStr = jwt.getClaimAsString("roles");
         if (rolesStr != null && !rolesStr.isBlank()) {
           roles = List.of(rolesStr.split(","));

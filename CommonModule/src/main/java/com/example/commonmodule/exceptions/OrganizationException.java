@@ -1,6 +1,5 @@
-package com.example.memberservice.enums;
+package com.example.commonmodule.exceptions;
 
-import com.example.commonmodule.exceptions.ExceptionType;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

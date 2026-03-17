@@ -8,9 +8,9 @@ import com.example.memberservice.dto.OrgManagerCreateRequestDto;
 import com.example.memberservice.dto.OrgManagerResponseDto;
 import com.example.memberservice.dto.OrgResponseDto;
 import com.example.memberservice.dto.OrgUpdateDto;
-import com.example.memberservice.entity.Role;
-import com.example.memberservice.enums.AdminException;
-import com.example.memberservice.enums.ManagerException;
+import com.example.commonmodule.utils.Role;
+import com.example.commonmodule.exceptions.AdminException;
+import com.example.commonmodule.exceptions.ManagerException;
 
 import com.example.memberservice.service.OrgManagerService;
 import com.example.memberservice.service.OrganizationService;

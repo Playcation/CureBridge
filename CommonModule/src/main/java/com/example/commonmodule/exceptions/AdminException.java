@@ -13,7 +13,7 @@ public enum AdminException implements ExceptionType {
   // DUPLICATED
   DUPLICATED_ADMIN("이미 존재하는 관리자입니다.", HttpStatus.BAD_REQUEST),
   // NO_AUTHORIZED
-  NO_AUTHORIZED_ADMIN("관리자 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
+  NO_AUTHORIZED_ADMIN("어드민 권한이 없습니다.", HttpStatus.UNAUTHORIZED),
   // INVALID_INPUT
   INVALID_INPUT_ADMIN("유효하지 않은 입력입니다.", HttpStatus.BAD_REQUEST);
   // INTERNAL_SERVER
