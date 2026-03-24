@@ -3,14 +3,13 @@ package com.example.chat.config;
 
 import com.example.commonmodule.config.TokenSettings;
 import com.example.commonmodule.dto.UserResponseDto;
-import org.apache.catalina.User;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "MemberService", url = "http://localhost:8081")
+@FeignClient(name = "MemberService", url = "${member.service.url}")
 public interface UserClient {
 
   @GetMapping("/user")

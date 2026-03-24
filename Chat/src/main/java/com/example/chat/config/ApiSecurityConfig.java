@@ -48,8 +48,12 @@ public class ApiSecurityConfig extends AbstractSecurityConfig {
   // REST API용 CORS
   private CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:3000"));
-    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+    config.setAllowedOrigins(List.of(
+        "http://localhost:3000",
+        "http://www.curebridge.site",
+        "http://curebridge.site"
+    ));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setExposedHeaders(List.of("*"));
     config.setAllowCredentials(true);

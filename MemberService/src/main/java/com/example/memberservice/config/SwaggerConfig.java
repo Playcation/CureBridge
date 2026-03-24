@@ -7,12 +7,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(
     servers = {
-        @Server(url = "http://localhost:8080/api/anonymous", description = "Gateway (Anonymous)"),
-        @Server(url = "http://localhost:8080/api/user", description = "Gateway (User)"),
-        @Server(url = "http://localhost:8080/api/org-manager", description = "Gateway (Org Manager)"),
-        @Server(url = "http://localhost:8080/api/admin", description = "Gateway (Admin)"),
-        @Server(url = "http://localhost:8081", description = "Local Server (Direct)")
+        @Server(url = "http://www.curebridge.site/api/anonymous", description = "Gateway (Anonymous)"),
+        @Server(url = "http://www.curebridge.site/api/user", description = "Gateway (User)"),
+        @Server(url = "http://www.curebridge.site/api/org-manager", description = "Gateway (Org Manager)"),
+        @Server(url = "http://www.curebridge.site/api/admin", description = "Gateway (Admin)"),
+        @Server(url = "http://www.curebridge.site", description = "Local Server (Direct)")
     }
 )
 public class SwaggerConfig {
+
 }

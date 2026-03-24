@@ -7,6 +7,7 @@ import org.apache.http.HttpHost;
 import org.elasticsearch.client.Request;
 import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,6 +15,12 @@ import org.springframework.stereotype.Service;
 public class NewsIndexServiceImpl implements NewsIndexService {
 
   private final ElasticsearchClient elasticsearchClient;
+
+  @Value("${ELASTICSEARCH_HOST}")
+  private String elasticsearchHost;
+
+  @Value("${ELASTICSEARCH_PORT}")
+  private int elasticsearchPort;
 
   public String createNewsIndex() {
     String indexName = "news-index";
@@ -115,7 +122,8 @@ public class NewsIndexServiceImpl implements NewsIndexService {
         }
         """;
 
-    try (RestClient restClient = RestClient.builder(new HttpHost("localhost", 9200)).build()) {
+    try (RestClient restClient = RestClient.builder(
+        new HttpHost(elasticsearchHost, elasticsearchPort, "http")).build()) {
       Request request = new Request("PUT", "/" + indexName);
       request.setJsonEntity(jsonBody);
 
