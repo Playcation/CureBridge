@@ -1,25 +1,23 @@
 package com.example.chat.config;
 
-import com.example.commonmodule.security.AbstractSecurityConfig;
-import java.util.Arrays;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 
 
 @Configuration
 @EnableWebSecurity
 @Order(0)
 public class WebSocketSecurityConfig {
+
   @Bean
   public SecurityFilterChain websocketSecurityFilterChain(HttpSecurity http) throws Exception {
     http
@@ -39,8 +37,12 @@ public class WebSocketSecurityConfig {
   // WebSocket 핸드셰이크용 CORS
   private CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:3000"));
-    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+    config.setAllowedOrigins(List.of(
+        "http://localhost:3000",
+        "http://www.curebridge.site",
+        "http://curebridge.site"
+    ));
+    config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);
 

@@ -94,7 +94,11 @@ public class GatewaySecurityConfig {
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:3000"));
+    config.setAllowedOrigins(List.of(
+        "http://localhost:3000",
+        "http://www.curebridge.site",
+        "http://curebridge.site"
+    ));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("Content-Type", "Authorization", "X-Requested-With"));
     config.setAllowCredentials(true);

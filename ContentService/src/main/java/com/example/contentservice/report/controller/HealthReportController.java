@@ -21,7 +21,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/health-report")
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
+@CrossOrigin(
+    origins = {
+        "http://localhost:3000",
+        "http://www.curebridge.site",
+        "http://curebridge.site"
+    },
+    allowCredentials = "true"
+)
 public class HealthReportController {
 
   private final HealthReportService healthReportService;
