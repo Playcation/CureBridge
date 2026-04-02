@@ -23,7 +23,7 @@ public class NewsIndexServiceImpl implements NewsIndexService {
   private int elasticsearchPort;
 
   public String createNewsIndex() {
-    String indexName = "news-index";
+    String indexName = "news-index-v2";
 
     String jsonBody = """
         {
