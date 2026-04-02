@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -40,12 +41,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/news")
 public class NewsController {
 
-  /* (추가) URL에서 도메인 추출해서 언론사 긁어오기 (도전해보기) */
   private final NewsService newsService;
   private final NewsSearchService newsSearchService;
   private final ObjectMapper objectMapper;
@@ -61,7 +62,7 @@ public class NewsController {
   private String CLIENT_SECRET;
 
   // 매일 자정(0시 0분)에 이 메서드가 자동으로 실행됩니다.
-  @Scheduled(cron = "0 40 22 * * *", zone = "Asia/Seoul")
+  @Scheduled(cron = "0 00 00 * * *", zone = "Asia/Seoul")
   public void newsapi() {
     List<NewsRequestDto> dtoList = new ArrayList<>();
     for (int start = 1; start <= 1000; start += 100) {
@@ -166,6 +167,8 @@ public class NewsController {
 
       return ResponseEntity.ok(topKeywords);
     } catch (Exception e) {
+      log.error("top-keywords 조회 실패. startDate={}, endDate={}, size={}", startDate, endDate, size,
+          e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
   }

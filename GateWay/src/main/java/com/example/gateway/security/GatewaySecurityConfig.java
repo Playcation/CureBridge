@@ -54,9 +54,9 @@ public class GatewaySecurityConfig {
                 "/swagger-ui.html", "/member-service/v3/api-docs", "/content-service/v3/api-docs",
                 "/chat-service/v3/api-docs").permitAll() // 로그인, 회원가입은 통과
             .pathMatchers(HttpMethod.GET,
-                "/api/anonymous/news/**",
-                "/api/anonymous/notice/**",
-                "/api/anonymous/support/**"
+                "/api/anonymous/content/news/**",
+                "/api/anonymous/content/notice/**",
+                "/api/anonymous/content/support/**"
             )
             .permitAll()
             .pathMatchers(HttpMethod.PATCH, "/api/admin/content/**")
