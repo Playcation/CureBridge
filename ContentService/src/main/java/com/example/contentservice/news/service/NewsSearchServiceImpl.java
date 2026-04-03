@@ -40,7 +40,7 @@ public class NewsSearchServiceImpl implements NewsSearchService {
     String ngramField = "ngram";
     try {
       SearchResponse<NewsDocument> response = elasticsearchClient.search(s -> s
-              .index("news-index")
+              .index("news-index-v2")
               .from(pageable.getPageNumber() * pageable.getPageSize())
               .size(pageable.getPageSize())
               .query(q -> q
@@ -94,7 +94,7 @@ public class NewsSearchServiceImpl implements NewsSearchService {
       int size) {
     try {
       SearchResponse<Void> response = elasticsearchClient.search(s -> s
-              .index("news-index")
+              .index("news-index-v2")
               .size(0)
               .query(q -> q.range(r -> r
                   .date(d -> d
