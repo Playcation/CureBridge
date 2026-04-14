@@ -1,12 +1,14 @@
 package com.example.contentservice.notice.service;
 
 import com.example.commonmodule.common.PagingDto;
+import com.example.commonmodule.dto.UserResponseDto;
 import com.example.commonmodule.files.dto.FileResponseDto;
 import com.example.commonmodule.files.entity.BoardFile;
 import com.example.commonmodule.files.entity.BoardFileType;
 import com.example.commonmodule.files.repository.BoardFileRepository;
 import com.example.commonmodule.files.repository.FileRepository;
 import com.example.commonmodule.files.service.FileService;
+import com.example.contentservice.config.UserClient;
 import com.example.contentservice.notice.document.NoticeDocument;
 import com.example.contentservice.notice.dto.NoticeRequestDto;
 import com.example.contentservice.notice.dto.NoticeResponseDto;
@@ -37,12 +39,14 @@ public class NoticeServiceImpl implements NoticeService {
   private final FileService fileService;
   private final BoardFileRepository boardFileRepository;
   private final FileRepository fileRepository;
+  private final UserClient userClient;
 
   @Override
   @Transactional
   public NoticeResponseDto createNotice(Long userId, NoticeRequestDto requestDto,
       List<MultipartFile> attachedFiles,
       List<MultipartFile> contentImages) {
+    String writerName;
 
     Notice notice = Notice.builder()
         .title(requestDto.getTitle())
@@ -120,7 +124,15 @@ public class NoticeServiceImpl implements NoticeService {
         NoticeDocument.fromEntity(savedNotice)
     );
 
-    return NoticeResponseDto.toDto(savedNotice, contentImagePaths, attachedFilePaths);
+    try {
+      UserResponseDto userInfo = userClient.getUserInfoById(savedNotice.getUserId());
+      writerName = userInfo.getName();
+    } catch (Exception e) {
+      log.warn("작성자 이름 조회 실패. userId={}", savedNotice.getUserId(), e);
+      writerName = "작성자";
+    }
+
+    return NoticeResponseDto.toDto(savedNotice, writerName, contentImagePaths, attachedFilePaths);
   }
 
   /**
@@ -139,6 +151,7 @@ public class NoticeServiceImpl implements NoticeService {
 
   @Override
   public NoticeResponseDto getNotice(Long noticeId) {
+    String writerName;
     Notice notice = noticeRepository.findByIdOrElseThrow(noticeId);
     notice.incrementViewCount();
     noticeRepository.save(notice);
@@ -153,7 +166,15 @@ public class NoticeServiceImpl implements NoticeService {
         .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
             .getFilePath())
         .toList();
-    return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
+    try {
+      UserResponseDto userInfo = userClient.getUserInfoById(notice.getUserId());
+      writerName = userInfo.getName();
+    } catch (Exception e) {
+      log.warn("공지 상세 작성자 이름 조회 실패. userId={}", notice.getUserId(), e);
+      writerName = "작성자";
+    }
+
+    return NoticeResponseDto.toDto(notice, writerName, contentImagePaths, attachedFilePaths);
   }
 
   @Override
@@ -188,7 +209,17 @@ public class NoticeServiceImpl implements NoticeService {
         .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
             .getFilePath())
         .toList();
-    return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
+
+    String writerName;
+    try {
+      UserResponseDto userInfo = userClient.getUserInfoById(updatedNotice.getUserId());
+      writerName = userInfo.getName();
+    } catch (Exception e) {
+      log.warn("공지 수정 후 작성자 이름 조회 실패. userId={}", updatedNotice.getUserId(), e);
+      writerName = "작성자";
+    }
+
+    return NoticeResponseDto.toDto(updatedNotice, writerName, contentImagePaths, attachedFilePaths);
   }
 
   @Override

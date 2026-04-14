@@ -1,12 +1,14 @@
 package com.example.contentservice.notice.service;
 
 import com.example.commonmodule.common.PagingDto;
+import com.example.commonmodule.dto.UserResponseDto;
 import com.example.commonmodule.files.dto.FileResponseDto;
 import com.example.commonmodule.files.entity.BoardFile;
 import com.example.commonmodule.files.entity.BoardFileType;
 import com.example.commonmodule.files.repository.BoardFileRepository;
 import com.example.commonmodule.files.repository.FileRepository;
 import com.example.commonmodule.files.service.FileService;
+import com.example.contentservice.config.UserClient;
 import com.example.contentservice.notice.document.NoticeDocument;
 import com.example.contentservice.notice.dto.NoticeRequestDto;
 import com.example.contentservice.notice.dto.NoticeResponseDto;
@@ -37,6 +39,7 @@ public class OrgNoticeServiceImpl implements OrgNoticeService {
   private final FileService fileService;
   private final BoardFileRepository boardFileRepository;
   private final FileRepository fileRepository;
+  private final UserClient userClient;
 
   @Override
   @Transactional
@@ -119,8 +122,16 @@ public class OrgNoticeServiceImpl implements OrgNoticeService {
     noticeSearchRepository.save(
         NoticeDocument.fromEntity(savedNotice)
     );
+    String writerName;
+    try {
+      UserResponseDto userInfo = userClient.getUserInfoById(savedNotice.getUserId());
+      writerName = userInfo.getName();
+    } catch (Exception e) {
+      log.warn("작성자 이름 조회 실패. userId={}", savedNotice.getUserId(), e);
+      writerName = "작성자";
+    }
 
-    return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
+    return NoticeResponseDto.toDto(savedNotice, writerName, contentImagePaths, attachedFilePaths);
   }
 
   /**
@@ -153,7 +164,15 @@ public class OrgNoticeServiceImpl implements OrgNoticeService {
         .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
             .getFilePath())
         .toList();
-    return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
+    String writerName;
+    try {
+      UserResponseDto userInfo = userClient.getUserInfoById(notice.getUserId());
+      writerName = userInfo.getName();
+    } catch (Exception e) {
+      writerName = "작성자";
+    }
+
+    return NoticeResponseDto.toDto(notice, writerName, contentImagePaths, attachedFilePaths);
   }
 
   @Override
@@ -188,7 +207,15 @@ public class OrgNoticeServiceImpl implements OrgNoticeService {
         .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
             .getFilePath())
         .toList();
-    return NoticeResponseDto.toDto(notice, contentImagePaths, attachedFilePaths);
+    String writerName;
+    try {
+      UserResponseDto userInfo = userClient.getUserInfoById(updatedNotice.getUserId());
+      writerName = userInfo.getName();
+    } catch (Exception e) {
+      writerName = "작성자";
+    }
+
+    return NoticeResponseDto.toDto(updatedNotice, writerName, contentImagePaths, attachedFilePaths);
   }
 
   @Override
