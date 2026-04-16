@@ -16,7 +16,7 @@ public class PagingSupportResponseDto {
   private String title;
   private String content;
   private boolean isPrivate;
-  private boolean isRelied;
+  private boolean isReplied;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -27,7 +27,7 @@ public class PagingSupportResponseDto {
         .writerName(writerName)
         .title(support.getTitle())
         .isPrivate(support.isPrivate())
-        .isRelied(support.isReplied())
+        .isReplied(support.isReplied())
         .createdAt(support.getCreatedAt())
         .updatedAt(support.getUpdatedAt())
         .build();
@@ -40,7 +40,7 @@ public class PagingSupportResponseDto {
         .title(doc.getTitle())
         .content(doc.getContent())
         .isPrivate(support.isPrivate())
-        .isRelied(support.isReplied())
+        .isReplied(support.isReplied())
         .createdAt(support.getCreatedAt())
         .updatedAt(support.getUpdatedAt())
         .build();

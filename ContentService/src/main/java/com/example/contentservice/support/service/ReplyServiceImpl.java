@@ -7,7 +7,6 @@ import com.example.contentservice.support.dto.ReplyResponseDto;
 import com.example.contentservice.support.entity.Support;
 import com.example.contentservice.support.repository.SupportRepository;
 import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,19 +25,9 @@ public class ReplyServiceImpl implements ReplyService {
       throw new NotFoundException(BoardErrorCode.EXIST_REPLY);
     }
 
-    Support updatedSupport = Support.builder()
-        .id(support.getId()) // 기존 ID 유지
-        .title(support.getTitle())
-        .content(support.getContent())
-        .userId(support.getUserId())
-        .isPrivate(support.isPrivate())
-        .isReplied(true)
-        .replyContent(requestDto.getReplyContent())
-        .repliedAt(LocalDateTime.now())
-        .build();
-    Support savedSupport = supportRepository.save(updatedSupport);
+    support.addReply(requestDto.getReplyContent());
 
-    return ReplyResponseDto.toDto(savedSupport);
+    return ReplyResponseDto.toDto(support);
   }
 
   @Override

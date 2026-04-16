@@ -17,7 +17,7 @@ public class SupportResponseDto {
   private String content;
   private boolean isPrivate;
   private List<String> attachedFilePaths;
-  private boolean isRelied;
+  private boolean isReplied;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
@@ -31,7 +31,7 @@ public class SupportResponseDto {
         .content(support.getContent())
         .isPrivate(support.isPrivate())
         .attachedFilePaths(attachedFilePaths)
-        .isRelied(support.isReplied())
+        .isReplied(support.isReplied())
         .createdAt(support.getCreatedAt())
         .updatedAt(support.getUpdatedAt())
         .build();
