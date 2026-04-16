@@ -16,6 +16,7 @@ public class SupportDetailResponseDto {
   private boolean isPrivate;
   private Long viewCount;
   private Long userId;
+  private String writerName;
   private List<String> attachedFilePaths; // 첨부파일 리스트 추가
 
   // 답글 정보 (nullable)
@@ -23,8 +24,11 @@ public class SupportDetailResponseDto {
   private String replyContent;
   private LocalDateTime repliedAt;
 
-  public static SupportDetailResponseDto toDto(Support support,
-      List<String> attachedFilePaths) {
+  public static SupportDetailResponseDto toDto(
+      Support support,
+      String writerName,
+      List<String> attachedFilePaths
+  ) {
     return SupportDetailResponseDto.builder()
         .id(support.getId())
         .title(support.getTitle())
@@ -32,6 +36,7 @@ public class SupportDetailResponseDto {
         .isPrivate(support.isPrivate())
         .viewCount(support.getViewCount())
         .userId(support.getUserId())
+        .writerName(writerName)
         .attachedFilePaths(attachedFilePaths)
         .isReplied(support.isReplied())
         .replyContent(support.isReplied() ? support.getReplyContent() : null)

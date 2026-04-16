@@ -12,6 +12,7 @@ public class SupportResponseDto {
 
   private Long supportId;
   private Long userId;
+  private String writerName;
   private String title;
   private String content;
   private boolean isPrivate;
@@ -20,10 +21,12 @@ public class SupportResponseDto {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static SupportResponseDto toDto(Support support, List<String> attachedFilePaths) {
+  public static SupportResponseDto toDto(Support support, String writerName,
+      List<String> attachedFilePaths) {
     return SupportResponseDto.builder()
         .supportId(support.getId())
         .userId(support.getUserId())
+        .writerName(writerName)
         .title(support.getTitle())
         .content(support.getContent())
         .isPrivate(support.isPrivate())

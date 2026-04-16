@@ -12,6 +12,7 @@ public class PagingSupportResponseDto {
 
   private Long supportId;
   private Long userId;
+  private String writerName;
   private String title;
   private String content;
   private boolean isPrivate;
@@ -19,10 +20,11 @@ public class PagingSupportResponseDto {
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static PagingSupportResponseDto toDto(Support support) {
+  public static PagingSupportResponseDto toDto(Support support, String writerName) {
     return PagingSupportResponseDto.builder()
         .supportId(support.getId())
         .userId(support.getUserId())
+        .writerName(writerName)
         .title(support.getTitle())
         .isPrivate(support.isPrivate())
         .isRelied(support.isReplied())
