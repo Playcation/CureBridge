@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   pr-check:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -67,6 +68,7 @@ jobs:
           push: false
 
   docker-build-and-push:
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -157,6 +159,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-to-swarm:
+    if: github.event_name == 'pull_request'
     needs: docker-build-and-push
     runs-on: ubuntu-latest
     steps:
