@@ -1,6 +1,7 @@
 package com.example.contentservice.support.service;
 
 import com.example.commonmodule.common.PagingDto;
+import com.example.commonmodule.dto.UserResponseDto;
 import com.example.commonmodule.exceptions.BoardErrorCode;
 import com.example.commonmodule.exceptions.InvalidInputException;
 import com.example.commonmodule.exceptions.NoAuthorizedException;
@@ -10,6 +11,7 @@ import com.example.commonmodule.files.entity.BoardFileType;
 import com.example.commonmodule.files.repository.BoardFileRepository;
 import com.example.commonmodule.files.repository.FileRepository;
 import com.example.commonmodule.files.service.FileService;
+import com.example.contentservice.config.UserClient;
 import com.example.contentservice.support.document.SupportDocument;
 import com.example.contentservice.support.dto.PagingSupportResponseDto;
 import com.example.contentservice.support.dto.SupportDetailResponseDto;
@@ -36,6 +38,7 @@ public class SupportServiceImpl implements SupportService {
   private final BoardFileRepository boardFileRepository;
   private final FileService fileService;
   private final FileRepository fileRepository;
+  private final UserClient userClient;
 
   @Override
   @Transactional
@@ -80,11 +83,12 @@ public class SupportServiceImpl implements SupportService {
         SupportDocument.fromEntity(savedSupport)
     );
 
-    return SupportResponseDto.toDto(savedSupport, attachedFilePaths);
+    String writerName = getWriterName(savedSupport.getUserId());
+    return SupportResponseDto.toDto(savedSupport, writerName, attachedFilePaths);
   }
 
   @Override
-  @Transactional(readOnly = true)
+  @Transactional
   public SupportDetailResponseDto getSupport(Long supportId) {
     Support support = supportRepository.findByIdOrElseThrow(supportId);
     support.incrementViewCount();
@@ -94,7 +98,8 @@ public class SupportServiceImpl implements SupportService {
         .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
             .getFilePath())
         .toList();
-    return SupportDetailResponseDto.toDto(support, attachedFilePaths);
+    String writerName = getWriterName(support.getUserId());
+    return SupportDetailResponseDto.toDto(support, writerName, attachedFilePaths);
   }
 
   @Override
@@ -102,7 +107,7 @@ public class SupportServiceImpl implements SupportService {
     Page<Support> supportPage = supportRepository.findAll(pageable);
 
     List<PagingSupportResponseDto> supportDtoList = supportPage.getContent().stream()
-        .map(support -> PagingSupportResponseDto.toDto(support))
+        .map(support -> PagingSupportResponseDto.toDto(support, getWriterName(support.getUserId())))
         .toList();
 
     return new PagingDto<>(supportDtoList, supportPage.getTotalElements());
@@ -134,7 +139,8 @@ public class SupportServiceImpl implements SupportService {
         .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
             .getFilePath())
         .toList();
-    return SupportResponseDto.toDto(support, attachedFilePaths);
+    String writerName = getWriterName(savedSupport.getUserId());
+    return SupportResponseDto.toDto(savedSupport, writerName, attachedFilePaths);
   }
 
   @Override
@@ -154,4 +160,14 @@ public class SupportServiceImpl implements SupportService {
     supportRepository.deleteById(supportId);
     supportSearchRepository.deleteById(String.valueOf(supportId));
   }
+
+  private String getWriterName(Long userId) {
+    try {
+      UserResponseDto userInfo = userClient.getUserInfoById(userId);
+      return userInfo.getName();
+    } catch (Exception e) {
+      return "작성자";
+    }
+  }
+
 }

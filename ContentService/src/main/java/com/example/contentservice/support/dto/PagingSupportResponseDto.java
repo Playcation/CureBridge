@@ -12,20 +12,22 @@ public class PagingSupportResponseDto {
 
   private Long supportId;
   private Long userId;
+  private String writerName;
   private String title;
   private String content;
   private boolean isPrivate;
-  private boolean isRelied;
+  private boolean isReplied;
   private LocalDateTime createdAt;
   private LocalDateTime updatedAt;
 
-  public static PagingSupportResponseDto toDto(Support support) {
+  public static PagingSupportResponseDto toDto(Support support, String writerName) {
     return PagingSupportResponseDto.builder()
         .supportId(support.getId())
         .userId(support.getUserId())
+        .writerName(writerName)
         .title(support.getTitle())
         .isPrivate(support.isPrivate())
-        .isRelied(support.isReplied())
+        .isReplied(support.isReplied())
         .createdAt(support.getCreatedAt())
         .updatedAt(support.getUpdatedAt())
         .build();
@@ -38,7 +40,7 @@ public class PagingSupportResponseDto {
         .title(doc.getTitle())
         .content(doc.getContent())
         .isPrivate(support.isPrivate())
-        .isRelied(support.isReplied())
+        .isReplied(support.isReplied())
         .createdAt(support.getCreatedAt())
         .updatedAt(support.getUpdatedAt())
         .build();

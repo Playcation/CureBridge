@@ -16,6 +16,9 @@ public class NoticeResponseDto {
   // 작성자 ID
   private Long userId;
 
+  // 작성자 이름
+  private String writerName;
+
   // 공지사항 제목
   private String title;
 
@@ -43,12 +46,14 @@ public class NoticeResponseDto {
    */
   public static NoticeResponseDto toDto(
       Notice notice,
+      String writerName,
       List<String> contentImagePaths,
       List<String> attachedFilePaths
   ) {
     return NoticeResponseDto.builder()
         .noticeId(notice.getId())
         .userId(notice.getUserId())
+        .writerName(writerName)
         .title(notice.getTitle())
         .content(notice.getContent())
         .viewCount(notice.getViewCount())

@@ -67,5 +67,10 @@ public class Support extends BaseEntityDeletedAt {
     this.repliedAt = null;
   }
 
+  public void addReply(String replyContent) {
+    this.replyContent = replyContent;
+    this.isReplied = true; // 여기서 확실히 true로 변경
+    this.repliedAt = LocalDateTime.now();
+  }
 
 }

@@ -68,7 +68,7 @@ jobs:
           push: false
 
   docker-build-and-push:
-    if: github.event_name == 'push'
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -89,19 +89,16 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Ensure DOCKERHUB_USERNAME is set
-        if: github.event_name == 'push'
         run: |
           test -n "${{ secrets.DOCKERHUB_USERNAME }}" || (echo "DOCKERHUB_USERNAME is empty" && exit 1)
 
       - name: Login to Docker Hub
-        if: github.event_name == 'push'
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and Push GateWay
-        if: github.event_name == 'push'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -114,7 +111,6 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and Push ContentService
-        if: github.event_name == 'push'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -127,7 +123,6 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and Push Chat
-        if: github.event_name == 'push'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -140,7 +135,6 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and Push MemberService
-        if: github.event_name == 'push'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -153,7 +147,6 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Build and Push AppService
-        if: github.event_name == 'push'
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -166,7 +159,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy-to-swarm:
-    if: github.event_name == 'push'
+    if: github.event_name == 'pull_request'
     needs: docker-build-and-push
     runs-on: ubuntu-latest
     steps:
