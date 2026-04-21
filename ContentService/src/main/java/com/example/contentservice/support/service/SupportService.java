@@ -14,7 +14,7 @@ public interface SupportService {
   SupportResponseDto createSupport(SupportRequestDto dto, Long userId,
       List<MultipartFile> attachedFiles);
 
-  SupportDetailResponseDto getSupport(Long supportId);
+  SupportDetailResponseDto getSupport(Long supportId, Long userId, String role);
 
   PagingDto<PagingSupportResponseDto> getSupportsAndPaging(Pageable pageable);
 

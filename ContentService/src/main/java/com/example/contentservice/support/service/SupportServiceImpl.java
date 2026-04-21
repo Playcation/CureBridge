@@ -48,6 +48,7 @@ public class SupportServiceImpl implements SupportService {
     Support support = Support.builder()
         .title(requestDto.getTitle())
         .content(requestDto.getContent())
+        .isPrivate(requestDto.isPrivate())
         .viewCount(0L)
         .userId(userId)
         .build();
@@ -89,8 +90,22 @@ public class SupportServiceImpl implements SupportService {
 
   @Override
   @Transactional
-  public SupportDetailResponseDto getSupport(Long supportId) {
+  public SupportDetailResponseDto getSupport(Long supportId, Long userId, String role) {
     Support support = supportRepository.findByIdOrElseThrow(supportId);
+    // 비공개 글 권한 체크
+    // 1. 글이 비공개(isPrivate)인 경우
+    // 2. 관리자(ROLE_ADMIN)가 아니고
+    // 3. 작성자 본인이 아닌 경우
+    if (support.isPrivate()) {
+      boolean isAdmin = "ADMIN".equals(role);
+      boolean isOwner = support.getUserId().equals(userId);
+
+      if (!isAdmin && !isOwner) {
+        // 권한 없음 예외 발생 (Custom Exception 사용 추천)
+        throw new NoAuthorizedException(BoardErrorCode.INVALID_OWNER);
+      }
+    }
+
     support.incrementViewCount();
     supportRepository.save(support);
     List<BoardFile> boardFiles = boardFileRepository.findByBoardId(supportId);
