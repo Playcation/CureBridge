@@ -55,8 +55,21 @@ public class SupportController {
 
   // 게시물 단건 조회
   @GetMapping("/{supportId}")
-  public ResponseEntity<SupportDetailResponseDto> getSupport(@PathVariable Long supportId) {
-    SupportDetailResponseDto responseDto = supportService.getSupport(supportId);
+  public ResponseEntity<SupportDetailResponseDto> getSupport(@PathVariable Long supportId,
+      @RequestHeader(value = "Authorization", required = false) String authorizationHeader) {
+    Long userId = null;
+    String role = null;
+    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+      try {
+        userId = jwtParser.findUserByToken(authorizationHeader);
+        role = jwtParser.parseRole(authorizationHeader);
+      } catch (Exception e) {
+        // 토큰이 만료되었거나 잘못된 경우에도 익명 유저로 간주하여 진행
+        userId = null;
+        role = null;
+      }
+    }
+    SupportDetailResponseDto responseDto = supportService.getSupport(supportId, userId, role);
     return new ResponseEntity<>(responseDto, HttpStatus.OK);
   }
 
