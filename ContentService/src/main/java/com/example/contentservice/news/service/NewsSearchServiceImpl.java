@@ -10,6 +10,7 @@ import com.example.contentservice.news.document.NewsDocument;
 import com.example.contentservice.news.dto.NewsResponseDto;
 import com.example.contentservice.news.dto.TopKeywordResponseDto;
 import com.example.contentservice.news.entity.News;
+import com.example.contentservice.news.filter.KeywordFilter;
 import com.example.contentservice.news.repository.NewsRepository;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -124,7 +125,9 @@ public class NewsSearchServiceImpl implements NewsSearchService {
           .filter(keyword -> keyword != null && !keyword.isBlank())
           .filter(keyword -> keyword.length() >= 2)
           .filter(keyword -> !keyword.matches("[^가-힣a-zA-Z0-9]+"))
+          .filter(keyword -> !keyword.matches("^\\d+$"))
           .filter(keyword -> !keyword.equals("의료"))
+          .filter(keyword -> !KeywordFilter.EXCLUDED_KEYWORDS.contains(keyword))
           .distinct()
           .limit(10)
           .toList();
