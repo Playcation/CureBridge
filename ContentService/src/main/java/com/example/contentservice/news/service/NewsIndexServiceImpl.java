@@ -76,7 +76,8 @@ public class NewsIndexServiceImpl implements NewsIndexService {
                   "korean": {
                     "type": "text",
                     "analyzer": "my_nori_analyzer",
-                    "search_analyzer": "my_nori_analyzer"
+                    "search_analyzer": "my_nori_analyzer",
+                    "fielddata": true
                   },
                   "ngram": {
                         "type": "text",
@@ -90,9 +91,6 @@ public class NewsIndexServiceImpl implements NewsIndexService {
                   }
                 }
               },
-              "combinedTokens": { // 필드 추가
-                    "type": "keyword"\s
-                  },
               "content": {
                 "type": "text",
                 "fields": {

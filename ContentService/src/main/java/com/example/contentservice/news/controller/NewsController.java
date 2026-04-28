@@ -156,10 +156,11 @@ public class NewsController {
   public ResponseEntity<List<TopKeywordResponseDto>> getTopKeywordsForDateRange(
       @RequestParam(value = "gte", required = false) String gte,
       @RequestParam(value = "lt", required = false) String lt,
-      @RequestParam(value = "size", defaultValue = "10") int size
+      @RequestParam(value = "size", defaultValue = "50") int size
   ) {
     LocalDate startDate = (gte != null) ? LocalDate.parse(gte) : LocalDate.now().minusDays(7);
-    LocalDate endDate = (lt != null) ? LocalDate.parse(lt) : LocalDate.now();
+    LocalDate endDate = (lt != null) ? LocalDate.parse(lt) : LocalDate.now().plusDays(1);
+    ;
 
     try {
       List<TopKeywordResponseDto> topKeywords =
