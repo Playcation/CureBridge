@@ -13,4 +13,6 @@ public interface NewsSearchService {
 
   List<TopKeywordResponseDto> aggregateTopKeywordsForDateRange(LocalDate gte, LocalDate lt,
       int size);
+  
+  void deleteOldNews(int days);
 }

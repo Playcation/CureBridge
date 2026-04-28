@@ -10,6 +10,7 @@ import com.example.contentservice.news.document.NewsDocument;
 import com.example.contentservice.news.dto.NewsResponseDto;
 import com.example.contentservice.news.dto.TopKeywordResponseDto;
 import com.example.contentservice.news.entity.News;
+import com.example.contentservice.news.filter.KeywordFilter;
 import com.example.contentservice.news.repository.NewsRepository;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -103,24 +104,97 @@ public class NewsSearchServiceImpl implements NewsSearchService {
                       .lt(lt.toString())
                   )
               ))
-              .aggregations("top_combined_keywords", a -> a
-                  .terms(t -> t.field("combinedTokens").size(size))
+              .aggregations("top_keywords", a -> a
+                  .terms(t -> t.field("title.korean").size(size))
               ),
           Void.class
       );
 
-      var buckets = response.aggregations()
-          .get("top_combined_keywords")
+      var aggregate = response.aggregations().get("top_keywords");
+
+      if (aggregate == null) {
+        return List.of();
+      }
+
+      List<String> keywords = aggregate
           .sterms()
           .buckets()
-          .array();
-
-      return buckets.stream()
-          .map(b -> new TopKeywordResponseDto(b.key().stringValue(), b.docCount()))
+          .array()
+          .stream()
+          .map(b -> b.key().stringValue())
+          .filter(keyword -> keyword != null && !keyword.isBlank())
+          .filter(keyword -> keyword.length() >= 2)
+          .filter(keyword -> !keyword.matches("[^가-힣a-zA-Z0-9]+"))
+          .filter(keyword -> !keyword.matches("^\\d+$"))
+          .filter(keyword -> !keyword.equals("의료"))
+          .filter(keyword -> !KeywordFilter.EXCLUDED_KEYWORDS.contains(keyword))
+          .distinct()
+          .limit(10)
           .toList();
+
+      return keywords.stream()
+          .map(keyword -> new TopKeywordResponseDto(
+              keyword,
+              countBySearch(keyword, gte, lt)
+          ))
+          .toList();
+
 
     } catch (IOException e) {
       throw new RuntimeException("Elasticsearch 키워드 집계 중 오류 발생", e);
     }
   }
+
+  private long countBySearch(String keyword, LocalDate gte, LocalDate lt) {
+    try {
+      SearchResponse<Void> response = elasticsearchClient.search(s -> s
+              .index("news-index-v2")
+              .size(0)
+              .query(q -> q.bool(b -> b
+                  .must(m -> m.match(mt -> mt
+                      .field("title.korean")
+                      .query(keyword)
+                  ))
+                  .filter(f -> f.range(r -> r
+                      .date(d -> d
+                          .field("publishedAt")
+                          .gte(gte.toString())
+                          .lt(lt.toString())
+                      )
+                  ))
+              )),
+          Void.class
+      );
+
+      return response.hits().total() == null
+          ? 0
+          : response.hits().total().value();
+
+    } catch (IOException e) {
+      throw new RuntimeException("Elasticsearch 키워드 count 검색 중 오류 발생. keyword=" + keyword, e);
+    }
+  }
+
+  @Override
+  public void deleteOldNews(int days) {
+    try {
+      // 삭제 기준 날짜 (예: 15일 전)
+      String olderThan = LocalDate.now().minusDays(days).toString();
+
+      elasticsearchClient.deleteByQuery(d -> d
+          .index("news-index-v2")
+          .query(q -> q
+              .range(r -> r
+                  .date(dt -> dt
+                      .field("publishedAt")
+                      .lt(olderThan) // 기준일 미만 데이터 삭제
+                  )
+              )
+          )
+      );
+    } catch (IOException e) {
+      throw new RuntimeException("ES 삭제 중 오류 발생", e);
+    }
+  }
+
 }
