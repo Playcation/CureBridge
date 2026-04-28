@@ -171,4 +171,27 @@ public class NewsSearchServiceImpl implements NewsSearchService {
       throw new RuntimeException("Elasticsearch 키워드 count 검색 중 오류 발생. keyword=" + keyword, e);
     }
   }
+
+  @Override
+  public void deleteOldNews(int days) {
+    try {
+      // 삭제 기준 날짜 (예: 15일 전)
+      String olderThan = LocalDate.now().minusDays(days).toString();
+
+      elasticsearchClient.deleteByQuery(d -> d
+          .index("news-index-v2")
+          .query(q -> q
+              .range(r -> r
+                  .date(dt -> dt
+                      .field("publishedAt")
+                      .lt(olderThan) // 기준일 미만 데이터 삭제
+                  )
+              )
+          )
+      );
+    } catch (IOException e) {
+      throw new RuntimeException("ES 삭제 중 오류 발생", e);
+    }
+  }
+
 }

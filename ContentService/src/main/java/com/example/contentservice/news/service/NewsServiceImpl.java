@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class NewsServiceImpl implements NewsService {
 
   private final NewsRepository newsRepository;
   private final NewsSearchRepository newsSearchRepository;
+  private final NewsSearchService newsSearchService;
 
   // 최근 24시간 이내 게시물 가져와서 저장
   @Override
@@ -72,4 +74,17 @@ public class NewsServiceImpl implements NewsService {
     newsRepository.findByIdOrElseThrow(newsId);
     newsRepository.deleteById(newsId);
   }
+
+  @Override
+  @Transactional // MySQL 삭제 트랜잭션 보장
+  public void cleanupOldNews(int days) {
+    LocalDateTime threshold = LocalDateTime.now().minusDays(days);
+
+    // 1. MySQL 데이터 삭제
+    newsRepository.deleteByPublishedAtBefore(threshold);
+
+    // 2. Elasticsearch 데이터 삭제
+    newsSearchService.deleteOldNews(days);
+  }
+
 }

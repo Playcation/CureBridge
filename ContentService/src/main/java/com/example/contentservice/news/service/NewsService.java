@@ -13,4 +13,6 @@ public interface NewsService {
   PagingDto<NewsResponseDto> getNewsAndPaging(Pageable pageable);
 
   void deleteNews(Long newsId);
+
+  void cleanupOldNews(int days);
 }
