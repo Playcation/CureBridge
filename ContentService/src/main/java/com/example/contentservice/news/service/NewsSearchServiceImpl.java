@@ -126,7 +126,6 @@ public class NewsSearchServiceImpl implements NewsSearchService {
           .filter(keyword -> keyword.length() >= 2)
           .filter(keyword -> !keyword.matches("[^가-힣a-zA-Z0-9]+"))
           .filter(keyword -> !keyword.matches("^\\d+$"))
-          .filter(keyword -> !keyword.equals("의료"))
           .filter(keyword -> !KeywordFilter.EXCLUDED_KEYWORDS.contains(keyword))
           .distinct()
           .limit(10)

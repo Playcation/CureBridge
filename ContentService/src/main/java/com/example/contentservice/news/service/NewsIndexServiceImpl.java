@@ -91,26 +91,7 @@ public class NewsIndexServiceImpl implements NewsIndexService {
                   }
                 }
               },
-              "content": {
-                "type": "text",
-                "fields": {
-                  "korean": {
-                    "type": "text",
-                    "analyzer": "my_nori_analyzer",
-                    "search_analyzer": "my_nori_analyzer"
-                  },
-                  "ngram": {
-                        "type": "text",
-                        "analyzer": "my_ngram_analyzer",
-                        "search_analyzer": "my_ngram_analyzer"
-                      },
-                  "english": {
-                    "type": "text",
-                    "analyzer": "standard",
-                    "search_analyzer": "standard"
-                  }
-                }
-              },
+        
               "createdAt": {
                 "type": "date",
                 "format": "yyyy-MM-dd'T'HH:mm:ss.SSS||epoch_millis"
