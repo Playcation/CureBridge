@@ -14,7 +14,9 @@ spring:
         webflux:
           routes:
             - id: user-service
-              uri: http://user-service:8081
+              // TODO: 배포시 바꾸기
+              uri: http://localhost:8081
+              #              uri: http://user-service:8081
               predicates:
                 - Path=/api/anonymous/member/**,/api/user/member/**,/api/org-manager/member/**,/api/org-admin/member/**,/api/admin/member/**
               filters:

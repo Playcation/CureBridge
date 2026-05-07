@@ -1,9 +1,17 @@
 package com.example.commonmodule.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
+
 import java.util.HashMap;
 import java.util.Map;
-
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,14 +23,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import lombok.RequiredArgsConstructor;
 
 @Configuration
 @RequiredArgsConstructor
@@ -75,14 +75,19 @@ public class RedisTemplateConfig {
             RedisSerializationContext.SerializationPair.fromSerializer(serializer)
         );
 
-		Map<String, RedisCacheConfiguration> customConfigs = new HashMap<>();
+		Map<String, RedisCacheConfiguration> keywordConfigs = new HashMap<>();
 
-		customConfigs.put("news_top_keywords", config.entryTtl(Duration.ofHours(24)));
-		customConfigs.put("news_keyword_results", config.entryTtl(Duration.ofHours(24)));
+		keywordConfigs.put("news_top_keywords", config.entryTtl(Duration.ofHours(24)));
+		keywordConfigs.put("news_keyword_results", config.entryTtl(Duration.ofHours(24)));
 
-		return RedisCacheManager.builder(cf)
+	  Map<String, RedisCacheConfiguration> customConfigs = new HashMap<>();
+
+	  customConfigs.put("calendar_monthly", config.entryTtl(Duration.ofDays(7))); // 월간은 7일
+	  customConfigs.put("calendar_daily", config.entryTtl(Duration.ofHours(24)));
+
+	  return RedisCacheManager.builder(cf)
 			.cacheDefaults(config)
-			.withInitialCacheConfigurations(customConfigs)
+			.withInitialCacheConfigurations(keywordConfigs)
 			.build();
 	}
 
