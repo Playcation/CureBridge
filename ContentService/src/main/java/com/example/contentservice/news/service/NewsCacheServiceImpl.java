@@ -63,8 +63,6 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 	 */
 	@Override
 	public List<TopKeywordResponseDto> getCachedTopKeywords(LocalDate gte, LocalDate lt, int size) {
-		Cache cache = cacheManager.getCache("news_top_keywords");
-		if (cache != null) {
 		Cache cache = cacheManager.getCache("news_top_keywords");        // redis 캐시 탐색
 		if (cache != null) {    // 캐시 있으면 가져옴
 			TopKeywordCacheDto wrapper = cache.get("daily_top10", TopKeywordCacheDto.class);
