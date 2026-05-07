@@ -2,14 +2,16 @@ package com.example.commonmodule.common;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@NoArgsConstructor
+@AllArgsConstructor
 public class PagingDto<T> {
 
-	private final List<T> list;
+	private List<T> list;
 
-	private final Long count;
+	private Long count;
 }
