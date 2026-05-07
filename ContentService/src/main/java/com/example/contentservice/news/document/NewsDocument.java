@@ -18,7 +18,7 @@ import org.springframework.data.elasticsearch.annotations.WriteTypeHint;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Document(indexName = "news-index-v2", createIndex = false, writeTypeHint = WriteTypeHint.FALSE)
+@Document(indexName = "news-index", createIndex = false, writeTypeHint = WriteTypeHint.FALSE)
 public class NewsDocument {
 
   @Id

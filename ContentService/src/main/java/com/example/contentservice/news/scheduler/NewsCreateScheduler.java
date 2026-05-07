@@ -85,6 +85,7 @@ public class NewsCreateScheduler {
 			return dtA.compareTo(dtB); // 과거 -> 최신 순 정렬
 		});
 		if (!dtoList.isEmpty()) {
+			// 뉴스 업데이트 및 캐시 갱신
 			newsService.saveRecentNews(dtoList);
 			newsCacheService.refreshNewsCache(today);
 		}

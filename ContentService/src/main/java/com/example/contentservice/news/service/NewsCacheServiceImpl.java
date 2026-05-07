@@ -16,6 +16,9 @@ import com.example.contentservice.news.dto.TopKeywordResponseDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * 캐싱 관련 funtions
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -24,26 +27,10 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 	private final CacheManager cacheManager;
 	private final NewsSearchService newsSearchService; // 비즈니스 로직 호출용
 
-	@Override
-	public List<TopKeywordResponseDto> getCachedTopKeywords(LocalDate gte, LocalDate lt, int size) {
-		Cache cache = cacheManager.getCache("news_top_keywords");
-		if (cache != null) {
-			TopKeywordCacheDto wrapper = cache.get("daily_top10", TopKeywordCacheDto.class);
-			if (wrapper != null) {
-				log.info(">>>> Redis 캐시 히트: 인기 키워드 반환");
-				return wrapper.getKeywords();
-			}
-		}
-
-		log.info(">>>> 캐시 미스: ES 직접 집계 실행");
-		List<TopKeywordResponseDto> top10 = newsSearchService.aggregateTopKeywordsForDateRange(gte, lt, size);
-
-		if (cache != null) {
-			cache.put("daily_top10", new TopKeywordCacheDto(top10));
-		}
-		return top10;
-	}
-
+	/**
+	 * 1일 주기로 뉴스 데이터 갱신 시 캐시 갱신
+	 * @param today
+	 */
 	@Override
 	public void refreshNewsCache(LocalDate today) {
 		LocalDate yesterday = today.minusDays(1);
@@ -62,7 +49,38 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 				PagingDto<NewsResponseDto> results = newsSearchService.searchByTitle(keyword, PageRequest.of(0, 10));
 				resultCache.put(keyword, results);
 			}
-			log.info(">>>> 뉴스 캐시 갱신 완료: {}", today);
+			log.info(">>> 뉴스 캐시 갱신 완료: {}", today);
 		}
 	}
+
+	/**
+	 * 인기 키워드 API 실행 시
+	 * 캐시 탐색 후 있으면 가져오고 없으면 es 직접 집계
+	 * @param gte
+	 * @param lt
+	 * @param size
+	 * @return 키워드 탑10
+	 */
+	@Override
+	public List<TopKeywordResponseDto> getCachedTopKeywords(LocalDate gte, LocalDate lt, int size) {
+		Cache cache = cacheManager.getCache("news_top_keywords");
+		if (cache != null) {
+		Cache cache = cacheManager.getCache("news_top_keywords");        // redis 캐시 탐색
+		if (cache != null) {    // 캐시 있으면 가져옴
+			TopKeywordCacheDto wrapper = cache.get("daily_top10", TopKeywordCacheDto.class);
+			if (wrapper != null) {
+				log.info(">>>> Redis 캐시 히트: 인기 키워드 반환");
+				return wrapper.getKeywords();
+			}
+		}
+
+		log.info(">>>> 캐시 미스: ES 직접 집계 실행");
+		List<TopKeywordResponseDto> top10 = newsSearchService.aggregateTopKeywordsForDateRange(gte, lt, size);
+
+		if (cache != null) {
+			cache.put("daily_top10", new TopKeywordCacheDto(top10));
+		}
+		return top10;
+	}
+
 }

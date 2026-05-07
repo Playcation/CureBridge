@@ -5,6 +5,9 @@ import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 검색량 10회 이상 시 해당 키워드 데이터 캐싱에 사용
+ */
 @Service("keywordRankingService")
 @RequiredArgsConstructor
 public class KeywordRankingServiceImpl implements KeywordRankingService {

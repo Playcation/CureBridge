@@ -33,7 +33,13 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 	private final ElasticsearchClient elasticsearchClient;
 	private final NewsRepository newsRepository;
 
-	// 제목 으로 검색하는 쿼리를 포함한 메서드
+	/**
+	 * 제목 으로 검색하는 쿼리를 포함한 메서드
+	 * 한 번 10회를 넘긴 키워드는 이후 매우 빠르게 응답 (Cacheable)
+	 * @param keyword
+	 * @param pageable
+	 * @return 뉴스 데이터 리스트 PagingDto
+	 */
 	@Override
 	@Cacheable(value = "news_keyword_results", key = "#keyword", condition = "@keywordRankingService.getSearchCount(#keyword) >= 10")
 	public PagingDto<NewsResponseDto> searchByTitle(String keyword, Pageable pageable) {
@@ -41,7 +47,7 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 		String ngramField = "ngram";
 		try {
 			SearchResponse<NewsDocument> response = elasticsearchClient.search(s -> s
-					.index("news-index-v2")
+					.index("news-index")
 					.trackTotalHits(t -> t.enabled(true))
 					.from(pageable.getPageNumber() * pageable.getPageSize())
 					.size(pageable.getPageSize())
@@ -90,13 +96,19 @@ public class NewsSearchServiceImpl implements NewsSearchService {
     return input != null && input.matches(".*[ㄱ-ㅎㅏ-ㅣ가-힣]+.*");
   }
 
-	// 날짜 범위 내 인기 키워드(terms aggregation) 추출
+	/**
+	 * 날짜 범위 내 인기 키워드(terms aggregation) 추출 (es)
+	 * @param gte
+	 * @param lt
+	 * @param size
+	 * @return 키워드 탑10 리스트
+	 */
 	@Override
 	public List<TopKeywordResponseDto> aggregateTopKeywordsForDateRange(LocalDate gte, LocalDate lt,
 		int size) {
 		try {
 			SearchResponse<Void> response = elasticsearchClient.search(s -> s
-					.index("news-index-v2")
+					.index("news-index")
 					.size(0)
 					.query(q -> q.range(r -> r
 						.date(d -> d
@@ -144,7 +156,7 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 		try {
 			String fieldSuffix = containsKorean(keyword) ? "korean" : "english";
 			SearchResponse<Void> response = elasticsearchClient.search(s -> s
-					.index("news-index-v2")
+					.index("news-index")
 					.trackTotalHits(t -> t.enabled(true))
 					.size(0)
 					.query(q -> q.bool(b -> b
@@ -180,7 +192,7 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 			String olderThan = LocalDate.now().minusDays(days).toString();
 
 			elasticsearchClient.deleteByQuery(d -> d
-				.index("news-index-v2")
+				.index("news-index")
 				.query(q -> q
 					.range(r -> r
 						.date(dt -> dt
