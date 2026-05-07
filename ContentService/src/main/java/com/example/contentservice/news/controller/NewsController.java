@@ -34,11 +34,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/news")
 public class NewsController {
 
-  private final NewsService newsService;
-  private final NewsSearchService newsSearchService;
-  private final NewsRepository newsRepository;
-  private final NewsSearchRepository newsSearchRepository;
-  private final JwtParser jwtParser;
+	private final NewsService newsService;
+	private final NewsSearchService newsSearchService;
+	private final NewsCacheService newsCacheService;
+	private final KeywordRankingService keywordRankingService;
+	private final JwtParser jwtParser;
 
   // 게시물 다건 조회
   @GetMapping
@@ -58,24 +58,17 @@ public class NewsController {
     return new ResponseEntity<>("게시물이 삭제되었습니다.", HttpStatus.OK);
   }
 
-  @GetMapping("/keywords")
-  public List<String> getAllNewsTitles() {
-    return newsRepository.findAll().stream()
-        .map(News::getTitle)
-        .collect(Collectors.toList());
-  }
-
-  // 제목 으로 검색
-  @GetMapping("/search-title")
-  public ResponseEntity<PagingDto<NewsResponseDto>> searchByTitleAndPaging(
-      @RequestParam("keyword") String keyword,
-      @PageableDefault(size = 10, sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable
-  ) {
-
-    PagingDto<NewsResponseDto> result = newsSearchService.searchByTitle(keyword,
-        pageable);
-    return new ResponseEntity<>(result, HttpStatus.OK);
-  }
+	// 제목 으로 검색
+	@GetMapping("/search-title")
+	public ResponseEntity<PagingDto<NewsResponseDto>> searchByTitleAndPaging(
+		@RequestParam("keyword") String keyword,
+		@PageableDefault(sort = "publishedAt", direction = Sort.Direction.DESC) Pageable pageable
+	) {
+		keywordRankingService.incrementSearchCount(keyword);
+		PagingDto<NewsResponseDto> result = newsSearchService.searchByTitle(keyword,
+			pageable);
+		return new ResponseEntity<>(result, HttpStatus.OK);
+	}
 
 
   // 특정 기간 내 인기 키워드 조회 API
@@ -89,9 +82,9 @@ public class NewsController {
     LocalDate endDate = (lt != null) ? LocalDate.parse(lt) : LocalDate.now().plusDays(1);
     ;
 
-    try {
-      List<TopKeywordResponseDto> topKeywords =
-          newsSearchService.aggregateTopKeywordsForDateRange(startDate, endDate, size);
+		try {
+			List<TopKeywordResponseDto> topKeywords =
+				newsCacheService.getCachedTopKeywords(startDate, endDate, size);
 
       return ResponseEntity.ok(topKeywords);
     } catch (Exception e) {
