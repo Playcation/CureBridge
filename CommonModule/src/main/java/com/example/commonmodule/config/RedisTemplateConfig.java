@@ -2,11 +2,14 @@ package com.example.commonmodule.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.time.Duration;
 
+import java.util.HashMap;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.EnableCaching;
@@ -71,6 +74,11 @@ public class RedisTemplateConfig {
         .serializeValuesWith(
             RedisSerializationContext.SerializationPair.fromSerializer(serializer)
         );
+
+    Map<String, RedisCacheConfiguration> customConfigs = new HashMap<>();
+
+    customConfigs.put("calendar_monthly", config.entryTtl(Duration.ofDays(7))); // 월간은 7일
+    customConfigs.put("calendar_daily", config.entryTtl(Duration.ofHours(24)));
 
     return RedisCacheManager.builder(cf)
         .cacheDefaults(config)
