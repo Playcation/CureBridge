@@ -3,16 +3,17 @@ package com.example.contentservice.calendar.dto;
 import com.example.contentservice.calendar.entity.Schedules;
 import java.time.LocalDate;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
 public class ScheduleResponseDto {
 
-  private final Long id;
-  private final LocalDate date;
-  private final String title;
-  private final String content;
+  private Long id;
+  private LocalDate date;
+  private String title;
+  private String content;
 
   public ScheduleResponseDto(Schedules schedules) {
     this.id = schedules.getId();
