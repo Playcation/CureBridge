@@ -140,26 +140,29 @@ public class NewsSearchServiceImpl implements NewsSearchService {
     }
   }
 
-  private long countBySearch(String keyword, LocalDate gte, LocalDate lt) {
-    try {
-      SearchResponse<Void> response = elasticsearchClient.search(s -> s
-              .index("news-index-v2")
-              .size(0)
-              .query(q -> q.bool(b -> b
-                  .must(m -> m.match(mt -> mt
-                      .field("title.korean")
-                      .query(keyword)
-                  ))
-                  .filter(f -> f.range(r -> r
-                      .date(d -> d
-                          .field("publishedAt")
-                          .gte(gte.toString())
-                          .lt(lt.toString())
-                      )
-                  ))
-              )),
-          Void.class
-      );
+	private long countBySearch(String keyword, LocalDate gte, LocalDate lt) {
+		try {
+			String fieldSuffix = containsKorean(keyword) ? "korean" : "english";
+			SearchResponse<Void> response = elasticsearchClient.search(s -> s
+					.index("news-index-v2")
+					.trackTotalHits(t -> t.enabled(true))
+					.size(0)
+					.query(q -> q.bool(b -> b
+						.must(m -> m.bool(mb -> mb
+							.should(sb -> sb.match(mt -> mt.field("title." + fieldSuffix).query(keyword)))
+							.should(sb -> sb.match(mt -> mt.field("title.ngram").query(keyword)))
+						))
+						// 기간 필터
+						.filter(f -> f.range(r -> r
+							.date(d -> d
+								.field("publishedAt")
+								.gte(gte.toString())
+								.lt(lt.toString())
+							)
+						))
+					)),
+				Void.class
+			);
 
 			return response.hits().total() == null
 				? 0
