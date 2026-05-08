@@ -2,6 +2,7 @@ package com.example.memberservice.integration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.DisplayName;
@@ -55,7 +56,7 @@ class OrgManagerIntegrationTest {
 			"초대유저",
 			Role.USER,
 			"01099998888",
-			LocalDate.of(1995, 5, 5)
+				Date.valueOf(LocalDate.of(1995, 5, 5))
 		);
 		userRepository.save(user);
 

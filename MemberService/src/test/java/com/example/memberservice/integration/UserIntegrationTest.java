@@ -2,6 +2,7 @@ package com.example.memberservice.integration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.*;
 
+import java.sql.Date;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +38,7 @@ class UserIntegrationTest {
 			"1234",
 			"홍길동",
 			"01012345678",
-			LocalDate.of(1990, 1, 1)
+			Date.valueOf(LocalDate.of(1990, 1, 1))
 		);
 
 		MessageResponseDto response = userService.signUp(null, dto);
@@ -52,7 +53,7 @@ class UserIntegrationTest {
 		// 회원가입
 		SignUpRequestDto dto = new SignUpRequestDto(
 			"pwchange@test.com", "1234", "홍길동",
-			"01011112222", LocalDate.of(1990, 1, 1)
+			"01011112222", Date.valueOf(LocalDate.of(1990, 1, 1))
 		);
 		userService.signUp(null, dto);
 
@@ -72,7 +73,7 @@ class UserIntegrationTest {
 		// 회원가입
 		SignUpRequestDto dto = new SignUpRequestDto(
 			"delete@test.com", "1234", "홍길동",
-			"01033334444", LocalDate.of(1993, 3, 3)
+			"01033334444", Date.valueOf(LocalDate.of(1993, 3, 3))
 		);
 		userService.signUp(null, dto);
 

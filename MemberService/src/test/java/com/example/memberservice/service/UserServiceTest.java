@@ -11,6 +11,7 @@ import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.memberservice.entity.Role;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.repository.UserRepository;
+import java.sql.Date;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,8 @@ class UserServiceTest {
 	@DisplayName("회원가입 성공 테스트 - 파일 업로드 mock 처리")
 	void signUp_success() {
 		// given
-		SignUpRequestDto dto = new SignUpRequestDto("test@test.com", "1234", "홍길동", "01012345678", LocalDate.of(1990,1,1));
+		SignUpRequestDto dto = new SignUpRequestDto("test@test.com", "1234", "홍길동", "01012345678",
+				Date.valueOf(LocalDate.of(1990,1,1)));
 		MultipartFile file = mock(MultipartFile.class);
 
 		when(passwordEncoder.encode("1234")).thenReturn("encodedPw");
@@ -63,7 +65,7 @@ class UserServiceTest {
 	@Test
 	@DisplayName("비밀번호 확인 성공")
 	void checkPassword_success() {
-		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", LocalDate.of(1990,1,1));
+		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", Date.valueOf(LocalDate.of(1990,1,1)));
 		when(userRepository.findByIdOrElseThrow(1L)).thenReturn(user);
 		when(passwordEncoder.matches("1234", "encodedPw")).thenReturn(true);
 
@@ -75,7 +77,7 @@ class UserServiceTest {
 	@Test
 	@DisplayName("비밀번호 변경 성공")
 	void updatePassword_success() {
-		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", LocalDate.of(1990,1,1));
+		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", Date.valueOf(LocalDate.of(1990,1,1)));
 		when(userRepository.findByIdOrElseThrow(1L)).thenReturn(user);
 		when(passwordEncoder.matches("currPw", "encodedPw")).thenReturn(true);
 		when(passwordEncoder.encode("newPw")).thenReturn("encodedNewPw");
@@ -89,7 +91,7 @@ class UserServiceTest {
 	@Test
 	@DisplayName("비밀번호 변경 실패 - 현재 비밀번호와 동일")
 	void updatePassword_fail_samePassword() {
-		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", LocalDate.of(1990,1,1));
+		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", Date.valueOf(LocalDate.of(1990,1,1)));
 		when(userRepository.findByIdOrElseThrow(1L)).thenReturn(user);
 		when(passwordEncoder.matches("samePw", "encodedPw")).thenReturn(true);
 
@@ -103,7 +105,7 @@ class UserServiceTest {
 	@Test
 	@DisplayName("비밀번호 변경 실패 - 인증 실패")
 	void updatePassword_fail_noAuth() {
-		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", LocalDate.of(1990,1,1));
+		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", Date.valueOf(LocalDate.of(1990,1,1)));
 		when(userRepository.findByIdOrElseThrow(1L)).thenReturn(user);
 		when(passwordEncoder.matches("wrongPw", "encodedPw")).thenReturn(false);
 
@@ -117,7 +119,7 @@ class UserServiceTest {
 	@Test
 	@DisplayName("유저 삭제 테스트")
 	void deleteUser_success() {
-		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", LocalDate.of(1990,1,1));
+		User user = new User("test@test.com", "encodedPw", "홍길동", Role.USER, "01012345678", Date.valueOf(LocalDate.of(1990,1,1)));
 		when(userRepository.findByIdOrElseThrow(1L)).thenReturn(user);
 
 		MessageResponseDto response = userService.deleteUser(1L);
