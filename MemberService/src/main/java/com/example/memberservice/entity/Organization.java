@@ -2,6 +2,7 @@ package com.example.memberservice.entity;
 
 import com.example.commonmodule.base_entity.BaseEntityDeletedAt;
 import com.example.memberservice.dto.OrgUpdateDto;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,7 @@ public class Organization extends BaseEntityDeletedAt {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
+  @Column(unique = true)
   private String email;
 
   private String password;
