@@ -22,16 +22,15 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class NewsServiceImpl implements NewsService {
 
-  private final NewsRepository newsRepository;
-  private final NewsSearchRepository newsSearchRepository;
-  private final NewsSearchService newsSearchService;
+	private final NewsRepository newsRepository;
+	private final NewsSearchRepository newsSearchRepository;
 
-  // 최근 24시간 이내 게시물 가져와서 저장
-  @Override
-  public void saveRecentNews(List<NewsRequestDto> dtos) {
-    DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
-    LocalDateTime now = LocalDateTime.now();
-    LocalDateTime yesterday = now.minusHours(24);
+	// 최근 24시간 이내 게시물 가져와서 저장
+	@Override
+	public void saveRecentNews(List<NewsRequestDto> dtos) {
+		DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME;
+		LocalDateTime now = LocalDateTime.now();
+		LocalDateTime yesterday = now.minusHours(24);
 
     List<News> posts = dtos.stream()
         .filter(dto -> {
@@ -68,23 +67,21 @@ public class NewsServiceImpl implements NewsService {
     return new PagingDto<>(newsDtoList, newsPage.getTotalElements());
   }
 
-  // 게시물 삭제
-  @Override
-  public void deleteNews(Long newsId) {
-    newsRepository.findByIdOrElseThrow(newsId);
-    newsRepository.deleteById(newsId);
-  }
+	// 게시물 삭제
+	@Override
+	public void deleteNews(Long newsId) {
+		newsRepository.findByIdOrElseThrow(newsId);
+		newsRepository.deleteById(newsId);
+		newsSearchRepository.deleteById(String.valueOf(newsId));
+	}
 
   @Override
   @Transactional // MySQL 삭제 트랜잭션 보장
   public void cleanupOldNews(int days) {
     LocalDateTime threshold = LocalDateTime.now().minusDays(days);
 
-    // 1. MySQL 데이터 삭제
-    newsRepository.deleteByPublishedAtBefore(threshold);
-
-    // 2. Elasticsearch 데이터 삭제
-    newsSearchService.deleteOldNews(days);
-  }
+		// 1. MySQL 데이터 삭제
+		newsRepository.deleteByPublishedAtBefore(threshold);
+	}
 
 }

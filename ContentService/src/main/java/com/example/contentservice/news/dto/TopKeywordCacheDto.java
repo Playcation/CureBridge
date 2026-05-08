@@ -1,4 +1,4 @@
-package com.example.commonmodule.common;
+package com.example.contentservice.news.dto;
 
 import java.util.List;
 
@@ -9,9 +9,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagingDto<T> {
-
-	private List<T> list;
-
-	private Long count;
+public class TopKeywordCacheDto {
+	private List<TopKeywordResponseDto> keywords;
 }
