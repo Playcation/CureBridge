@@ -15,6 +15,7 @@ import java.util.Base64;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +79,8 @@ public class JwtIssuer {
   public String[] generateOrganizationToken(Authentication auth) {
     OrganizationDetailsImpl principal = (OrganizationDetailsImpl) auth.getPrincipal();
     Organization organization = principal.getOrganization();
-    return generateUserToken(organization.getEmail(), organization.getId(), organization.getId(), auth.getAuthorities());
+    return generateUserToken(organization.getEmail(), organization.getId(), organization.getId(),
+        auth.getAuthorities());
   }
 
   public String[] generateUserToken(String email, Long id, Long orgId,
@@ -88,15 +90,21 @@ public class JwtIssuer {
         .map(GrantedAuthority::getAuthority)
         .collect(Collectors.toList());
 
-    String accessToken = generateAccessToken(email, id, orgId, authList);
-    String refreshToken = generateRefreshToken(id);
+    // Access Token + Refresh Token 병렬 생성
+    CompletableFuture<String> accessFuture = CompletableFuture.supplyAsync(
+        () -> generateAccessToken(email, id, orgId, authList));
+    CompletableFuture<String> refreshFuture = CompletableFuture.supplyAsync(
+        () -> generateRefreshToken(id));
 
-    // 레디스에 refresh 토큰 저장
+    String accessToken = accessFuture.join();
+    String refreshToken = refreshFuture.join();
+
+    // Redis 저장
     String redisKey = TokenSettings.REFRESH_TOKEN_CATEGORY + id.toString();
-    ValueOperations<String, String> ops = redisTemplate.opsForValue();
-    ops.set(redisKey, refreshToken, Duration.ofMillis(TokenSettings.REFRESH_TOKEN_EXPIRATION));
+    redisTemplate.opsForValue().set(redisKey, refreshToken,
+        Duration.ofMillis(TokenSettings.REFRESH_TOKEN_EXPIRATION));
 
-    return new String[]{accessToken, refreshToken};
+    return new String[] { accessToken, refreshToken };
   }
 
   // Access Token 생성
@@ -104,7 +112,7 @@ public class JwtIssuer {
     Date now = new Date();
     Date expiry = new Date(now.getTime() + TokenSettings.ACCESS_TOKEN_EXPIRATION);
 
-    String token =  Jwts.builder()
+    String token = Jwts.builder()
         .issuer(TokenSettings.TOKEN_ISSUER)
         .subject(email)
         .claim("userId", id)

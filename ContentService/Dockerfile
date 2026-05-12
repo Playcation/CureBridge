@@ -10,4 +10,5 @@ WORKDIR /app
 COPY --from=build /app/ContentService/build/libs/*.jar app.jar
 
 EXPOSE 8082
+ENV SPRING_PROFILES_ACTIVE=prod
 ENTRYPOINT ["java","-jar","app.jar"]
