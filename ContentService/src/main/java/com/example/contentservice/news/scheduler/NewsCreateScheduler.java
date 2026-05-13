@@ -31,11 +31,11 @@ public class NewsCreateScheduler {
 	private final NewsCacheService newsCacheService;
 	private final ObjectMapper objectMapper;
 
-  @Value("${newsapi.clientId}")
-  private String CLIENT_ID;
+	@Value("${newsapi.clientId}")
+	private String CLIENT_ID;
 
-  @Value("${newsapi.clientSecret}")
-  private String CLIENT_SECRET;
+	@Value("${newsapi.clientSecret}")
+	private String CLIENT_SECRET;
 
 	// 매일 자정(0시 0분)에 이 메서드가 자동으로 실행됩니다.
 	@Scheduled(cron = "00 00 00 * * *", zone = "Asia/Seoul")
@@ -49,30 +49,30 @@ public class NewsCreateScheduler {
 					"https://openapi.naver.com/v1/search/news?query=" + URLEncoder.encode(query, "UTF-8")
 						+ "&display=100&start=" + start;
 
-        HttpURLConnection conn = (HttpURLConnection) new URL(apiURL).openConnection();
-        conn.setRequestMethod("GET");
-        conn.setRequestProperty("X-Naver-Client-Id", CLIENT_ID);
-        conn.setRequestProperty("X-Naver-Client-Secret", CLIENT_SECRET);
+				HttpURLConnection conn = (HttpURLConnection)new URL(apiURL).openConnection();
+				conn.setRequestMethod("GET");
+				conn.setRequestProperty("X-Naver-Client-Id", CLIENT_ID);
+				conn.setRequestProperty("X-Naver-Client-Secret", CLIENT_SECRET);
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(
-            conn.getResponseCode() == 200 ? conn.getInputStream() : conn.getErrorStream()
-        ));
-        StringBuilder sb = new StringBuilder();
-        String line;
-        while ((line = br.readLine()) != null) {
-          sb.append(line);
-        }
-        br.close();
+				BufferedReader br = new BufferedReader(new InputStreamReader(
+					conn.getResponseCode() == 200 ? conn.getInputStream() : conn.getErrorStream()
+				));
+				StringBuilder sb = new StringBuilder();
+				String line;
+				while ((line = br.readLine()) != null) {
+					sb.append(line);
+				}
+				br.close();
 
-        JsonNode items = objectMapper.readTree(sb.toString()).get("items");
+				JsonNode items = objectMapper.readTree(sb.toString()).get("items");
 
-        for (JsonNode item : items) {
-          String title = item.get("title").asText().replaceAll("<.*?>", ""); // 태그 제거
-          String link = item.get("link").asText();
-          String pubDate = item.get("pubDate").asText(); // "Wed, 24 Jul 2025 08:00:00 +0900"
+				for (JsonNode item : items) {
+					String title = item.get("title").asText().replaceAll("<.*?>", ""); // 태그 제거
+					String link = item.get("link").asText();
+					String pubDate = item.get("pubDate").asText(); // "Wed, 24 Jul 2025 08:00:00 +0900"
 
-          dtoList.add(new NewsRequestDto(title, link, pubDate));
-        }
+					dtoList.add(new NewsRequestDto(title, link, pubDate));
+				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -86,8 +86,7 @@ public class NewsCreateScheduler {
 		});
 		if (!dtoList.isEmpty()) {
 			// 뉴스 업데이트 및 캐시 갱신
-			newsService.saveRecentNews(dtoList);
-			newsCacheService.refreshNewsCache(today);
+			newsCacheService.saveRecentNewsAndRefreshCache(dtoList, today);
 		}
 	}
 }

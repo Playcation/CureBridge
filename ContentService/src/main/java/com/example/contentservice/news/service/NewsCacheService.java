@@ -3,6 +3,7 @@ package com.example.contentservice.news.service;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.example.contentservice.news.dto.NewsRequestDto;
 import com.example.contentservice.news.dto.TopKeywordResponseDto;
 
 public interface NewsCacheService {
@@ -11,4 +12,6 @@ public interface NewsCacheService {
 
 	// 스케줄러 등에 의해 캐시 강제 갱신
 	void refreshNewsCache(LocalDate today);
+
+	void saveRecentNewsAndRefreshCache(List<NewsRequestDto> dtoList, LocalDate today);
 }
