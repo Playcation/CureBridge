@@ -74,27 +74,27 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 				NewsDocument.class
 			);
 
-      List<NewsResponseDto> list = response.hits().hits().stream()
-          .map(hit -> {
-            Long newsId = Long.valueOf(hit.id()); // hit의 ID를 News ID로 사용
-            News news = newsRepository.findById(newsId)
-                .orElseThrow(() -> new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD));
-            return NewsResponseDto.fromDocument(hit.source(), news);
-          })
-          .collect(Collectors.toList());
+			List<NewsResponseDto> list = response.hits().hits().stream()
+				.map(hit -> {
+					Long newsId = Long.valueOf(hit.id()); // hit의 ID를 News ID로 사용
+					News news = newsRepository.findById(newsId)
+						.orElseThrow(() -> new NotFoundException(BoardErrorCode.NOT_FOUND_BOARD));
+					return NewsResponseDto.fromDocument(hit.source(), news);
+				})
+				.collect(Collectors.toList());
 
-      // PagingDto에 검색 결과 리스트와 전체 개수를 담아 반환
-      long totalCount = response.hits().total().value();
-      return new PagingDto<>(list, totalCount);
+			// PagingDto에 검색 결과 리스트와 전체 개수를 담아 반환
+			long totalCount = response.hits().total().value();
+			return new PagingDto<>(list, totalCount);
 
-    } catch (IOException e) {
-      throw new RuntimeException("Elasticsearch 검색 중 오류 발생", e);
-    }
-  }
+		} catch (IOException e) {
+			throw new RuntimeException("Elasticsearch 검색 중 오류 발생", e);
+		}
+	}
 
-  public boolean containsKorean(String input) {
-    return input != null && input.matches(".*[ㄱ-ㅎㅏ-ㅣ가-힣]+.*");
-  }
+	public boolean containsKorean(String input) {
+		return input != null && input.matches(".*[ㄱ-ㅎㅏ-ㅣ가-힣]+.*");
+	}
 
 	/**
 	 * 날짜 범위 내 인기 키워드(terms aggregation) 추출 (es)
@@ -126,11 +126,11 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 				Void.class
 			);
 
-      var aggregate = response.aggregations().get("top_keywords");
+			var aggregate = response.aggregations().get("top_keywords");
 
-      if (aggregate == null) {
-        return List.of();
-      }
+			if (aggregate == null) {
+				return List.of();
+			}
 
 			List<String> candidateKeywords = aggregate.sterms().buckets().array().stream()
 				.map(b -> b.key().stringValue())
@@ -141,16 +141,15 @@ public class NewsSearchServiceImpl implements NewsSearchService {
 			return candidateKeywords.stream()
 				.map(keyword -> new TopKeywordResponseDto(
 					keyword,
-					countBySearch(keyword, LocalDate.now().minusDays(7), LocalDate.now().plusDays(1)) // 검색 결과 수와 일치시킴
+					countBySearch(keyword, gte, lt) // 검색 결과 수와 일치시킴
 				))
 				.sorted((a, b) -> Long.compare(b.getCount(), a.getCount()))
 				.toList();
 
-
-    } catch (IOException e) {
-      throw new RuntimeException("Elasticsearch 키워드 집계 중 오류 발생", e);
-    }
-  }
+		} catch (IOException e) {
+			throw new RuntimeException("Elasticsearch 키워드 집계 중 오류 발생", e);
+		}
+	}
 
 	private long countBySearch(String keyword, LocalDate gte, LocalDate lt) {
 		try {

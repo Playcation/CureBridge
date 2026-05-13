@@ -7,8 +7,10 @@ import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.commonmodule.common.PagingDto;
+import com.example.contentservice.news.dto.NewsRequestDto;
 import com.example.contentservice.news.dto.NewsResponseDto;
 import com.example.contentservice.news.dto.TopKeywordCacheDto;
 import com.example.contentservice.news.dto.TopKeywordResponseDto;
@@ -26,6 +28,7 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 
 	private final CacheManager cacheManager;
 	private final NewsSearchService newsSearchService; // 비즈니스 로직 호출용
+	private final NewsService newsService;
 
 	/**
 	 * 1일 주기로 뉴스 데이터 갱신 시 캐시 갱신
@@ -63,9 +66,10 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 	 */
 	@Override
 	public List<TopKeywordResponseDto> getCachedTopKeywords(LocalDate gte, LocalDate lt, int size) {
-		Cache cache = cacheManager.getCache("news_top_keywords");        // redis 캐시 탐색
+		String cacheKey = "daily_top10_" + gte.toString();
+		Cache cache = cacheManager.getCache("news_top_keywords");
 		if (cache != null) {    // 캐시 있으면 가져옴
-			TopKeywordCacheDto wrapper = cache.get("daily_top10", TopKeywordCacheDto.class);
+			TopKeywordCacheDto wrapper = cache.get(cacheKey, TopKeywordCacheDto.class);
 			if (wrapper != null) {
 				log.info(">>>> Redis 캐시 히트: 인기 키워드 반환");
 				return wrapper.getKeywords();
@@ -79,6 +83,20 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 			cache.put("daily_top10", new TopKeywordCacheDto(top10));
 		}
 		return top10;
+	}
+
+	@Transactional
+	public void saveRecentNewsAndRefreshCache(List<NewsRequestDto> dtoList, LocalDate today) {
+		// 1. MySQL 저장 (이게 실패하면 전체 롤백)
+		newsService.saveRecentNews(dtoList);
+
+		// 2. Redis 캐시 갱신 (실패해도 MySQL은 살려야 함)
+		try {
+			refreshNewsCache(today);
+		} catch (Exception e) {
+			// 로그만 남기고 예외를 밖으로 던지지 않음 (중요!)
+			log.error("Redis 캐시 갱신 중 오류 발생. 데이터는 MySQL에 정상 저장됨 : {}", e.getMessage());
+		}
 	}
 
 }
