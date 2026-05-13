@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedConstruction;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.RestTemplate;
 
+@Tag("integration")
 @SpringBootTest(properties = {
     "openai.api-key=test-dummy-key",
     "openai.ai-model=gpt-4o-mini"
@@ -79,7 +81,8 @@ class HealthReportServiceIntegrationTest {
 
     // (2) OpenAI API Mock 응답 준비
     // 서비스 로직이 파싱할 "별점 4" 텍스트 포함
-    Map<String, Object> messageMap = Map.of("content", "건강 상태 요약: 감기 증상이 있습니다. 충분한 휴식이 필요합니다. 별점 4");
+    Map<String, Object> messageMap = Map.of("content",
+        "건강 상태 요약: 감기 증상이 있습니다. 충분한 휴식이 필요합니다. 별점 4");
     Map<String, Object> choiceMap = Map.of("message", messageMap);
     Map<String, Object> bodyMap = Map.of("choices", List.of(choiceMap));
     ResponseEntity<Map> mockResponse = new ResponseEntity<>(bodyMap, HttpStatus.OK);
@@ -92,7 +95,8 @@ class HealthReportServiceIntegrationTest {
               .thenReturn(mockResponse);
         })) {
 
-      HealthReportResponseDto responseDto = healthReportService.createHealthReport(userId, requestDto);
+      HealthReportResponseDto responseDto = healthReportService.createHealthReport(userId,
+          requestDto);
 
       // 3. Then: 결과 검증
 

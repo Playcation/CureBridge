@@ -1,8 +1,15 @@
 package com.example.contentservice.news.controller;
 
+import com.example.commonmodule.common.PagingDto;
+import com.example.commonmodule.config.TokenSettings;
+import com.example.commonmodule.utils.JwtParser;
+import com.example.contentservice.news.dto.NewsResponseDto;
+import com.example.contentservice.news.dto.TopKeywordResponseDto;
+import com.example.contentservice.news.service.NewsSearchService;
+import com.example.contentservice.news.service.NewsService;
 import java.time.LocalDate;
 import java.util.List;
-
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -16,20 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.commonmodule.common.PagingDto;
-import com.example.commonmodule.config.TokenSettings;
-import com.example.commonmodule.utils.JwtParser;
-import com.example.contentservice.news.dto.NewsResponseDto;
-import com.example.contentservice.news.dto.TopKeywordResponseDto;
-import com.example.contentservice.news.service.KeywordRankingService;
-import com.example.contentservice.news.service.NewsCacheService;
-import com.example.contentservice.news.service.NewsSearchService;
-import com.example.contentservice.news.service.NewsService;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/news")

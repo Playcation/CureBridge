@@ -13,7 +13,7 @@ public class NoticeRequestDto {
   // 공지사항 본문 내용
   private String content;
 
-  // 공지사항 생성 또는 수정 시 사용되는 요청 DTO
+  // 공지사항 생성 또는 수정 시 사용되는 localStorage.clear();요청 DTO
   public NoticeRequestDto(String title, String content) {
     this.title = title;
     this.content = content;

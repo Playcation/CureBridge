@@ -7,6 +7,7 @@ import com.example.memberservice.entity.Organization;
 import com.example.memberservice.repository.OrganizationRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +15,8 @@ import org.springframework.stereotype.Service;
 public class OrganizationService {
 
   private final OrganizationRepository organizationRepository;
-
+  private final PasswordEncoder passwordEncoder;
+  
   public OrgResponseDto createOrganization(OrgCreateRequestDto orgCreateRequestDto) {
     return OrgResponseDto.toDto(organizationRepository.save(
         Organization.builder()
@@ -24,7 +26,7 @@ public class OrganizationService {
             .orgAddress(orgCreateRequestDto.getOrgAddress())
             .ownerNumber(orgCreateRequestDto.getOwnerNumber())
             .ownerName(orgCreateRequestDto.getOwnerName())
-            .password("0000")
+            .password(passwordEncoder.encode("0000"))
             .build()
     ));
   }
