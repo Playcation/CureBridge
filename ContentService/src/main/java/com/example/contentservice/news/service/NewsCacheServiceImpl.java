@@ -37,14 +37,14 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 	@Override
 	public void refreshNewsCache(LocalDate today) {
 		LocalDate startDate = today.minusDays(7);
-		LocalDate endDate = today.minusDays(1);
-		String cacheKey = "daily_top10_" + startDate.toString();
+		LocalDate endDate = today.plusDays(1);
+		String cacheKey = "daily_top10_" + today;
 		Cache keywordCache = cacheManager.getCache("news_top_keywords");
 		Cache resultCache = cacheManager.getCache("news_keyword_results");
 
 		if (keywordCache != null && resultCache != null) {
 			// 인기 키워드 추출
-			List<TopKeywordResponseDto> top10 = newsSearchService.aggregateTopKeywordsForDateRange(endDate, today,
+			List<TopKeywordResponseDto> top10 = newsSearchService.aggregateTopKeywordsForDateRange(startDate, endDate,
 				50);
 			keywordCache.put(cacheKey, new TopKeywordCacheDto(top10));
 
@@ -68,7 +68,7 @@ public class NewsCacheServiceImpl implements NewsCacheService {
 	 */
 	@Override
 	public List<TopKeywordResponseDto> getCachedTopKeywords(LocalDate gte, LocalDate lt, int size) {
-		String cacheKey = "daily_top10_" + gte.toString();
+		String cacheKey = "daily_top10_" + LocalDate.now();
 		Cache cache = cacheManager.getCache("news_top_keywords");
 		if (cache != null) {    // 캐시 있으면 가져옴
 			TopKeywordCacheDto wrapper = cache.get(cacheKey, TopKeywordCacheDto.class);
