@@ -80,14 +80,8 @@ public class RedisTemplateConfig {
     customConfigs.put("calendar_monthly", config.entryTtl(Duration.ofDays(7))); // 월간은 7일
     customConfigs.put("calendar_daily", config.entryTtl(Duration.ofHours(24)));
 
-    RedisCacheConfiguration reportCacheConfig = config
-        .entryTtl(Duration.ofDays(7))
-        .disableCachingNullValues();
-
     return RedisCacheManager.builder(cf)
         .cacheDefaults(config)
-        .withCacheConfiguration("healthReport", reportCacheConfig)
-        .withCacheConfiguration("healthReportDetail", reportCacheConfig)
         .build();
   }
 

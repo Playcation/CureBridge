@@ -48,7 +48,7 @@ public class HealthReportServiceImpl implements HealthReportService {
   private String aiModel;
 
   @Override
-  @CacheEvict(value = "healthReport", key = "#userId")
+  @CacheEvict(value = "healthReport", key = "#userId", cacheManager = "healthReportCacheManager")
   public HealthReportResponseDto createHealthReport(Long userId,
       CreateHealthReportRequestDto createHealthReportRequestDto) {
 
@@ -92,7 +92,7 @@ public class HealthReportServiceImpl implements HealthReportService {
   }
 
   @Override
-  @Cacheable(value = "healthReport", key = "#userId")
+  @Cacheable(value = "healthReport", key = "#userId", cacheManager = "healthReportCacheManager")
   public List<HealthReportResponseDto> getHealthReport(Long userId) {
     List<HealthReport> healthReportList = healthReportRepository.findByUserId(userId);
     List<OcrResponseDto> ocrResultList = ocrService.getOcrResult(userId);
@@ -115,7 +115,7 @@ public class HealthReportServiceImpl implements HealthReportService {
   }
 
   @Override
-  @Cacheable(value = "healthReportDetail", key = "#id")
+  @Cacheable(value = "healthReportDetail", key = "#id", cacheManager = "healthReportCacheManager")
   public HealthReportResponseDto getHealthReportDetail(String id) {
     HealthReport healthReport = healthReportRepository.findByIdOrElseThrow(id);
     List<OcrEntity> ocrEntityList = ocrService.findOcrEntity(
@@ -129,8 +129,8 @@ public class HealthReportServiceImpl implements HealthReportService {
 
   @Override
   @Caching(evict = {
-      @CacheEvict(value = "healthReport", allEntries = true),
-      @CacheEvict(value = "healthReportDetail", key = "#id")
+      @CacheEvict(value = "healthReport", allEntries = true, cacheManager = "healthReportCacheManager"),
+      @CacheEvict(value = "healthReportDetail", key = "#id", cacheManager = "healthReportCacheManager")
   })
   public HealthReportResponseDto updateHealthReport(String id,
       UpdateHealthReportRequestDto updateHealthReportRequestDto) {
@@ -150,8 +150,8 @@ public class HealthReportServiceImpl implements HealthReportService {
 
   @Override
   @Caching(evict = {
-      @CacheEvict(value = "healthReport", allEntries = true),
-      @CacheEvict(value = "healthReportDetail", key = "#id")
+      @CacheEvict(value = "healthReport", allEntries = true, cacheManager = "healthReportCacheManager"),
+      @CacheEvict(value = "healthReportDetail", key = "#id", cacheManager = "healthReportCacheManager")
   })
   public String deleteHealthReport(String id,
       DeleteHealthReportRequestDto deleteHealthReportRequestDto) {
