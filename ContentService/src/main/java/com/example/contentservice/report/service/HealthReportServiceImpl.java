@@ -5,6 +5,7 @@ import com.example.contentservice.ocr.entity.OcrEntity;
 import com.example.contentservice.ocr.service.OcrService;
 import com.example.contentservice.report.dto.CreateHealthReportRequestDto;
 import com.example.contentservice.report.dto.DeleteHealthReportRequestDto;
+import com.example.contentservice.report.dto.HealthReportListResponseDto;
 import com.example.contentservice.report.dto.HealthReportResponseDto;
 import com.example.contentservice.report.dto.UpdateHealthReportRequestDto;
 import com.example.contentservice.report.entity.HealthReport;
@@ -93,10 +94,10 @@ public class HealthReportServiceImpl implements HealthReportService {
 
   @Override
   @Cacheable(value = "healthReport", key = "#userId", cacheManager = "healthReportCacheManager")
-  public List<HealthReportResponseDto> getHealthReport(Long userId) {
+  public HealthReportListResponseDto getHealthReport(Long userId) {
     List<HealthReport> healthReportList = healthReportRepository.findByUserId(userId);
     List<OcrResponseDto> ocrResultList = ocrService.getOcrResult(userId);
-    return healthReportList.stream().map((report) -> {
+    List<HealthReportResponseDto> healthReportResponseDtoList = healthReportList.stream().map((report) -> {
               List<OcrResponseDto> ocrResults = ocrResultList.stream().filter((ocrResult) -> {
                         if (ocrResult.getReportDate().getYear() == report.getReportDate().getYear()) {
                           if (ocrResult.getReportDate().getMonth() == report.getReportDate().getMonth()) {
@@ -112,6 +113,8 @@ public class HealthReportServiceImpl implements HealthReportService {
             }
         )
         .toList();
+
+    return new HealthReportListResponseDto(healthReportResponseDtoList);
   }
 
   @Override

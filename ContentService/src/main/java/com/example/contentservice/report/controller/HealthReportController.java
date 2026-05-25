@@ -2,6 +2,7 @@ package com.example.contentservice.report.controller;
 
 import com.example.contentservice.report.dto.CreateHealthReportRequestDto;
 import com.example.contentservice.report.dto.DeleteHealthReportRequestDto;
+import com.example.contentservice.report.dto.HealthReportListResponseDto;
 import com.example.contentservice.report.dto.HealthReportResponseDto;
 import com.example.contentservice.report.dto.UpdateHealthReportRequestDto;
 import com.example.contentservice.report.service.HealthReportService;
@@ -43,7 +44,7 @@ public class HealthReportController {
   }
 
   @GetMapping("/user/{userId}")
-  private ResponseEntity<List<HealthReportResponseDto>> getOcrResult(
+  private ResponseEntity<HealthReportListResponseDto> getOcrResult(
 //      @RequestHeader("Authorization") String authorizationHeader
       @PathVariable Long userId
   ) {

@@ -26,7 +26,7 @@ public class CacheConfig {
     objectMapper.activateDefaultTyping(
         LaissezFaireSubTypeValidator.instance,
         ObjectMapper.DefaultTyping.NON_FINAL,
-        JsonTypeInfo.As.WRAPPER_ARRAY
+        JsonTypeInfo.As.PROPERTY
     );
 
     GenericJackson2JsonRedisSerializer serializer =

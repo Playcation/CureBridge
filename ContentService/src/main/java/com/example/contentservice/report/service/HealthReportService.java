@@ -2,6 +2,7 @@ package com.example.contentservice.report.service;
 
 import com.example.contentservice.report.dto.CreateHealthReportRequestDto;
 import com.example.contentservice.report.dto.DeleteHealthReportRequestDto;
+import com.example.contentservice.report.dto.HealthReportListResponseDto;
 import com.example.contentservice.report.dto.HealthReportResponseDto;
 import com.example.contentservice.report.dto.UpdateHealthReportRequestDto;
 import java.util.List;
@@ -11,7 +12,7 @@ public interface HealthReportService {
   HealthReportResponseDto createHealthReport(Long userId,
       CreateHealthReportRequestDto createHealthReportRequestDto);
 
-  List<HealthReportResponseDto> getHealthReport(Long userId);
+  HealthReportListResponseDto getHealthReport(Long userId);
 
   HealthReportResponseDto getHealthReportDetail(String id);
 
