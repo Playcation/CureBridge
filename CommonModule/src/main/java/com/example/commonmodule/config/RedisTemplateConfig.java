@@ -75,19 +75,17 @@ public class RedisTemplateConfig {
             RedisSerializationContext.SerializationPair.fromSerializer(serializer)
         );
 
-		Map<String, RedisCacheConfiguration> keywordConfigs = new HashMap<>();
+		Map<String, RedisCacheConfiguration> totalConfigs = new HashMap<>();
 
-		keywordConfigs.put("news_top_keywords", config.entryTtl(Duration.ofHours(24)));
-		keywordConfigs.put("news_keyword_results", config.entryTtl(Duration.ofHours(24)));
+		totalConfigs.put("news_top_keywords", config.entryTtl(Duration.ofHours(25)));
+		totalConfigs.put("news_keyword_results", config.entryTtl(Duration.ofHours(25)));
 
-	  Map<String, RedisCacheConfiguration> customConfigs = new HashMap<>();
+		totalConfigs.put("calendar_monthly", config.entryTtl(Duration.ofDays(7))); // 월간은 7일
+		totalConfigs.put("calendar_daily", config.entryTtl(Duration.ofHours(24)));
 
-	  customConfigs.put("calendar_monthly", config.entryTtl(Duration.ofDays(7))); // 월간은 7일
-	  customConfigs.put("calendar_daily", config.entryTtl(Duration.ofHours(24)));
-
-	  return RedisCacheManager.builder(cf)
+		return RedisCacheManager.builder(cf)
 			.cacheDefaults(config)
-			.withInitialCacheConfigurations(keywordConfigs)
+			.withInitialCacheConfigurations(totalConfigs)
 			.build();
 	}
 

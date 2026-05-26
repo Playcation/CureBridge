@@ -1,5 +1,7 @@
 package com.example.contentservice.news.service;
 
+import java.time.Duration;
+
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +20,9 @@ public class KeywordRankingServiceImpl implements KeywordRankingService {
 	public long incrementSearchCount(String keyword) {
 		// Redis의 INCR 명령어를 실행
 		Long count = redisTemplate.opsForValue().increment(COUNT_KEY_PREFIX + keyword);
+		if (count != null && count == 1) {
+			redisTemplate.expire(COUNT_KEY_PREFIX + keyword, Duration.ofDays(1));
+		}
 		return count != null ? count : 0L;
 	}
 

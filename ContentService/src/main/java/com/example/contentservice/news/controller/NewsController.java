@@ -70,17 +70,15 @@ public class NewsController {
 		return new ResponseEntity<>(result, HttpStatus.OK);
 	}
 
-
-  // 특정 기간 내 인기 키워드 조회 API
-  @GetMapping("/top-keywords")
-  public ResponseEntity<List<TopKeywordResponseDto>> getTopKeywordsForDateRange(
-      @RequestParam(value = "gte", required = false) String gte,
-      @RequestParam(value = "lt", required = false) String lt,
-      @RequestParam(value = "size", defaultValue = "50") int size
-  ) {
-    LocalDate startDate = (gte != null) ? LocalDate.parse(gte) : LocalDate.now().minusDays(7);
-    LocalDate endDate = (lt != null) ? LocalDate.parse(lt) : LocalDate.now().plusDays(1);
-    ;
+	// 특정 기간 내 인기 키워드 조회 API
+	@GetMapping("/top-keywords")
+	public ResponseEntity<List<TopKeywordResponseDto>> getTopKeywordsForDateRange(
+		@RequestParam(value = "gte", required = false) String gte,
+		@RequestParam(value = "lt", required = false) String lt,
+		@RequestParam(value = "size", defaultValue = "50") int size
+	) {
+		LocalDate startDate = (gte != null) ? LocalDate.parse(gte) : LocalDate.now().minusDays(7);
+		LocalDate endDate = (lt != null) ? LocalDate.parse(lt) : LocalDate.now().plusDays(1);
 
 		try {
 			List<TopKeywordResponseDto> topKeywords =
