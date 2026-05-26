@@ -5,10 +5,10 @@ COPY . .
 RUN gradle :ContentService:clean :ContentService:build -x test
 
 # 2) run stage
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/ContentService/build/libs/*.jar app.jar
 
 EXPOSE 8082
 ENV SPRING_PROFILES_ACTIVE=prod
-ENTRYPOINT ["java","-jar","app.jar"]
+ENTRYPOINT ["java", "-Dsun.net.inetaddr.ttl=10", "-jar", "app.jar"]

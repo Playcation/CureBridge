@@ -5,9 +5,10 @@ COPY . .
 RUN gradle :Chat:clean :Chat:build -x test
 
 # 2) run stage
-FROM eclipse-temurin:17-jdk
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 COPY --from=build /app/Chat/build/libs/*.jar app.jar
 
 EXPOSE 8083
-ENTRYPOINT ["java","-jar","app.jar"]
+ENV SPRING_PROFILES_ACTIVE=prod
+ENTRYPOINT ["java", "-Dsun.net.inetaddr.ttl=10", "-jar", "app.jar"]
