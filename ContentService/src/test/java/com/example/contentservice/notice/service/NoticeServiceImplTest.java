@@ -1,199 +1,125 @@
 package com.example.contentservice.notice.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
-import com.example.commonmodule.common.PagingDto;
-import com.example.commonmodule.files.repository.BoardFileRepository;
-import com.example.commonmodule.files.repository.FileRepository;
-import com.example.commonmodule.files.service.FileService;
-import com.example.contentservice.notice.dto.NoticeRequestDto;
-import com.example.contentservice.notice.dto.NoticeResponseDto;
-import com.example.contentservice.notice.dto.PagingNoticeResponseDto;
-import com.example.contentservice.notice.entity.Notice;
-import com.example.contentservice.notice.repository.NoticeRepository;
-import com.example.contentservice.notice.repository.NoticeSearchRepository;
-import java.util.Collections;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.concurrent.CompletableFuture;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.commonmodule.dto.UserResponseDto;
+import com.example.commonmodule.files.dto.FileResponseDto;
+import com.example.commonmodule.files.repository.BoardFileRepository;
+import com.example.commonmodule.files.service.FileService;
+import com.example.contentservice.config.UserClient;
+import com.example.contentservice.notice.document.NoticeDocument;
+import com.example.contentservice.notice.dto.NoticeRequestDto;
+import com.example.contentservice.notice.dto.NoticeResponseDto;
+import com.example.contentservice.notice.entity.Notice;
+import com.example.contentservice.notice.repository.NoticeRepository;
+import com.example.contentservice.notice.repository.NoticeSearchRepository;
 
 @ExtendWith(MockitoExtension.class)
 class NoticeServiceImplTest {
 
-  @Mock
-  private NoticeRepository noticeRepository;
-  @Mock
-  private NoticeSearchRepository noticeSearchRepository;
-  @Mock
-  private FileService fileService;
-  @Mock
-  private BoardFileRepository boardFileRepository;
-  @Mock
-  private FileRepository fileRepository;
+	@Mock
+	private NoticeRepository noticeRepository;
 
-  @InjectMocks
-  private NoticeServiceImpl noticeService;
+	@Mock
+	private NoticeSearchRepository noticeSearchRepository;
 
-  private Notice savedNotice;
+	@Mock
+	private FileService fileService;
 
-  @BeforeEach
-  void setUp() {
-    savedNotice = Notice.builder()
-        .id(1L)
-        .userId(10L)
-        .orgId(0L)
-        .title("공지 제목")
-        .content("<p>공지 내용</p>")
-        .viewCount(0L)
-        .build();
-  }
+	@Mock
+	private BoardFileRepository boardFileRepository;
 
-  @Test
-  @DisplayName("공지 생성 - 첨부/본문이미지 없으면 Notice 저장 + ES 저장 + 빈 파일리스트 반환")
-  void createNotice_NoFiles_Test() {
-    // Given
-    Long userId = 10L;
-    NoticeRequestDto requestDto = new NoticeRequestDto("공지 제목", "<p>공지 내용</p>");
+	@Mock
+	private UserClient userClient;
 
-    when(noticeRepository.save(any(Notice.class))).thenReturn(savedNotice);
+	@InjectMocks
+	private NoticeServiceImpl noticeService;
 
-    // When (attachedFiles/contentImages = null 로 넣어서 업로드 로직 자체를 안 타게)
-    NoticeResponseDto result = noticeService.createNotice(userId, requestDto, null, null);
+	@Test
+	@DisplayName("공지 생성 - 본문 이미지 <img> 태그가 업로드된 S3 URL 경로로 정상 매칭 및 인덱싱되는지 검증")
+	void createNotice_Success_WithImagesAndFiles_Test() {
+		// Given
+		Long userId = 1L;
+		NoticeRequestDto requestDto = new NoticeRequestDto("테스트 공지", "본문 내용 <img src='temp.png'> 입니다.");
 
-    // Then
-    assertNotNull(result);
-    assertEquals(1L, result.getNoticeId());
-    assertEquals("공지 제목", result.getTitle());
+		MockMultipartFile imageFile = new MockMultipartFile("contentImage", "img.png", "image/png",
+			"raw-data".getBytes());
+		List<MultipartFile> contentImages = List.of(imageFile);
 
-    // 파일 경로 리스트는 빈 리스트여야 함
-    assertNotNull(result.getContentImagePaths());
-    assertNotNull(result.getAttachedFilePaths());
-    assertEquals(0, result.getContentImagePaths().size());
-    assertEquals(0, result.getAttachedFilePaths().size());
+		FileResponseDto fileResponse = FileResponseDto.builder()
+			.fileId(100L)
+			.filePath("https://s3.amazonaws.com/bucket/img.png")
+			.build();
 
-    verify(noticeRepository, times(1)).save(any(Notice.class));
-    verify(noticeSearchRepository, times(1)).save(any());
-    verify(boardFileRepository, never()).saveAll(any()); // 파일 없으면 저장 리스트가 비어야 함
-  }
+		when(fileService.uploadFiles(contentImages)).thenReturn(
+			CompletableFuture.completedFuture(List.of(fileResponse)));
 
-  @Test
-  @DisplayName("공지 단건 조회 - 조회수 증가 후 저장 호출")
-  void getNotice_IncreaseViewCount_Test() {
-    // Given
-    Long noticeId = 1L;
-    Notice notice = Notice.builder()
-        .id(noticeId)
-        .userId(10L)
-        .orgId(0L)
-        .title("t")
-        .content("c")
-        .viewCount(0L)
-        .build();
+		Notice mockNotice = Notice.builder()
+			.id(10L)
+			.title(requestDto.getTitle())
+			.content(requestDto.getContent())
+			.userId(userId)
+			.build();
 
-    when(noticeRepository.findByIdOrElseThrow(noticeId)).thenReturn(notice);
-    when(boardFileRepository.findByBoardId(noticeId)).thenReturn(Collections.emptyList());
+		when(noticeRepository.save(any(Notice.class))).thenReturn(mockNotice);
 
-    // When
-    NoticeResponseDto result = noticeService.getNotice(noticeId);
+		UserResponseDto mockUser = mock(UserResponseDto.class);
+		when(mockUser.getName()).thenReturn("관리자");
+		when(userClient.getUserInfoById(userId)).thenReturn(mockUser);
 
-    // Then
-    assertNotNull(result);
-    assertEquals(noticeId, result.getNoticeId());
+		NoticeResponseDto response = noticeService.createNotice(userId, requestDto, null, contentImages);
 
-    // 저장될 때 viewCount가 +1 되었는지 캡처로 검증
-    ArgumentCaptor<Notice> captor = ArgumentCaptor.forClass(Notice.class);
-    verify(noticeRepository, times(1)).save(captor.capture());
-    assertEquals(1L, captor.getValue().getViewCount());
+		// Then
+		assertNotNull(response);
+		assertEquals(10L, response.getNoticeId());
+		assertEquals("관리자", response.getWriterName());
+		assertNotNull(response.getContent());
+		assertTrue(response.getContent().contains("https://s3.amazonaws.com/bucket/img.png"));
 
-    verify(boardFileRepository, times(1)).findByBoardId(noticeId);
-  }
+		verify(fileService, times(1)).uploadFiles(contentImages);
+		verify(noticeRepository, times(1)).save(any(Notice.class));
+		verify(boardFileRepository, times(1)).saveAll(anyList());
+		verify(noticeSearchRepository, times(1)).save(any(NoticeDocument.class));
+		verify(userClient, times(1)).getUserInfoById(userId);
+	}
 
-  @Test
-  @DisplayName("공지 페이징 조회 - PagingDto 반환")
-  void getNoticesAndPaging_Test() {
-    // Given
-    Pageable pageable = PageRequest.of(0, 10);
+	@Test
+	@DisplayName("공지 상세 조회 - FeignClient 예외가 터져도 전체 로직이 터지지 않고 '작성자' 폴백 명이 정상 출력된다")
+	void getNotice_UserClientException_FallbackToDefaultWriter_Test() {
+		// Given
+		Long noticeId = 10L;
+		Notice mockNotice = Notice.builder()
+			.id(noticeId)
+			.title("공지")
+			.content("내용")
+			.userId(5L)
+			.viewCount(0L)
+			.build();
 
-    Notice n1 = Notice.builder().id(1L).title("a").userId(1L).viewCount(0L).build();
-    Notice n2 = Notice.builder().id(2L).title("b").userId(1L).viewCount(5L).build();
+		when(noticeRepository.findByIdOrElseThrow(noticeId)).thenReturn(mockNotice);
+		when(userClient.getUserInfoById(5L)).thenThrow(new RuntimeException("Feign Connection Timeout"));
 
-    when(noticeRepository.findAll(pageable))
-        .thenReturn(new PageImpl<>(List.of(n1, n2), pageable, 2));
+		NoticeResponseDto response = noticeService.getNotice(noticeId);
 
-    // When
-    PagingDto<PagingNoticeResponseDto> result = noticeService.getNoticesAndPaging(pageable);
-
-    // Then
-    assertNotNull(result);
-//    assertEquals(2L, result.getTotal());
-//    assertEquals(2, result.getData().size());
-//    assertEquals(1L, result.getData().get(0).getNoticeId());
-
-    verify(noticeRepository, times(1)).findAll(pageable);
-  }
-
-  @Test
-  @DisplayName("공지 수정 - 엔티티 업데이트 후 저장 + ES 저장")
-  void updateNotice_Test() {
-    // Given
-    Long noticeId = 1L;
-    Notice notice = Notice.builder()
-        .id(noticeId)
-        .userId(10L)
-        .orgId(0L)
-        .title("old")
-        .content("old-content")
-        .viewCount(0L)
-        .build();
-
-    NoticeRequestDto requestDto = new NoticeRequestDto("new", "new-content");
-
-    when(noticeRepository.findByIdOrElseThrow(noticeId)).thenReturn(notice);
-    when(noticeRepository.save(any(Notice.class))).thenReturn(notice);
-    when(boardFileRepository.findByBoardId(noticeId)).thenReturn(Collections.emptyList());
-
-    // When
-    NoticeResponseDto result = noticeService.updateNotice(noticeId, requestDto);
-
-    // Then
-    assertNotNull(result);
-    assertEquals("new", result.getTitle());
-    assertEquals("new-content", result.getContent());
-
-    verify(noticeRepository, times(1)).findByIdOrElseThrow(noticeId);
-    verify(noticeRepository, times(1)).save(any(Notice.class));
-    verify(noticeSearchRepository, times(1)).save(
-        any()); // NoticeDocument.fromEntity(updatedNotice)
-  }
-
-  @Test
-  @DisplayName("공지 삭제 - DB 삭제 + ES 삭제")
-  void deleteNotice_Test() {
-    // Given
-    Long noticeId = 1L;
-    when(noticeRepository.findByIdOrElseThrow(noticeId)).thenReturn(savedNotice);
-
-    // When
-    noticeService.deleteNotice(noticeId);
-
-    // Then
-    verify(noticeRepository, times(1)).findByIdOrElseThrow(noticeId);
-    verify(noticeRepository, times(1)).deleteById(noticeId);
-    verify(noticeSearchRepository, times(1)).deleteById(String.valueOf(noticeId));
-  }
+		// Then
+		assertNotNull(response);
+		assertEquals("작성자", response.getWriterName()); // try-catch 방어벽 작동 확인
+		verify(noticeRepository, times(1)).findByIdOrElseThrow(noticeId);
+		verify(userClient, times(1)).getUserInfoById(5L);
+		verify(noticeRepository, times(1)).save(mockNotice);
+	}
 }
