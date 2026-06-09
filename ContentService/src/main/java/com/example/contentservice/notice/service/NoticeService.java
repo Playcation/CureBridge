@@ -17,7 +17,7 @@ public interface NoticeService {
 
   PagingDto<PagingNoticeResponseDto> getNoticesAndPaging(Pageable pageable);
 
-  NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto dto);
+	NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto dto, List<MultipartFile> attachedFiles);
 
   void deleteNotice(Long noticeId);
 }
