@@ -189,38 +189,60 @@ public class NoticeServiceImpl implements NoticeService {
     return new PagingDto<>(noticeDtoList, noticePage.getTotalElements());
   }
 
-  @Override
-  @Transactional
-  public NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto requestDto) {
-    Notice notice = noticeRepository.findByIdOrElseThrow(noticeId);
-    notice.update(requestDto.getTitle(), requestDto.getContent());
-    Notice updatedNotice = noticeRepository.save(notice);
-    noticeSearchRepository.save(
-        NoticeDocument.fromEntity(updatedNotice)
-    );
-    List<BoardFile> boardFiles = boardFileRepository.findByBoardId(noticeId);
-    List<String> contentImagePaths = boardFiles.stream()
-        .filter(boardFile -> boardFile.getFileType() == BoardFileType.CONTENT_IMAGE_FILE)
-        .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
-            .getFilePath())
-        .toList();
-    List<String> attachedFilePaths = boardFiles.stream()
-        .filter(boardFile -> boardFile.getFileType() == BoardFileType.ATTACHED_FILE)
-        .map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
-            .getFilePath())
-        .toList();
+	@Override
+	@Transactional
+	public NoticeResponseDto updateNotice(Long noticeId, NoticeRequestDto requestDto,
+		List<MultipartFile> attachedFiles) {
+		Notice notice = noticeRepository.findByIdOrElseThrow(noticeId);
+		notice.update(requestDto.getTitle(), requestDto.getContent());
+		Notice updatedNotice = noticeRepository.save(notice);
+		noticeSearchRepository.save(
+			NoticeDocument.fromEntity(updatedNotice)
+		);
+		if (attachedFiles != null && !attachedFiles.isEmpty()) {
 
-    String writerName;
-    try {
-      UserResponseDto userInfo = userClient.getUserInfoById(updatedNotice.getUserId());
-      writerName = userInfo.getName();
-    } catch (Exception e) {
-      log.warn("공지 수정 후 작성자 이름 조회 실패. userId={}", updatedNotice.getUserId(), e);
-      writerName = "작성자";
-    }
+			// A. 기존에 이 공지사항(boardId)에 엮여있던 첨부파일(ATTACHED_FILE) 매핑 데이터들만 선별해서 DB에서 삭제
+			boardFileRepository.deleteByBoardIdAndFileType(noticeId, BoardFileType.ATTACHED_FILE);
 
-    return NoticeResponseDto.toDto(updatedNotice, writerName, contentImagePaths, attachedFilePaths);
-  }
+			// B. 새로운 첨부파일 S3 업로드 실행 (createNotice 로직과 동일 사양)
+			List<FileResponseDto> uploadedFiles = fileService.uploadFiles(attachedFiles).join();
+
+			// C. 새로운 S3 파일 상세 ID 정보로 BoardFile 매핑 엔티티 생성
+			List<BoardFile> newAttachmentFiles = uploadedFiles.stream()
+				.map(file -> BoardFile.builder()
+					.boardId(updatedNotice.getId())
+					.fileDetailId(file.getFileId())
+					.fileType(BoardFileType.ATTACHED_FILE) // 첨부파일 타입
+					.build())
+				.toList();
+
+			// D. 새 매핑 이력 일괄 저장
+			boardFileRepository.saveAll(newAttachmentFiles);
+			log.info("공지사항 ID: {} - 첨부파일 {}개로 교체 완료", noticeId, newAttachmentFiles.size());
+		}
+		List<BoardFile> boardFiles = boardFileRepository.findByBoardId(noticeId);
+		List<String> contentImagePaths = boardFiles.stream()
+			.filter(boardFile -> boardFile.getFileType() == BoardFileType.CONTENT_IMAGE_FILE)
+			.map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
+				.getFilePath())
+			.toList();
+		List<String> attachedFilePaths = boardFiles.stream()
+			.filter(boardFile -> boardFile.getFileType() == BoardFileType.ATTACHED_FILE)
+			.map(boardFile -> fileRepository.findByIdOrElseThrow(boardFile.getFileDetailId())
+				.getFilePath())
+			.toList();
+
+		String writerName;
+		try {
+			UserResponseDto userInfo = userClient.getUserInfoById(updatedNotice.getUserId());
+			writerName = userInfo.getName();
+		} catch (Exception e) {
+			log.warn("공지 수정 후 작성자 이름 조회 실패. userId={}", updatedNotice.getUserId(), e);
+			writerName = "작성자";
+		}
+
+		return NoticeResponseDto.toDto(updatedNotice, writerName, contentImagePaths, attachedFilePaths);
+	}
 
   @Override
   @Transactional

@@ -67,15 +67,21 @@ public class NoticeController {
     return new ResponseEntity<>(notices, HttpStatus.OK);
   }
 
-  // 게시물 수정
-  @PatchMapping("/{noticeId}")
-  public ResponseEntity<NoticeResponseDto> updateNotice(@PathVariable Long noticeId,
-      @RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
-      @RequestPart(value = "json") NoticeRequestDto requestDto) {
-    jwtParser.checkAdmin(authorizationHeader);
-    NoticeResponseDto responseDto = noticeService.updateNotice(noticeId, requestDto);
-    return new ResponseEntity<>(responseDto, HttpStatus.OK);
-  }
+	// 게시물 수정
+	@PatchMapping("/{noticeId}")
+	public ResponseEntity<NoticeResponseDto> updateNotice(
+		@PathVariable Long noticeId,
+		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
+		@RequestPart(value = "json") NoticeRequestDto requestDto,
+		@RequestPart(value = "attachedFile", required = false) List<MultipartFile> attachedFiles) { // 👈 추가!
+
+		jwtParser.checkAdmin(authorizationHeader);
+
+		// 서비스 메서드 호출 시 attachedFiles를 함께 넘겨줍니다.
+		NoticeResponseDto responseDto = noticeService.updateNotice(noticeId, requestDto, attachedFiles);
+
+		return new ResponseEntity<>(responseDto, HttpStatus.OK);
+	}
 
   // 게시물 삭제
   @DeleteMapping("/{noticeId}")
