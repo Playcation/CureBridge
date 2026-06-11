@@ -33,4 +33,10 @@ public class UserDetailsImpl implements UserDetails {
 	public String getUsername() {
 		return this.username;
 	}
+
+	@Override
+	public boolean isEnabled() {
+		// 탈퇴한 유저인지 체크
+		return user.getDeletedAt() == null;
+	}
 }

@@ -16,9 +16,12 @@ import com.example.memberservice.dto.MessageResponseDto;
 import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.commonmodule.dto.UserResponseDto;
+import com.example.memberservice.dto.UpdateUserRequestDto;
+import com.example.memberservice.dto.UpdateUserResponseDto;
 import com.example.memberservice.entity.Role;
 import com.example.memberservice.entity.User;
 import com.example.memberservice.repository.UserRepository;
+import com.example.memberservice.security.UserDetailsServiceImpl;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -32,9 +35,9 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder bCryptPasswordEncoder;
 	private final FileService fileService;
+	private final UserDetailsServiceImpl userDetailsServiceImpl;
 
 	// 회원가입
-	// TODO: Util에 메시지만 전달하는 ResponseDto 추가?
 	@Transactional
 	public MessageResponseDto signUp(MultipartFile file, SignUpRequestDto dto) {
 
@@ -78,17 +81,15 @@ public class UserService {
 	}
 
 	// TODO: 회원 정보 수정
-	// 	기존에는 Patient 의 병명만 수정 -> 변경된 기능에 맞게 로직 변경 필요
-	/*public UpdateUserResponseDto updateUser(Long userId, UpdateUserRequestDto dto) {
+	//		이름, 생일, 전화번호
+	@Transactional
+	public MessageResponseDto updateUser(Long userId, UpdateUserRequestDto dto) {
+		User findUser = userRepository.findByIdOrElseThrow(userId);
 
-		if (dto.getSick().isEmpty()) {
-			throw new InvalidInputException(UserErrorCode.EMPTY_INPUT_FIELDS);
-		}
-		Patient findPatient = patientRepository.findPatientByUserId(userId);
-		findPatient.updatePatient(dto.getSick());
-
-		return new UpdateUserResponseDto("회원 정보 수정이 완료되었습니다.", dto.getSick());
-	}*/
+		findUser.updateUser(dto.getName(), dto.getPhoneNumber(), dto.getBirth());
+		userRepository.save(findUser);
+		return new MessageResponseDto("변경 사항이 저장되었습니다.");
+	}
 
 	// 비밀번호 변경
 	public MessageResponseDto updatePassword(Long userId, PwUpdateRequestDto dto) {
@@ -111,7 +112,9 @@ public class UserService {
 		return userRepository.findByIdOrElseThrow(id);
 	}
 
-	// TODO: 유저 삭제 절차 결정, 현재는 deletedAt 만 설정중.
+	// TODO: 유저 삭제 기능
+	//		탈퇴한 유저가 로그인 되는 문제 해결
+	//		30일 후 완전 탈퇴 <- 제거
 	public MessageResponseDto deleteUser(Long userId) {
 		User findUser = userRepository.findByIdOrElseThrow(userId);
 		findUser.delete();

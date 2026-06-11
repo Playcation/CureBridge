@@ -4,6 +4,7 @@ import com.example.commonmodule.utils.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -24,6 +25,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
   @Override
   public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+
     UserTypeAuthenticationToken token = (UserTypeAuthenticationToken) authentication;
 
     String email = (String) token.getPrincipal();
@@ -53,6 +55,10 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
       }
     } catch (UsernameNotFoundException e) {
       throw new BadCredentialsException("계정을 찾을 수 없습니다.", e);
+    }
+
+    if (!userDetails.isEnabled()) {
+      throw new DisabledException("탈퇴한 계정입니다.");
     }
 
     if (!passwordEncoder.matches(password, userDetails.getPassword())) {

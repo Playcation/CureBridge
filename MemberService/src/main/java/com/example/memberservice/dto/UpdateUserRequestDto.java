@@ -10,5 +10,5 @@ public class UpdateUserRequestDto {
 
   private Date birth;
 
-  private String password;
+  private String name;
 }
