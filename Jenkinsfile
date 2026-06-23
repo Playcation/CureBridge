@@ -14,7 +14,7 @@ pipeline {
                 // 아까 테스트 커넥션 성공했던 매니저 노드로 원격 접속합니다.
                 sshPublisher(publishers: [
                     sshPublisherDetail(
-                        configName: 'aws-swarm-manager', // 우리가 시스템 설정에 적은 이름
+                        configName: 'curebridge-swarm-manager',
                         transfers: [
                             sshTransfer(
                                 cleanRemote: false,
