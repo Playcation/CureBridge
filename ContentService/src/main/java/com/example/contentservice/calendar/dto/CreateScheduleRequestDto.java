@@ -8,6 +8,7 @@ import lombok.Getter;
 
 @Getter
 public class CreateScheduleRequestDto {
+
 	private LocalDate date;
 
 	@NotBlank(message = "제목을 비워둘 수 없습니다.")
@@ -16,4 +17,8 @@ public class CreateScheduleRequestDto {
 
 	@NotBlank(message = "내용을 비워둘 수 없습니다.")
 	private String content;
+
+	public LocalDate getDate() {
+		return this.date != null ? this.date : LocalDate.now();
+	}
 }

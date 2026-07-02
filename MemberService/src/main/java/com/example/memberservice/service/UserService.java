@@ -100,6 +100,7 @@ public class UserService {
 			}
 			String newPassword = bCryptPasswordEncoder.encode(dto.getNewPassword());
 			findUser.updatePassword(newPassword);
+			userRepository.save(findUser);
 			return new MessageResponseDto("비밀번호가 변경되었습니다.");
 		} else {
 			throw new NoAuthorizedException(UserErrorCode.NO_AUTHORIZED_PASSWORD);

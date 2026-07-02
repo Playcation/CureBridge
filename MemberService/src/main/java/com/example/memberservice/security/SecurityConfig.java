@@ -57,6 +57,22 @@ public class SecurityConfig extends AbstractSecurityConfig {
   }
 
   @Bean
+  public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+    org.springframework.web.cors.CorsConfiguration config = new org.springframework.web.cors.CorsConfiguration();
+
+    // 게이트웨이(8080)와 프론트엔드(3000) 모두 허용
+    config.setAllowedOrigins(java.util.Arrays.asList("http://localhost:3000", "http://localhost:8080"));
+    // PATCH를 포함한 모든 메서드 허용
+    config.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    config.setAllowedHeaders(java.util.Arrays.asList("*"));
+    config.setAllowCredentials(true);
+
+    org.springframework.web.cors.UrlBasedCorsConfigurationSource source = new org.springframework.web.cors.UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
+  }
+
+  @Bean
   public SecurityFilterChain filterChain(HttpSecurity http,
       AuthenticationConfiguration authenticationConfiguration)
       throws Exception {
@@ -69,6 +85,8 @@ public class SecurityConfig extends AbstractSecurityConfig {
 
     CustomLoginFilter loginFilter = new CustomLoginFilter(am, jwtIssuer);
     CustomLogoutFilter logoutFilter = new CustomLogoutFilter(jwtIssuer, jwtParser);
+
+    http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
     http.addFilterBefore(new JwtAuthFilter(jwtIssuer, jwtParser),
         UsernamePasswordAuthenticationFilter.class);
