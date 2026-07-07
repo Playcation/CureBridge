@@ -4,34 +4,40 @@ pipeline {
     stages {
         stage('1. Code Checkout') {
             steps {
-                // 깃허브에서 최신 소스코드를 다운로드합니다.
+                // 젠킨스가 스크립트를 읽기 위해 깃에서 가져옵니다.
                 checkout scm
             }
         }
 
-        stage('2. Build & Deploy via SSH to Swarm') {
+        stage('2. Deploy via SSH to Swarm') {
             steps {
-                // 문법 오류를 해결한 안전한 SSH 전송 명령어
                 sshPublisher(publishers: [
                     sshPublisherDesc(
-                        configName: 'curebridge-swarm-manager', // 하빈님의 실제 시스템 설정 이름
+                        configName: 'curebridge-swarm-manager',
                         verbose: true,
                         transfers: [
                             sshTransfer(
                                 execCommand: '''
-                                    # [AWS EC2 내부에서 실행될 명령어 라인]
-                                    cd /home/ubuntu/CureBridge
+                                    set -e
+                                    cd ~/curebridge
 
-                                    # 1. 최신 코드 깃 풀 당기기 (현재 작업 중인 develophb 브랜치로 pull 하려면 origin develophb로 변경 가능)
-                                    git pull origin develophb
+                                    # [1] 만약 환경변수 파일들이 매번 동적으로 바뀌어야 한다면 서버에 생성해 줍니다.
+                                    # (이미 서버에 고정되어 있다면 이 단계는 패스해도 됩니다)
+                                    # echo "${GATEWAY_ENV}" > gateway.env
+                                    # echo "${CONTENT_ENV}" > content.env
 
-                                    # 2. MSA 개별 서비스 빌드 및 이미지 빌드 슛!
-                                    docker compose -f docker-stack.yml build
+                                    # [2] GitHub Actions가 올려둔 최신 이미지 Docker Hub에서 강제로 새로 땡겨오기
+                                    # (username 부분은 본인의 도커 허브 ID로 채워주세요)
+                                    docker pull 도커허브_ID/curebridge-gateway:latest
+                                    docker pull 도커허브_ID/curebridge-content:latest
+                                    docker pull 도커허브_ID/curebridge-chat:latest
+                                    docker pull 도커허브_ID/curebridge-member:latest
+                                    docker pull 도커허브_ID/curebridge-app:latest
 
-                                    # 3. 도커 스웜 스택 업데이트 실행
-                                    docker stack deploy -c docker-stack.yml curebridge
+                                    # [3] 도커 스웜 스택 업데이트 (GitHub Actions와 동일한 명령어)
+                                    docker stack deploy -c docker-stack.yml curebridge --with-registry-auth
 
-                                    # 4. 유령 찌꺼기 이미지 청소
+                                    # [4] 사용하지 않는 유령 이미지 정리
                                     docker system prune -f
                                 ''',
                                 execTimeout: 120000
