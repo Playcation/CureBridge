@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/calendar")
+@RequestMapping("/user/calendar")
 @RequiredArgsConstructor
 public class CalendarController {
 
