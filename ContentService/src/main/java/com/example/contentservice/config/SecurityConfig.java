@@ -40,7 +40,7 @@ public class SecurityConfig extends AbstractSecurityConfig {
     CorsConfiguration config = new CorsConfiguration();
 
     // 게이트웨이(8080)와 프론트엔드(3000) 모두 허용
-    config.setAllowedOrigins(java.util.Arrays.asList("http://localhost:3000", "http://localhost:8080"));
+    config.setAllowedOrigins(java.util.Arrays.asList("http://localhost:3000", "http://localhost:8080", "https://www.curebridge.site"));
     // PATCH를 포함한 모든 메서드 허용
     config.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(java.util.Arrays.asList("*"));
