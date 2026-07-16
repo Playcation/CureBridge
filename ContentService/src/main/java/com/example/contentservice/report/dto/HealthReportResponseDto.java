@@ -2,16 +2,19 @@ package com.example.contentservice.report.dto;
 
 import com.example.contentservice.ocr.dto.OcrResponseDto;
 import com.example.contentservice.report.entity.HealthReport;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class HealthReportResponseDto {
+public class HealthReportResponseDto implements Serializable {
 
   private String id;
 

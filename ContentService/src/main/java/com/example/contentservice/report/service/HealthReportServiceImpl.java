@@ -5,6 +5,7 @@ import com.example.contentservice.ocr.entity.OcrEntity;
 import com.example.contentservice.ocr.service.OcrService;
 import com.example.contentservice.report.dto.CreateHealthReportRequestDto;
 import com.example.contentservice.report.dto.DeleteHealthReportRequestDto;
+import com.example.contentservice.report.dto.HealthReportListResponseDto;
 import com.example.contentservice.report.dto.HealthReportResponseDto;
 import com.example.contentservice.report.dto.UpdateHealthReportRequestDto;
 import com.example.contentservice.report.entity.HealthReport;
@@ -14,11 +15,17 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -26,12 +33,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HealthReportServiceImpl implements HealthReportService {
 
   private final HealthReportRepository healthReportRepository;
   private final OcrService ocrService;
+  private final RedisTemplate<String, Object> redisTemplate;
 
   @Value("${openai.api-key}")
   private String apiKey;
@@ -40,6 +49,7 @@ public class HealthReportServiceImpl implements HealthReportService {
   private String aiModel;
 
   @Override
+  @CacheEvict(value = "healthReport", key = "#userId", cacheManager = "healthReportCacheManager")
   public HealthReportResponseDto createHealthReport(Long userId,
       CreateHealthReportRequestDto createHealthReportRequestDto) {
 
@@ -83,10 +93,11 @@ public class HealthReportServiceImpl implements HealthReportService {
   }
 
   @Override
-  public List<HealthReportResponseDto> getHealthReport(Long userId) {
+  @Cacheable(value = "healthReport", key = "#userId", cacheManager = "healthReportCacheManager")
+  public HealthReportListResponseDto getHealthReport(Long userId) {
     List<HealthReport> healthReportList = healthReportRepository.findByUserId(userId);
     List<OcrResponseDto> ocrResultList = ocrService.getOcrResult(userId);
-    return healthReportList.stream().map((report) -> {
+    List<HealthReportResponseDto> healthReportResponseDtoList = healthReportList.stream().map((report) -> {
               List<OcrResponseDto> ocrResults = ocrResultList.stream().filter((ocrResult) -> {
                         if (ocrResult.getReportDate().getYear() == report.getReportDate().getYear()) {
                           if (ocrResult.getReportDate().getMonth() == report.getReportDate().getMonth()) {
@@ -102,9 +113,12 @@ public class HealthReportServiceImpl implements HealthReportService {
             }
         )
         .toList();
+
+    return new HealthReportListResponseDto(healthReportResponseDtoList);
   }
 
   @Override
+  @Cacheable(value = "healthReportDetail", key = "#id", cacheManager = "healthReportCacheManager")
   public HealthReportResponseDto getHealthReportDetail(String id) {
     HealthReport healthReport = healthReportRepository.findByIdOrElseThrow(id);
     List<OcrEntity> ocrEntityList = ocrService.findOcrEntity(
@@ -117,6 +131,10 @@ public class HealthReportServiceImpl implements HealthReportService {
   }
 
   @Override
+  @Caching(evict = {
+      @CacheEvict(value = "healthReport", allEntries = true, cacheManager = "healthReportCacheManager"),
+      @CacheEvict(value = "healthReportDetail", key = "#id", cacheManager = "healthReportCacheManager")
+  })
   public HealthReportResponseDto updateHealthReport(String id,
       UpdateHealthReportRequestDto updateHealthReportRequestDto) {
     HealthReport healthReport = healthReportRepository.findByIdOrElseThrow(id);
@@ -134,6 +152,10 @@ public class HealthReportServiceImpl implements HealthReportService {
   }
 
   @Override
+  @Caching(evict = {
+      @CacheEvict(value = "healthReport", allEntries = true, cacheManager = "healthReportCacheManager"),
+      @CacheEvict(value = "healthReportDetail", key = "#id", cacheManager = "healthReportCacheManager")
+  })
   public String deleteHealthReport(String id,
       DeleteHealthReportRequestDto deleteHealthReportRequestDto) {
     healthReportRepository.deleteByIdOrElseThrow(id);
@@ -177,7 +199,23 @@ public class HealthReportServiceImpl implements HealthReportService {
 
       healthReportRepository.save(healthReport);
     }
+
+    // 스케줄러 완료 후 healthReport 캐시 전체 무효화
+    evictHealthReportCache();
+
     return "스케줄링 완성";
+  }
+
+  private void evictHealthReportCache() {
+    try {
+      Set<String> keys = redisTemplate.keys("healthReport::*");
+      if (keys != null && !keys.isEmpty()) {
+        redisTemplate.delete(keys);
+        log.info("healthReport 캐시 {}건 삭제 완료", keys.size());
+      }
+    } catch (Exception e) {
+      log.warn("healthReport 캐시 삭제 중 오류 발생", e);
+    }
   }
 
   private String buildPrompt(List<OcrEntity> ocrEntities, int year, int month) {

@@ -96,6 +96,7 @@ public class GatewaySecurityConfig {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowedOrigins(List.of(
         "http://localhost:3000",
+        "http://localhost:8080",
         "http://www.curebridge.site",
         "http://curebridge.site"
     ));

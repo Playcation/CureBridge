@@ -1,16 +1,19 @@
 package com.example.contentservice.ocr.dto;
 
 import com.example.contentservice.ocr.entity.OcrEntity;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
-public class OcrResponseDto {
+public class OcrResponseDto implements Serializable {
 
   private String reportId;
 

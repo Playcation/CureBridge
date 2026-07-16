@@ -21,6 +21,7 @@ import com.example.contentservice.ocr.entity.OcrEntity;
 import com.example.contentservice.ocr.service.OcrService;
 import com.example.contentservice.report.dto.CreateHealthReportRequestDto;
 import com.example.contentservice.report.dto.DeleteHealthReportRequestDto;
+import com.example.contentservice.report.dto.HealthReportListResponseDto;
 import com.example.contentservice.report.dto.HealthReportResponseDto;
 import com.example.contentservice.report.dto.UpdateHealthReportRequestDto;
 import com.example.contentservice.report.entity.HealthReport;
@@ -179,11 +180,11 @@ class HealthReportServiceImplTest {
     when(ocrService.getOcrResult(1L)).thenReturn(List.of(matchingOcr, nonMatchingOcr));
 
     // When
-    List<HealthReportResponseDto> results = healthReportService.getHealthReport(1L);
+    HealthReportListResponseDto results = healthReportService.getHealthReport(1L);
 
     // Then
-    assertEquals(1, results.size());
-    assertEquals(report.getReportDate(), results.get(0).getReportDate());
+    assertEquals(1, results.getReports().size());
+    assertEquals(report.getReportDate(), results.getReports().get(0).getReportDate());
   }
 
   @Test
