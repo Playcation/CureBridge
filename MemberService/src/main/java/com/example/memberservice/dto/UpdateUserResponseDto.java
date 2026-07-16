@@ -5,10 +5,7 @@ import lombok.Getter;
 @Getter
 public class UpdateUserResponseDto extends MessageResponseDto {
 
-	private final String sick;
-
-	public UpdateUserResponseDto(String message, String sick) {
+	public UpdateUserResponseDto(String message) {
 		super(message);
-		this.sick = sick;
 	}
 }

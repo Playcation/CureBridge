@@ -53,7 +53,6 @@ public class User extends BaseEntityDeletedAt {
     this.organizationId = null;
   }
 
-  // TODO: sick 부분 기본값 정하기
   public UserResponseDto toDto() {
     return new UserResponseDto(
         this.id,
@@ -67,8 +66,18 @@ public class User extends BaseEntityDeletedAt {
     );
   }
 
+  /**
+   * 비밀번호 업데이트
+   * @param encodedPassword {@link org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder} 사용한 새 비밀번호
+   */
   public void updatePassword(String encodedPassword) {
     this.password = encodedPassword;
+  }
+
+  public void updateUser(String name, String phoneNumber, Date birth) {
+    this.name = name;
+    this.phoneNumber = phoneNumber;
+    this.birth = birth;
   }
 
   public void registrationOrg(Long organizationId) {

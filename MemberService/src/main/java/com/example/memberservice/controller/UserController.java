@@ -25,6 +25,7 @@ import com.example.memberservice.dto.PwUpdateRequestDto;
 import com.example.memberservice.dto.SignUpRequestDto;
 import com.example.commonmodule.dto.UserResponseDto;
 import com.example.commonmodule.config.TokenSettings;
+import com.example.memberservice.dto.UpdateUserRequestDto;
 import com.example.memberservice.service.UserService;
 
 import jakarta.validation.Valid;
@@ -71,8 +72,6 @@ public class UserController {
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
 	}
 
-	// TODO: 전체 정보를 포함하는 요청과 공개 정보만 포함하는 요청을 따로 둘까요?
-
 	/**
 	 * param 의 id에 해당하는 유저의 정보 조회
 	 *
@@ -104,6 +103,17 @@ public class UserController {
 	) {
 		Long userId = jwtParser.findUserByToken(authorizationHeader);
 		MessageResponseDto messageResponseDto = userService.updatePassword(userId, dto);
+
+		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
+	}
+
+	@PatchMapping("/update")
+	public ResponseEntity<?> updateUser(
+		@RequestHeader(TokenSettings.ACCESS_TOKEN_CATEGORY) String authorizationHeader,
+		@RequestBody UpdateUserRequestDto dto
+	) {
+		Long userId= jwtParser.findUserByToken(authorizationHeader);
+		MessageResponseDto messageResponseDto = userService.updateUser(userId, dto);
 
 		return new ResponseEntity<>(messageResponseDto, HttpStatus.OK);
 	}
